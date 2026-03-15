@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architect Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.5; padding: 24px; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 24px; color: #f0f6fc; }
+  h2 { font-size: 16px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin: 32px 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
+  .card-title { font-size: 14px; font-weight: 600; color: #f0f6fc; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .status { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .status.ok { background: #3fb950; }
+  .status.warn { background: #d29922; }
+  .status.fail { background: #f85149; }
+  .status.unknown { background: #484f58; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: #8b949e; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #21262d; }
+  td { padding: 6px 8px; border-bottom: 1px solid #21262d; }
+  .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: #79c0ff; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+  .tag.green { background: #238636; color: #fff; }
+  .tag.yellow { background: #9e6a03; color: #fff; }
+  .tag.red { background: #da3633; color: #fff; }
+  .tag.gray { background: #30363d; color: #8b949e; }
+  .time { color: #8b949e; font-size: 12px; }
+  .diagram { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 20px; font-family: 'SF Mono', monospace; font-size: 12px; line-height: 1.8; white-space: pre; overflow-x: auto; }
+  #refresh-btn { background: #238636; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; float: right; }
+  #refresh-btn:hover { background: #2ea043; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  #last-check { color: #8b949e; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Architect Dashboard</h1>
+  <div>
+    <span id="last-check"></span>
+    <button id="refresh-btn" onclick="checkHealth()">Refresh</button>
+  </div>
+</div>
+
+<h2>Services</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title"><span class="status unknown" id="sami-status"></span> SAMI Community Bot</div>
+    <table>
+      <tr><th>URL</th><td class="mono">courageous-happiness-production.up.railway.app</td></tr>
+      <tr><th>Version</th><td id="sami-version">—</td></tr>
+      <tr><th>Uptime</th><td id="sami-uptime">—</td></tr>
+      <tr><th>Platform</th><td>Railway (auto-deploy from main)</td></tr>
+      <tr><th>Stack</th><td>Node.js 22, grammY, SQLite, yt-dlp</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="status unknown" id="hunter-status"></span> Hunter Job Bot</div>
+    <table>
+      <tr><th>URL</th><td class="mono">hunter-production-0b65.up.railway.app</td></tr>
+      <tr><th>Version</th><td id="hunter-version">—</td></tr>
+      <tr><th>Platform</th><td>Railway (auto-deploy from main)</td></tr>
+      <tr><th>Stack</th><td>Node.js 22, grammY, SQLite, cheerio</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="status unknown" id="portfolio-status"></span> Portfolio</div>
+    <table>
+      <tr><th>URL</th><td class="mono">diyor.design</td></tr>
+      <tr><th>Platform</th><td>GitHub Pages</td></tr>
+      <tr><th>Stack</th><td>Static HTML/CSS/JS</td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>Agents</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Scheduled Agents</div>
+    <table>
+      <tr><th>Agent</th><th>Schedule</th><th>Platform</th></tr>
+      <tr><td>SAMI Strategist</td><td class="mono">09:30 MSK daily</td><td><span class="tag green">launchd</span></td></tr>
+      <tr><td>Hunter Strategist</td><td class="mono">09:30 MSK daily</td><td><span class="tag green">launchd</span></td></tr>
+      <tr><td>Architect</td><td class="mono">Sun 10:00 MSK</td><td><span class="tag green">launchd</span></td></tr>
+      <tr><td>SAMI Backup</td><td class="mono">03:00 MSK daily</td><td><span class="tag gray">GH Actions</span></td></tr>
+      <tr><td>Hunter Backup</td><td class="mono">03:00 MSK daily</td><td><span class="tag gray">GH Actions</span></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Quality Gates</div>
+    <table>
+      <tr><th>Gate</th><th>SAMI</th><th>Hunter</th></tr>
+      <tr><td>Pre-commit (tsc)</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><td>CI (tsc + vitest)</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><td>Coverage thresholds</td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td></tr>
+      <tr><td>CodeRabbit PR review</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><td>Review → Backlog</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>GitHub Actions</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">SAMI Workflows</div>
+    <table>
+      <tr><th>Workflow</th><th>Trigger</th><th>Status</th></tr>
+      <tr><td>CI</td><td>push/PR</td><td><span class="tag green">active</span></td></tr>
+      <tr><td>Backup</td><td>daily 03:00</td><td><span class="tag green">active</span></td></tr>
+      <tr><td>CodeRabbit→Backlog</td><td>PR review</td><td><span class="tag green">active</span></td></tr>
+      <tr><td>Strategist</td><td>manual</td><td><span class="tag yellow">dormant</span></td></tr>
+      <tr><td>Implementor</td><td>manual</td><td><span class="tag yellow">dormant</span></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Hunter Workflows</div>
+    <table>
+      <tr><th>Workflow</th><th>Trigger</th><th>Status</th></tr>
+      <tr><td>CI</td><td>push/PR</td><td><span class="tag green">active</span></td></tr>
+      <tr><td>Backup</td><td>daily 03:00</td><td><span class="tag green">active</span></td></tr>
+      <tr><td>CodeRabbit→Backlog</td><td>PR review</td><td><span class="tag green">active</span></td></tr>
+      <tr><td>Strategist</td><td>daily 10:00</td><td><span class="tag green">active</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>External Services</h2>
+<div class="card">
+  <table>
+    <tr><th>Service</th><th>Used By</th><th>Auth</th><th>Status</th></tr>
+    <tr><td>Telegram Bot API</td><td>SAMI, Hunter, Architect</td><td>Bot tokens</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>YouTube Data API</td><td>SAMI</td><td>API key</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>Anthropic Claude API</td><td>Strategists, Architect</td><td>API key ($5 balance)</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>hh.ru API</td><td>Hunter</td><td>Public</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>Habr Career API</td><td>Hunter</td><td>Public</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>Railway</td><td>SAMI, Hunter</td><td>Auto-deploy</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>CodeRabbit</td><td>SAMI, Hunter</td><td>GitHub App</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>Google Calendar</td><td>Architect</td><td>OAuth (gcalcli)</td><td><span class="tag green">live</span></td></tr>
+  </table>
+</div>
+
+<h2>Architecture</h2>
+<div class="diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│                        Mac (launchd)                            │
+│                                                                 │
+│  09:30 MSK ─── SAMI Strategist ──┐                              │
+│  09:30 MSK ─── Hunter Strategist ├── claude --print ── Report   │
+│  Sun 10:00 ─── Architect ────────┘       │         ── Telegram  │
+│                                          │         ── Calendar  │
+│  Pre-commit ── tsc --noEmit              │                      │
+└──────────────────────────────────────────┼──────────────────────┘
+                                           │
+┌──────────────────────────────────────────┼──────────────────────┐
+│                    GitHub                 │                      │
+│                                          ▼                      │
+│  Push/PR ────── CI (tsc + vitest) ── pass/fail                  │
+│  PR ─────────── CodeRabbit ── review → backlog                  │
+│  Daily 03:00 ── Backup ── SQLite → artifacts                    │
+│  Manual ─────── Strategist (GH Actions) ── needs API key        │
+│  Manual ─────── Implementor ── auto-code tasks                  │
+└─────────────────────────────────────────────────────────────────┘
+                         │
+┌────────────────────────┼────────────────────────────────────────┐
+│                    Railway                                      │
+│                                                                 │
+│  SAMI Bot ──── :3000 ── /health, /report/*, /backup             │
+│  Hunter Bot ── :3000 ── /, /backup                              │
+│                                                                 │
+│  Auto-deploy from GitHub main                                   │
+└─────────────────────────────────────────────────────────────────┘
+</div>
+
+<script>
+async function checkHealth() {
+  document.getElementById('last-check').textContent = 'Checking... ' + new Date().toLocaleTimeString('ru');
+
+  // SAMI
+  try {
+    const r = await fetch('https://courageous-happiness-production.up.railway.app/health', { signal: AbortSignal.timeout(10000) });
+    const d = await r.json();
+    document.getElementById('sami-status').className = 'status ok';
+    document.getElementById('sami-version').textContent = d.version || '?';
+    document.getElementById('sami-uptime').textContent = d.uptime || '?';
+  } catch (e) {
+    document.getElementById('sami-status').className = 'status fail';
+    document.getElementById('sami-version').textContent = 'unreachable';
+  }
+
+  // Hunter
+  try {
+    const r = await fetch('https://hunter-production-0b65.up.railway.app/', { signal: AbortSignal.timeout(10000) });
+    const d = await r.json();
+    document.getElementById('hunter-status').className = 'status ok';
+    document.getElementById('hunter-version').textContent = d.version || '?';
+  } catch (e) {
+    document.getElementById('hunter-status').className = 'status fail';
+    document.getElementById('hunter-version').textContent = 'unreachable';
+  }
+
+  // Portfolio
+  try {
+    const r = await fetch('https://diyor.design/', { mode: 'no-cors', signal: AbortSignal.timeout(10000) });
+    document.getElementById('portfolio-status').className = 'status ok';
+  } catch (e) {
+    document.getElementById('portfolio-status').className = 'status fail';
+  }
+
+  document.getElementById('last-check').textContent = 'Last check: ' + new Date().toLocaleTimeString('ru');
+}
+
+checkHealth();
+</script>
+</body>
+</html>
