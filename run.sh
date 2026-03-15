@@ -278,4 +278,47 @@ if command -v gcalcli >/dev/null 2>&1; then
     || echo "$(date -Iseconds) Google Calendar event failed"
 fi
 
+# Generate status.json for dashboard
+STATUS_FILE="$SCRIPT_DIR/status.json"
+SAMI_TESTS=$(cd "$SAMI_DIR/agents/community" && npx vitest run 2>&1 | grep "Tests" | grep -oE '[0-9]+ passed' | head -1 || echo "? passed")
+HUNTER_TESTS=$(cd "$HUNTER_DIR" && npx vitest run 2>&1 | grep "Tests" | grep -oE '[0-9]+ passed' | head -1 || echo "? passed")
+SAMI_OPEN=$(grep -c '^\- \[ \]' "$SAMI_DIR/COMMUNITY_TASKS.md" 2>/dev/null || echo "0")
+HUNTER_OPEN=$(grep -c '^\- \[ \]' "$HUNTER_DIR/BACKLOG.md" 2>/dev/null || echo "0")
+ARCH_OPEN=$(grep -c '^\- \[ \]' "$SCRIPT_DIR/BACKLOG.md" 2>/dev/null || echo "0")
+
+cat > "$STATUS_FILE" <<STATUSJSON
+{
+  "updated": "$(date -Iseconds)",
+  "report_date": "$DATE",
+  "agents": {
+    "sami_strategist": { "schedule": "09:30 MSK daily", "platform": "launchd" },
+    "hunter_strategist": { "schedule": "09:30 MSK daily", "platform": "launchd" },
+    "architect": { "schedule": "Sun 10:00 MSK", "platform": "launchd" }
+  },
+  "tests": {
+    "sami": "$SAMI_TESTS",
+    "hunter": "$HUNTER_TESTS"
+  },
+  "backlogs": {
+    "sami_open": $SAMI_OPEN,
+    "hunter_open": $HUNTER_OPEN,
+    "architect_open": $ARCH_OPEN
+  },
+  "summary": "$(echo "$REPORT" | head -5 | tr '\n' ' ' | sed 's/"/\\"/g' | cut -c1-200)"
+}
+STATUSJSON
+echo "$(date -Iseconds) status.json updated"
+
+# Push dashboard updates to GitHub Pages
+if cd "$SCRIPT_DIR" && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  git add status.json reports/ BACKLOG.md 2>/dev/null
+  if git diff --cached --quiet 2>/dev/null; then
+    echo "$(date -Iseconds) No dashboard changes to push"
+  else
+    git commit -m "update: architect report $DATE" 2>/dev/null
+    git push origin main 2>/dev/null && echo "$(date -Iseconds) Dashboard pushed to GitHub Pages" \
+      || echo "$(date -Iseconds) Dashboard push failed"
+  fi
+fi
+
 echo "$(date -Iseconds) Architect review complete"
