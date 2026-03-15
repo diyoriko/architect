@@ -44,6 +44,17 @@
   </div>
 </div>
 
+<div class="card" style="margin-bottom:24px; border-left: 3px solid #58a6ff;">
+  <div class="card-title" style="margin-bottom:8px;">Как всё работает</div>
+  <div style="font-size:13px; color:#8b949e; line-height:1.7;">
+    <p>Два бота (<b>SAMI</b> и <b>Hunter</b>) крутятся 24/7 на <b>Railway</b> — автодеплой при пуше в main.</p>
+    <p style="margin-top:8px;">Каждое утро в <b>09:30 МСК</b> на Mac запускаются <b>стратеги</b> — они анализируют проект через Claude API и шлют отчёт в Telegram. По воскресеньям в <b>10:00</b> запускается <b>Architect</b> — делает глубокий недельный ревью всех проектов, пишет задачи в бэклог.</p>
+    <p style="margin-top:8px;">При каждом пуше <b>CI</b> проверяет типы (tsc) и запускает тесты (vitest). При PR — <b>CodeRabbit</b> делает ревью и пишет замечания в бэклог проекта. Перед коммитом <b>pre-commit hook</b> не даёт закоммитить с ошибками типов.</p>
+    <p style="margin-top:8px;">Каждую ночь в <b>03:00</b> GitHub Actions делает <b>бэкап</b> SQLite баз обоих ботов.</p>
+    <p style="margin-top:8px;"><b>Portfolio</b> (diyor.design) — статика на GitHub Pages, без автоматизации.</p>
+  </div>
+</div>
+
 <h2>Services</h2>
 <div class="grid">
   <div class="card">
