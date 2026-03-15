@@ -83,6 +83,14 @@
     </table>
   </div>
   <div class="card">
+    <div class="card-title"><span class="status unknown" id="jyotish-status"></span> Sugata Jyotish</div>
+    <table>
+      <tr><th>URL</th><td class="mono">sugata-jyotish.vercel.app</td></tr>
+      <tr><th>Platform</th><td>Vercel (auto-deploy from main)</td></tr>
+      <tr><th>Stack</th><td>Next.js 16, VedAstro API, Claude API, iyzico</td></tr>
+    </table>
+  </div>
+  <div class="card">
     <div class="card-title"><span class="status unknown" id="portfolio-status"></span> Portfolio</div>
     <table>
       <tr><th>URL</th><td class="mono">diyor.design</td></tr>
@@ -108,12 +116,12 @@
   <div class="card">
     <div class="card-title">Quality Gates</div>
     <table>
-      <tr><th>Gate</th><th>SAMI</th><th>Hunter</th></tr>
-      <tr><td>Pre-commit (tsc)</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
-      <tr><td>CI (tsc + vitest)</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
-      <tr><td>Coverage thresholds</td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td></tr>
-      <tr><td>CodeRabbit PR review</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
-      <tr><td>Review → Backlog</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><th>Gate</th><th>SAMI</th><th>Hunter</th><th>Jyotish</th></tr>
+      <tr><td>Pre-commit (tsc)</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><td>CI (tsc + vitest)</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><td>Coverage thresholds</td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td><td><span class="tag gray">—</span></td></tr>
+      <tr><td>CodeRabbit PR review</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag gray">—</span></td></tr>
+      <tr><td>Review → Backlog</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag gray">—</span></td></tr>
     </table>
   </div>
 </div>
@@ -149,13 +157,93 @@
     <tr><th>Service</th><th>Used By</th><th>Auth</th><th>Status</th></tr>
     <tr><td>Telegram Bot API</td><td>SAMI, Hunter, Architect</td><td>Bot tokens</td><td><span class="tag green">live</span></td></tr>
     <tr><td>YouTube Data API</td><td>SAMI</td><td>API key</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>Anthropic Claude API</td><td>Strategists, Architect</td><td>API key ($5 balance)</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>Anthropic Claude API</td><td>Strategists, Architect, Jyotish</td><td>API key ($5 balance)</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>VedAstro API</td><td>Jyotish</td><td>Public</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>Vercel</td><td>Jyotish</td><td>Auto-deploy</td><td><span class="tag green">live</span></td></tr>
+    <tr><td>Figma MCP</td><td>Global (Claude Code)</td><td>Access token</td><td><span class="tag green">live</span></td></tr>
     <tr><td>hh.ru API</td><td>Hunter</td><td>Public</td><td><span class="tag green">live</span></td></tr>
     <tr><td>Habr Career API</td><td>Hunter</td><td>Public</td><td><span class="tag green">live</span></td></tr>
     <tr><td>Railway</td><td>SAMI, Hunter</td><td>Auto-deploy</td><td><span class="tag green">live</span></td></tr>
     <tr><td>CodeRabbit</td><td>SAMI, Hunter</td><td>GitHub App</td><td><span class="tag green">live</span></td></tr>
     <tr><td>Google Calendar</td><td>Architect</td><td>OAuth (gcalcli)</td><td><span class="tag green">live</span></td></tr>
   </table>
+</div>
+
+<h2>Claude Code Skills</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">SAMI (5 skills)</div>
+    <table>
+      <tr><th>Skill</th><th>Что делает</th></tr>
+      <tr><td class="mono">/deploy</td><td>Review → tsc → test → push → verify → отчёт</td></tr>
+      <tr><td class="mono">/backlog</td><td>Добавить задачу в COMMUNITY_TASKS.md + sync dashboard</td></tr>
+      <tr><td class="mono">/status</td><td>Здоровье бота, аналитика, GitHub Actions</td></tr>
+      <tr><td class="mono">/catchup</td><td>Утренний брифинг: стратег, метрики, что дальше</td></tr>
+      <tr><td class="mono">/save</td><td>Сохранить сессию в memory перед уходом</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Hunter (5 skills)</div>
+    <table>
+      <tr><th>Skill</th><th>Что делает</th></tr>
+      <tr><td class="mono">/deploy</td><td>Review → tsc → test → push → verify → отчёт</td></tr>
+      <tr><td class="mono">/backlog</td><td>Добавить задачу в BACKLOG.md + sync dashboard</td></tr>
+      <tr><td class="mono">/status</td><td>Здоровье бота, метрики юзеров, GitHub Actions</td></tr>
+      <tr><td class="mono">/catchup</td><td>Утренний брифинг: стратег, метрики, что дальше</td></tr>
+      <tr><td class="mono">/save</td><td>Сохранить сессию в memory перед уходом</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Jyotish (4 skills)</div>
+    <table>
+      <tr><th>Skill</th><th>Что делает</th></tr>
+      <tr><td class="mono">/deploy</td><td>Typecheck → test → build → deploy на Vercel</td></tr>
+      <tr><td class="mono">/backlog</td><td>Показать статус BACKLOG.md</td></tr>
+      <tr><td class="mono">/status</td><td>Полный отчёт по проекту</td></tr>
+      <tr><td class="mono">/catchup</td><td>Что изменилось с прошлой сессии</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Portfolio (4 skills)</div>
+    <table>
+      <tr><th>Skill</th><th>Что делает</th></tr>
+      <tr><td class="mono">/deploy</td><td>Deploy на GitHub Pages</td></tr>
+      <tr><td class="mono">/save</td><td>Сохранить сессию</td></tr>
+      <tr><td class="mono">/audit-seo</td><td>SEO аудит всех страниц</td></tr>
+      <tr><td class="mono">/copy-review</td><td>Ревью текстов на тон и грамматику</td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>MCP Servers & Plugins</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">MCP Servers</div>
+    <table>
+      <tr><th>Server</th><th>Scope</th><th>Status</th></tr>
+      <tr><td>Figma MCP</td><td>Global</td><td><span class="tag green">active</span></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Plugins</div>
+    <table>
+      <tr><th>Plugin</th><th>Status</th></tr>
+      <tr><td>code-review</td><td><span class="tag green">installed</span></td></tr>
+      <tr><td>fizz (test)</td><td><span class="tag gray">installed</span></td></tr>
+    </table>
+    <p style="margin-top:8px; font-size:11px; color:#484f58;">32 plugins available in marketplace</p>
+  </div>
+  <div class="card">
+    <div class="card-title">CLAUDE.md Files</div>
+    <table>
+      <tr><th>Project</th><th>Status</th></tr>
+      <tr><td>SAMI</td><td><span class="tag green">configured</span></td></tr>
+      <tr><td>Hunter</td><td><span class="tag green">configured</span></td></tr>
+      <tr><td>Jyotish</td><td><span class="tag green">configured</span></td></tr>
+      <tr><td>Portfolio</td><td><span class="tag green">configured</span></td></tr>
+      <tr><td>Architect</td><td><span class="tag gray">no</span></td></tr>
+    </table>
+  </div>
 </div>
 
 <h2>Architecture</h2>
@@ -215,6 +303,14 @@ async function checkHealth() {
   } catch (e) {
     document.getElementById('hunter-status').className = 'status fail';
     document.getElementById('hunter-version').textContent = 'unreachable';
+  }
+
+  // Jyotish
+  try {
+    const r = await fetch('https://sugata-jyotish.vercel.app/', { mode: 'no-cors', signal: AbortSignal.timeout(10000) });
+    document.getElementById('jyotish-status').className = 'status ok';
+  } catch (e) {
+    document.getElementById('jyotish-status').className = 'status fail';
   }
 
   // Portfolio
