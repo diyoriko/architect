@@ -43,12 +43,12 @@
 ## Open
 
 ### P0
-- [ ] **Верифицировать SAMI cron fix** — lastPost != null после deploy. Проверить /status.
-- [ ] **Диагностировать SAMI lastPost=null** — агент исследует (в работе)
+- [ ] **Верифицировать SAMI cron fix** — fix в main (f7e0413) но Railway мог не подхватить. Проверить /health после redeploy.
 
 ### P1
-- [ ] **Hunter cover-letter.ts тесты** — 158 строк, 0%. Агент пишет.
-- [ ] **SAMI scheduler.ts тесты** — 273 строки, 2%. Агент пишет.
+- [x] **Hunter cover-letter.ts тесты** — 35 тестов (16.03)
+- [x] **SAMI scheduler.ts тесты** — 16 тестов, PR #2 (16.03)
+- [x] **Диагностировать SAMI lastPost=null** — баг в poster.ts (не передавал video в postVideoToChannel). Fix в main.
 
 ### P2
 - [ ] **Memory session cleanup** — архивировать session files старше 30 дней
