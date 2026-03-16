@@ -142,15 +142,26 @@ Vercel ──────── Jyotish ── auto-deploy from main
   </div>
 </details>
 
-<details>
-  <summary>How it works</summary>
-  <div class="inner">
-    <p>Два бота (SAMI и Hunter) крутятся 24/7 на Railway — автодеплой при пуше в main.</p>
-    <p>Каждое утро в 09:30 МСК стратеги анализируют проекты через Claude и шлют отчёт в Telegram. По воскресеньям Architect делает глубокий недельный ревью.</p>
-    <p>При пуше CI проверяет типы и тесты. При PR — CodeRabbit ревьюит и пишет замечания в бэклог. Pre-commit hook не даёт коммитить с ошибками.</p>
-    <p>Каждую ночь в 03:00 бэкап SQLite баз обоих ботов.</p>
+<div class="card" style="border-left: 3px solid #58a6ff; margin-top: 16px;">
+  <div class="card-title">How it works</div>
+  <div style="font-size:13px; color:#8b949e; line-height:2;">
+    <p><b style="color:#f0f6fc;">4 проекта:</b> SAMI (fitness community bot), Hunter (job aggregator bot) — Railway 24/7, автодеплой из main. Sugata Jyotish (vedic astrology) — Vercel. Portfolio (diyor.design) — GitHub Pages.</p>
+
+    <p style="margin-top:10px;"><b style="color:#f0f6fc;">Ежедневно 09:30 МСК</b> — на Mac запускаются 2 стратега (SAMI + Hunter). Каждый через Claude анализирует свой проект: бэклог, метрики, код — и шлёт отчёт с рекомендациями в Telegram. Предложения стратега попадают в бэклог проекта.</p>
+
+    <p style="margin-top:10px;"><b style="color:#f0f6fc;">По воскресеньям 10:00 МСК</b> — Architect делает глубокий кросс-проектный ревью: health check всех сервисов, coverage, dependencies, code churn, паттерны работы (burnout risk, context switching, commit hours). Пишет задачи в свой бэклог, обновляет этот дашборд, создаёт Google Calendar event.</p>
+
+    <p style="margin-top:10px;"><b style="color:#f0f6fc;">При каждом коммите</b> — pre-commit hook проверяет TypeScript типы (tsc --noEmit). Если ошибки — коммит блокируется.</p>
+
+    <p style="margin-top:10px;"><b style="color:#f0f6fc;">При каждом push/PR</b> — GitHub Actions CI запускает typecheck + все тесты (vitest). Coverage не должен падать ниже 20%. При PR — CodeRabbit (AI) делает code review и пишет замечания в бэклог проекта.</p>
+
+    <p style="margin-top:10px;"><b style="color:#f0f6fc;">Каждую ночь 03:00 МСК</b> — GitHub Actions бэкапит SQLite базы обоих ботов из Railway в GitHub Artifacts (30 дней хранения).</p>
+
+    <p style="margin-top:10px;"><b style="color:#f0f6fc;">22:30 МСК</b> — Mac notification: «Пора заканчивать. Сохрани сессию (/save) и закрывай.»</p>
+
+    <p style="margin-top:10px;"><b style="color:#f0f6fc;">Claude Max ($200/mo)</b> покрывает всю интерактивную работу + стратегов + архитектора (через Mac launchd, бесплатно). API key ($5 balance) тратится только на GitHub Actions и Hunter cover letters.</p>
   </div>
-</details>
+</div>
 
 <script>
 let okCount = 0;
