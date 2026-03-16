@@ -296,11 +296,15 @@ echo "$(date -Iseconds) Report saved to $REPORT_FILE"
 BACKLOG_FILE="$SCRIPT_DIR/BACKLOG.md"
 BACKLOG_SECTION=$(echo "$REPORT" | sed -n '/^## Backlog Updates/,/^---$/p' | sed '1d;$d' | grep -v '^\`\`\`')
 if [ -n "$BACKLOG_SECTION" ] && [ ${#BACKLOG_SECTION} -gt 10 ]; then
-  echo "" >> "$BACKLOG_FILE"
-  echo "## From Review $DATE" >> "$BACKLOG_FILE"
-  echo "" >> "$BACKLOG_FILE"
-  echo "$BACKLOG_SECTION" >> "$BACKLOG_FILE"
-  echo "$(date -Iseconds) Backlog updated with new tasks"
+  if grep -q "## From Review $DATE" "$BACKLOG_FILE" 2>/dev/null; then
+    echo "$(date -Iseconds) Backlog already has section for $DATE, skipping"
+  else
+    echo "" >> "$BACKLOG_FILE"
+    echo "## From Review $DATE" >> "$BACKLOG_FILE"
+    echo "" >> "$BACKLOG_FILE"
+    echo "$BACKLOG_SECTION" >> "$BACKLOG_FILE"
+    echo "$(date -Iseconds) Backlog updated with new tasks"
+  fi
 fi
 
 # Send Telegram notification
