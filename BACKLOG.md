@@ -43,7 +43,7 @@
 ## Open
 
 ### P0
-- [ ] **Верифицировать SAMI cron fix** — fix в main (f7e0413) но Railway мог не подхватить. Проверить /health после redeploy.
+- [x] **Верифицировать SAMI cron fix** — deployed b76f29d, lastPost: 2026-03-16 stretching ✅ (16.03)
 
 ### P1
 - [x] **Hunter cover-letter.ts тесты** — 35 тестов (16.03)
@@ -51,8 +51,8 @@
 - [x] **Диагностировать SAMI lastPost=null** — баг в poster.ts (не передавал video в postVideoToChannel). Fix в main.
 
 ### P2
-- [ ] **Memory session cleanup** — архивировать session files старше 30 дней
-- [ ] **zod v3→v4** — отложено (breaking changes, отдельная сессия)
+- [x] **Memory session cleanup** — не нужно, все файлы < 4 дней (16.03)
+- [x] **zod v3→v4** — оба проекта, SAMI config.ts fixed for v4 API (16.03)
 
 ---
 
