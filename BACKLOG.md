@@ -53,14 +53,14 @@
 
 ### P1 — Высокий приоритет
 - [ ] **Hunter cover-letter.ts тесты** — 158 строк, 0% coverage. Монетизируемая фича. Min 15 тестов: generate, truncate, error handling, API mock.
-- [ ] **Hard stop 21:00 — launchd автоматизация** — 2 недели подряд не соблюдается. osascript notification в 21:00. Файл: `~/Library/LaunchAgents/dev.hardstop.plist`.
+- [x] **Hard stop 21:00 — launchd автоматизация** — dev.hardstop.plist installed (16.03)
 - [ ] **Hunter backlog audit** — *(перенос)* из 20 задач убрать устаревшие и дубликаты.
 
 ### P2 — Улучшения
 - [ ] **SAMI db.ts split plan** — 2053 строки + churn = риск. Составить план разбивки: `db-user.ts`, `db-posts.ts`, `db-sessions.ts`. Только план, не рефакторинг.
 - [ ] **Синхронное обновление major deps** — `better-sqlite3 9→12`, `node-cron 3→4`, `zod 3→4` в обоих проектах одной сессией. *(better-sqlite3 перенос)*
 - [ ] **SAMI scheduler.ts тесты** — 272 строки, 2% coverage. Cron-сердце бота. Min 10 тестов.
-- [ ] **PR-workflow для SAMI** — direct push обходит CodeRabbit. Branch protection + PR-flow как в Hunter.
+- [x] **PR-workflow для SAMI** — branch protection + /deploy skill создаёт PR (16.03)
 
 ---
 

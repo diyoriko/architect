@@ -203,6 +203,66 @@ echo "$(date -Iseconds) Starting architect review..."
   } | sort -t' ' -k2,3 | head -20 || echo "(unavailable)"
   echo ""
 
+  # Skills across all projects
+  echo "=== SKILLS: all projects ==="
+  for proj in "$SAMI_DIR" "$HUNTER_DIR" "$PORTFOLIO_DIR" "$HOME/Documents/Projects/sugata-jyotish"; do
+    name=$(basename "$proj")
+    if [ -d "$proj/.claude/skills" ]; then
+      echo "$name: $(ls "$proj/.claude/skills/" 2>/dev/null | tr '\n' ', ')"
+    else
+      echo "$name: no skills"
+    fi
+  done
+  echo ""
+
+  # MCP servers & plugins
+  echo "=== MCP & PLUGINS ==="
+  echo "Global MCP:"
+  cat "$HOME/.claude/settings.json" 2>/dev/null | grep -A 5 '"mcpServers"' | head -8 || echo "(none)"
+  echo "Installed plugins:"
+  ls "$HOME/.claude/plugins/" 2>/dev/null | head -5 || echo "(none)"
+  echo ""
+
+  # CLAUDE.md files — Quality Gate sections
+  echo "=== CLAUDE.md QUALITY GATES ==="
+  for proj in "$SAMI_DIR" "$HUNTER_DIR" "$HOME/Documents/Projects/sugata-jyotish"; do
+    name=$(basename "$proj")
+    if [ -f "$proj/CLAUDE.md" ]; then
+      echo "--- $name ---"
+      grep -A 8 "## Quality Gate" "$proj/CLAUDE.md" 2>/dev/null | head -10 || echo "(no quality gate section)"
+    fi
+  done
+  echo ""
+
+  # Memory system health
+  echo "=== MEMORY SYSTEM ==="
+  MEMORY_DIR="$HOME/.claude/projects/-Users-diyoriko/memory"
+  echo "Total files: $(ls "$MEMORY_DIR"/*.md 2>/dev/null | wc -l)"
+  echo "MEMORY.md lines: $(wc -l < "$MEMORY_DIR/MEMORY.md" 2>/dev/null || echo 0)"
+  echo "Session files: $(ls "$MEMORY_DIR"/session_*.md 2>/dev/null | wc -l)"
+  echo "Feedback files: $(ls "$MEMORY_DIR"/feedback_*.md 2>/dev/null | wc -l)"
+  echo "Latest session: $(ls -t "$MEMORY_DIR"/session_*.md 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo none)"
+  echo ""
+
+  # Claude Code usage patterns (from git co-author tags)
+  echo "=== CLAUDE CODE USAGE ==="
+  echo "Co-authored commits (7 days):"
+  {
+    git -C "$SAMI_DIR" log --since="7 days ago" --grep="Co-Authored-By" --oneline 2>/dev/null | wc -l | xargs -I{} echo "  SAMI: {}"
+    git -C "$HUNTER_DIR" log --since="7 days ago" --grep="Co-Authored-By" --oneline 2>/dev/null | wc -l | xargs -I{} echo "  Hunter: {}"
+  }
+  echo "Models used:"
+  {
+    git -C "$SAMI_DIR" log --since="7 days ago" --grep="Co-Authored-By" --format="%b" 2>/dev/null
+    git -C "$HUNTER_DIR" log --since="7 days ago" --grep="Co-Authored-By" --format="%b" 2>/dev/null
+  } | grep "Co-Authored-By" | sort | uniq -c | sort -rn || echo "(none)"
+  echo ""
+
+  # LaunchAgents health
+  echo "=== LAUNCHD AGENTS STATUS ==="
+  launchctl list | grep -E "sami|hunter|architect|hardstop" || echo "(none found)"
+  echo ""
+
   # Current Architect backlog
   echo "=== ARCHITECT: current backlog ==="
   cat "$SCRIPT_DIR/BACKLOG.md" 2>/dev/null || echo "(no backlog)"
