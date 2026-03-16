@@ -187,6 +187,13 @@
 - MCP серверы: используются ли в полную силу? Нужны ли новые?
 - Plugins: есть ли полезные неустановленные?
 
+**Cost optimization:**
+- Claude Max ($200/mo) покрывает: CLI (интерактив), `claude --print` (стратеги, архитектор на Mac launchd)
+- ANTHROPIC_API_KEY ($5 balance) только для: GitHub Actions, Hunter cover letters (SDK), то что нельзя через Max
+- ПРАВИЛО: всё что можно запускать через Mac launchd → использовать Max OAuth (бесплатно), НЕ переносить в GH Actions без необходимости
+- Мониторить API balance: если тратится быстро → найти что можно вернуть на Max
+- Рекомендовать экономию: если видишь что API используется там где мог бы работать Max
+
 **Benchmarks:** Сравнивай текущий процесс с лучшими практиками:
 - Solo dev с AI: task→test→code→review→deploy cycle time
 - Coverage targets для проектов разного размера
