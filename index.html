@@ -6,399 +6,197 @@
 <title>Architect Dashboard</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.5; padding: 24px; }
-  h1 { font-size: 24px; font-weight: 600; margin-bottom: 24px; color: #f0f6fc; }
-  h2 { font-size: 16px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin: 32px 0 12px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
-  .card-title { font-size: 14px; font-weight: 600; color: #f0f6fc; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-  .status { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
-  .status.ok { background: #3fb950; }
-  .status.warn { background: #d29922; }
-  .status.fail { background: #f85149; }
-  .status.unknown { background: #484f58; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; color: #8b949e; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #21262d; }
-  td { padding: 6px 8px; border-bottom: 1px solid #21262d; }
-  .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: #79c0ff; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 24px; max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; color: #f0f6fc; margin-bottom: 20px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot.ok { background: #3fb950; }
+  .dot.fail { background: #f85149; }
+  .dot.unknown { background: #484f58; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #21262d; }
+  .row:last-child { border: none; }
+  .label { font-size: 14px; }
+  .value { font-size: 14px; color: #8b949e; }
+  .value b { color: #f0f6fc; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .card-title { font-size: 13px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
   .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
   .tag.green { background: #238636; color: #fff; }
-  .tag.yellow { background: #9e6a03; color: #fff; }
   .tag.red { background: #da3633; color: #fff; }
   .tag.gray { background: #30363d; color: #8b949e; }
-  .time { color: #8b949e; font-size: 12px; }
-  .diagram { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 20px; font-family: 'SF Mono', monospace; font-size: 12px; line-height: 1.8; white-space: pre; overflow-x: auto; }
-  #refresh-btn { background: #238636; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; float: right; }
-  #refresh-btn:hover { background: #2ea043; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-  #last-check { color: #8b949e; font-size: 12px; }
+  .mono { font-family: 'SF Mono', monospace; font-size: 12px; color: #79c0ff; }
+  details { margin-bottom: 12px; }
+  details summary { cursor: pointer; font-size: 13px; color: #58a6ff; padding: 8px 0; }
+  details summary:hover { color: #79c0ff; }
+  details .inner { padding: 12px 0; font-size: 13px; color: #8b949e; line-height: 1.8; }
+  details table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  details th { text-align: left; color: #8b949e; font-weight: 500; padding: 4px 8px; }
+  details td { padding: 4px 8px; border-bottom: 1px solid #21262d; }
+  .stats { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
+  .stat { text-align: center; }
+  .stat-number { font-size: 28px; font-weight: 700; color: #f0f6fc; }
+  .stat-label { font-size: 11px; color: #484f58; text-transform: uppercase; }
+  #backlog-list { font-size: 13px; line-height: 1.8; }
+  #backlog-list .task { padding: 4px 0; border-bottom: 1px solid #21262d; }
+  #last-check { font-size: 11px; color: #484f58; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Architect Dashboard</h1>
-  <div>
-    <span id="last-check"></span>
-    <button id="refresh-btn" onclick="checkHealth()">Refresh</button>
-  </div>
+<h1>Architect Dashboard <span id="last-check"></span></h1>
+
+<!-- At a glance -->
+<div class="stats">
+  <div class="stat"><div class="stat-number" id="n-services">—</div><div class="stat-label">Services</div></div>
+  <div class="stat"><div class="stat-number" id="n-tests">—</div><div class="stat-label">Tests</div></div>
+  <div class="stat"><div class="stat-number" id="n-tasks">—</div><div class="stat-label">Open Tasks</div></div>
+  <div class="stat"><div class="stat-number">$210</div><div class="stat-label">/month</div></div>
 </div>
 
-<div class="card" style="margin-bottom:24px; border-left: 3px solid #58a6ff;">
-  <div class="card-title" style="margin-bottom:8px;">Как всё работает</div>
-  <div id="summary" style="font-size:13px; color:#8b949e; line-height:1.7;">
-    <p>Два бота (<b>SAMI</b> и <b>Hunter</b>) крутятся 24/7 на <b>Railway</b> — автодеплой при пуше в main.</p>
-    <p style="margin-top:8px;">Каждое утро в <b>09:30 МСК</b> на Mac запускаются <b>стратеги</b> — они анализируют проект через Claude API и шлют отчёт в Telegram. По воскресеньям в <b>10:00</b> запускается <b>Architect</b> — делает глубокий недельный ревью всех проектов, пишет задачи в бэклог.</p>
-    <p style="margin-top:8px;">При каждом пуше <b>CI</b> проверяет типы (tsc) и запускает тесты (vitest). При PR — <b>CodeRabbit</b> делает ревью и пишет замечания в бэклог проекта. Перед коммитом <b>pre-commit hook</b> не даёт закоммитить с ошибками типов.</p>
-    <p style="margin-top:8px;">Каждую ночь в <b>03:00</b> GitHub Actions делает <b>бэкап</b> SQLite баз обоих ботов.</p>
-  </div>
-  <div id="live-stats" style="margin-top:12px; display:none;">
-    <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:12px;">
-      <span style="color:#3fb950;" id="stat-tests"></span>
-      <span style="color:#d29922;" id="stat-backlogs"></span>
-      <span style="color:#8b949e;" id="stat-updated"></span>
-    </div>
-  </div>
-</div>
-
-<h2>Services</h2>
-<div class="grid">
-  <div class="card">
-    <div class="card-title"><span class="status unknown" id="sami-status"></span> SAMI Community Bot</div>
-    <table>
-      <tr><th>URL</th><td class="mono">courageous-happiness-production.up.railway.app</td></tr>
-      <tr><th>Version</th><td id="sami-version">—</td></tr>
-      <tr><th>Uptime</th><td id="sami-uptime">—</td></tr>
-      <tr><th>Platform</th><td>Railway (auto-deploy from main)</td></tr>
-      <tr><th>Stack</th><td>Node.js 22, grammY, SQLite, yt-dlp</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title"><span class="status unknown" id="hunter-status"></span> Hunter Job Bot</div>
-    <table>
-      <tr><th>URL</th><td class="mono">hunter-production-0b65.up.railway.app</td></tr>
-      <tr><th>Version</th><td id="hunter-version">—</td></tr>
-      <tr><th>Platform</th><td>Railway (auto-deploy from main)</td></tr>
-      <tr><th>Stack</th><td>Node.js 22, grammY, SQLite, cheerio</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title"><span class="status unknown" id="jyotish-status"></span> Sugata Jyotish</div>
-    <table>
-      <tr><th>URL</th><td class="mono">sugata-jyotish.vercel.app</td></tr>
-      <tr><th>Platform</th><td>Vercel (auto-deploy from main)</td></tr>
-      <tr><th>Stack</th><td>Next.js 16, VedAstro API, Claude API, iyzico</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title"><span class="status unknown" id="portfolio-status"></span> Portfolio</div>
-    <table>
-      <tr><th>URL</th><td class="mono">diyor.design</td></tr>
-      <tr><th>Platform</th><td>GitHub Pages</td></tr>
-      <tr><th>Stack</th><td>Static HTML/CSS/JS</td></tr>
-    </table>
-  </div>
-</div>
-
-<h2>Agents</h2>
-<div class="grid">
-  <div class="card">
-    <div class="card-title">Scheduled Agents</div>
-    <table>
-      <tr><th>Agent</th><th>Schedule</th><th>Platform</th></tr>
-      <tr><td>SAMI Strategist</td><td class="mono">09:30 MSK daily</td><td><span class="tag green">launchd</span></td></tr>
-      <tr><td>Hunter Strategist</td><td class="mono">09:30 MSK daily</td><td><span class="tag green">launchd</span></td></tr>
-      <tr><td>Architect</td><td class="mono">Sun 10:00 MSK</td><td><span class="tag green">launchd</span></td></tr>
-      <tr><td>SAMI Backup</td><td class="mono">03:00 MSK daily</td><td><span class="tag gray">GH Actions</span></td></tr>
-      <tr><td>Hunter Backup</td><td class="mono">03:00 MSK daily</td><td><span class="tag gray">GH Actions</span></td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title">Quality Gates</div>
-    <table>
-      <tr><th>Gate</th><th>SAMI</th><th>Hunter</th><th>Jyotish</th></tr>
-      <tr><td>Pre-commit (tsc)</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
-      <tr><td>CI (tsc + vitest)</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
-      <tr><td>Coverage thresholds</td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td><td><span class="tag gray">—</span></td></tr>
-      <tr><td>CodeRabbit PR review</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag gray">—</span></td></tr>
-      <tr><td>Review → Backlog</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag gray">—</span></td></tr>
-    </table>
-  </div>
-</div>
-
-<h2>GitHub Actions</h2>
-<div class="grid">
-  <div class="card">
-    <div class="card-title">SAMI Workflows</div>
-    <table>
-      <tr><th>Workflow</th><th>Trigger</th><th>Status</th></tr>
-      <tr><td>CI</td><td>push/PR</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Backup</td><td>daily 03:00</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>CodeRabbit→Backlog</td><td>PR review</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Strategist</td><td>manual</td><td><span class="tag yellow">dormant</span></td></tr>
-      <tr><td>Implementor</td><td>manual</td><td><span class="tag yellow">dormant</span></td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title">Hunter Workflows</div>
-    <table>
-      <tr><th>Workflow</th><th>Trigger</th><th>Status</th></tr>
-      <tr><td>CI</td><td>push/PR</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Backup</td><td>daily 03:00</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>CodeRabbit→Backlog</td><td>PR review</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Strategist</td><td>daily 10:00</td><td><span class="tag green">active</span></td></tr>
-    </table>
-  </div>
-</div>
-
-<h2>External Services</h2>
+<!-- Services -->
 <div class="card">
-  <table>
-    <tr><th>Service</th><th>Used By</th><th>Auth</th><th>Status</th></tr>
-    <tr><td>Telegram Bot API</td><td>SAMI, Hunter, Architect</td><td>Bot tokens</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>YouTube Data API</td><td>SAMI</td><td>API key</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>Anthropic Claude API</td><td>Strategists, Architect, Jyotish</td><td>API key ($5 balance)</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>VedAstro API</td><td>Jyotish</td><td>Public</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>Vercel</td><td>Jyotish</td><td>Auto-deploy</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>Figma MCP</td><td>Global (Claude Code)</td><td>Access token</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>hh.ru API</td><td>Hunter</td><td>Public</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>Habr Career API</td><td>Hunter</td><td>Public</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>Railway</td><td>SAMI, Hunter</td><td>Auto-deploy</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>CodeRabbit</td><td>SAMI, Hunter</td><td>GitHub App</td><td><span class="tag green">live</span></td></tr>
-    <tr><td>Google Calendar</td><td>Architect</td><td>OAuth (gcalcli)</td><td><span class="tag green">live</span></td></tr>
-  </table>
+  <div class="card-title">Services</div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-sami"></span>SAMI Bot</span><span class="value" id="v-sami">checking...</span></div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-hunter"></span>Hunter Bot</span><span class="value" id="v-hunter">checking...</span></div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-jyotish"></span>Sugata Jyotish</span><span class="value" id="v-jyotish">checking...</span></div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-portfolio"></span>Portfolio</span><span class="value">diyor.design</span></div>
 </div>
 
-<h2>Billing & Costs</h2>
-<div class="grid">
-  <div class="card">
-    <div class="card-title">Monthly Costs</div>
-    <table>
-      <tr><th>Service</th><th>Plan</th><th>Cost</th><th>Status</th></tr>
-      <tr><td>Claude Max</td><td>Pro ($200/mo)</td><td>$200</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Anthropic API</td><td>Pay-per-use</td><td id="api-balance">$5 balance</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Railway (SAMI)</td><td>Hobby</td><td>~$5</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Railway (Hunter)</td><td>Hobby</td><td>~$5</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Vercel (Jyotish)</td><td>Free</td><td>$0</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>GitHub</td><td>Free</td><td>$0</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>CodeRabbit</td><td>Free</td><td>$0</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>YouTube API</td><td>Free tier</td><td>$0</td><td><span class="tag green">active</span></td></tr>
-      <tr style="font-weight:600; color:#f0f6fc;"><td>Total</td><td></td><td>~$210/mo</td><td></td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title">Claude Usage Split</div>
-    <table>
-      <tr><th>Task</th><th>Auth</th><th>Cost</th></tr>
-      <tr><td>Claude Code (interactive)</td><td>Max OAuth</td><td style="color:#3fb950;">$0 (included)</td></tr>
-      <tr><td>SAMI Strategist (launchd)</td><td>Max OAuth</td><td style="color:#3fb950;">$0 (included)</td></tr>
-      <tr><td>Hunter Strategist (launchd)</td><td>Max OAuth</td><td style="color:#3fb950;">$0 (included)</td></tr>
-      <tr><td>Architect (launchd)</td><td>Max OAuth</td><td style="color:#3fb950;">$0 (included)</td></tr>
-      <tr><td>GH Actions Strategist</td><td>API Key</td><td style="color:#d29922;">~$0.05/run</td></tr>
-      <tr><td>GH Actions Implementor</td><td>API Key</td><td style="color:#d29922;">~$0.10/run</td></tr>
-      <tr><td>Hunter Cover Letters</td><td>API Key (SDK)</td><td style="color:#d29922;">~$0.02/letter</td></tr>
-    </table>
-    <p style="margin-top:8px; font-size:11px; color:#3fb950;">Стратеги и Architect на Mac = $0 (Max). Переезд в GH Actions = ~$3-5/mo API.</p>
-  </div>
+<!-- Agents -->
+<div class="card">
+  <div class="card-title">Agents</div>
+  <div class="row"><span class="label">SAMI Strategist</span><span class="value mono">09:30 MSK daily</span></div>
+  <div class="row"><span class="label">Hunter Strategist</span><span class="value mono">09:30 MSK daily</span></div>
+  <div class="row"><span class="label">Architect</span><span class="value mono">Sun 10:00 MSK</span></div>
+  <div class="row"><span class="label">Backups</span><span class="value mono">03:00 MSK daily</span></div>
+  <div class="row"><span class="label">Hard Stop</span><span class="value mono">22:30 daily</span></div>
 </div>
 
-<h2>Claude Code Skills</h2>
-<div class="grid">
-  <div class="card">
-    <div class="card-title">SAMI (5 skills)</div>
-    <table>
-      <tr><th>Skill</th><th>Что делает</th></tr>
-      <tr><td class="mono">/deploy</td><td>Review → tsc → test → push → verify → отчёт</td></tr>
-      <tr><td class="mono">/backlog</td><td>Добавить задачу в COMMUNITY_TASKS.md + sync dashboard</td></tr>
-      <tr><td class="mono">/status</td><td>Здоровье бота, аналитика, GitHub Actions</td></tr>
-      <tr><td class="mono">/catchup</td><td>Утренний брифинг: стратег, метрики, что дальше</td></tr>
-      <tr><td class="mono">/save</td><td>Сохранить сессию в memory перед уходом</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title">Hunter (5 skills)</div>
-    <table>
-      <tr><th>Skill</th><th>Что делает</th></tr>
-      <tr><td class="mono">/deploy</td><td>Review → tsc → test → push → verify → отчёт</td></tr>
-      <tr><td class="mono">/backlog</td><td>Добавить задачу в BACKLOG.md + sync dashboard</td></tr>
-      <tr><td class="mono">/status</td><td>Здоровье бота, метрики юзеров, GitHub Actions</td></tr>
-      <tr><td class="mono">/catchup</td><td>Утренний брифинг: стратег, метрики, что дальше</td></tr>
-      <tr><td class="mono">/save</td><td>Сохранить сессию в memory перед уходом</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title">Jyotish (4 skills)</div>
-    <table>
-      <tr><th>Skill</th><th>Что делает</th></tr>
-      <tr><td class="mono">/deploy</td><td>Typecheck → test → build → deploy на Vercel</td></tr>
-      <tr><td class="mono">/backlog</td><td>Показать статус BACKLOG.md</td></tr>
-      <tr><td class="mono">/status</td><td>Полный отчёт по проекту</td></tr>
-      <tr><td class="mono">/catchup</td><td>Что изменилось с прошлой сессии</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-title">Portfolio (4 skills)</div>
-    <table>
-      <tr><th>Skill</th><th>Что делает</th></tr>
-      <tr><td class="mono">/deploy</td><td>Deploy на GitHub Pages</td></tr>
-      <tr><td class="mono">/save</td><td>Сохранить сессию</td></tr>
-      <tr><td class="mono">/audit-seo</td><td>SEO аудит всех страниц</td></tr>
-      <tr><td class="mono">/copy-review</td><td>Ревью текстов на тон и грамматику</td></tr>
-    </table>
-  </div>
+<!-- Open Tasks -->
+<div class="card">
+  <div class="card-title">Backlog</div>
+  <div id="backlog-list">Loading...</div>
 </div>
 
-<h2>MCP Servers & Plugins</h2>
-<div class="grid">
-  <div class="card">
-    <div class="card-title">MCP Servers</div>
+<!-- Expandable Details -->
+<details>
+  <summary>Quality Gates</summary>
+  <div class="inner">
     <table>
-      <tr><th>Server</th><th>Scope</th><th>Status</th></tr>
-      <tr><td>Figma MCP</td><td>Global</td><td><span class="tag green">active</span></td></tr>
+      <tr><th></th><th>SAMI</th><th>Hunter</th><th>Jyotish</th></tr>
+      <tr><td>Pre-commit</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><td>CI</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><td>Coverage</td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td></tr>
+      <tr><td>CodeRabbit</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
+      <tr><td>PR → Backlog</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
     </table>
   </div>
-  <div class="card">
-    <div class="card-title">Plugins</div>
-    <table>
-      <tr><th>Plugin</th><th>Status</th></tr>
-      <tr><td>code-review</td><td><span class="tag green">installed</span></td></tr>
-      <tr><td>fizz (test)</td><td><span class="tag gray">installed</span></td></tr>
-    </table>
-    <p style="margin-top:8px; font-size:11px; color:#484f58;">32 plugins available in marketplace</p>
-  </div>
-  <div class="card">
-    <div class="card-title">CLAUDE.md Files</div>
-    <table>
-      <tr><th>Project</th><th>Status</th></tr>
-      <tr><td>SAMI</td><td><span class="tag green">configured</span></td></tr>
-      <tr><td>Hunter</td><td><span class="tag green">configured</span></td></tr>
-      <tr><td>Jyotish</td><td><span class="tag green">configured</span></td></tr>
-      <tr><td>Portfolio</td><td><span class="tag green">configured</span></td></tr>
-      <tr><td>Architect</td><td><span class="tag gray">no</span></td></tr>
-    </table>
-  </div>
-</div>
+</details>
 
-<h2>Architect Backlog</h2>
-<div class="card" id="backlog-card">
-  <div class="card-title">Open Tasks</div>
-  <div id="backlog-content" style="font-size:13px; white-space:pre-wrap; color:#8b949e;">Loading...</div>
-</div>
+<details>
+  <summary>Billing</summary>
+  <div class="inner">
+    <table>
+      <tr><th>Service</th><th>Cost</th><th>Auth</th></tr>
+      <tr><td>Claude Max</td><td><b>$200/mo</b></td><td>OAuth (CLI + стратеги + архитектор)</td></tr>
+      <tr><td>Anthropic API</td><td><b>$5 balance</b></td><td>API key (GH Actions + cover letters)</td></tr>
+      <tr><td>Railway x2</td><td><b>~$10/mo</b></td><td>Auto-deploy</td></tr>
+      <tr><td>Vercel, GitHub, CodeRabbit, YouTube API</td><td>$0</td><td>Free tier</td></tr>
+    </table>
+    <p style="margin-top:8px; color:#3fb950;">Стратеги на Mac = $0 (Max). Переезд в GH Actions = +$3-5/mo.</p>
+  </div>
+</details>
 
-<h2>Architecture</h2>
-<div class="diagram">
-┌─────────────────────────────────────────────────────────────────┐
-│                        Mac (launchd)                            │
-│                                                                 │
-│  09:30 MSK ─── SAMI Strategist ──┐                              │
-│  09:30 MSK ─── Hunter Strategist ├── claude --print ── Report   │
-│  Sun 10:00 ─── Architect ────────┘       │         ── Telegram  │
-│                                          │         ── Calendar  │
-│  Pre-commit ── tsc --noEmit              │                      │
-└──────────────────────────────────────────┼──────────────────────┘
-                                           │
-┌──────────────────────────────────────────┼──────────────────────┐
-│                    GitHub                 │                      │
-│                                          ▼                      │
-│  Push/PR ────── CI (tsc + vitest) ── pass/fail                  │
-│  PR ─────────── CodeRabbit ── review → backlog                  │
-│  Daily 03:00 ── Backup ── SQLite → artifacts                    │
-│  Manual ─────── Strategist (GH Actions) ── needs API key        │
-│  Manual ─────── Implementor ── auto-code tasks                  │
-└─────────────────────────────────────────────────────────────────┘
-                         │
-┌────────────────────────┼────────────────────────────────────────┐
-│                    Railway                                      │
-│                                                                 │
-│  SAMI Bot ──── :3000 ── /health, /report/*, /backup             │
-│  Hunter Bot ── :3000 ── /, /backup                              │
-│                                                                 │
-│  Auto-deploy from GitHub main                                   │
-└─────────────────────────────────────────────────────────────────┘
-</div>
+<details>
+  <summary>Skills & Tools</summary>
+  <div class="inner">
+    <table>
+      <tr><th>Project</th><th>Skills</th></tr>
+      <tr><td>SAMI</td><td class="mono">/deploy /backlog /status /catchup /save</td></tr>
+      <tr><td>Hunter</td><td class="mono">/deploy /backlog /status /catchup /save</td></tr>
+      <tr><td>Jyotish</td><td class="mono">/deploy /backlog /status /catchup</td></tr>
+      <tr><td>Portfolio</td><td class="mono">/deploy /save /audit-seo /copy-review</td></tr>
+    </table>
+    <table style="margin-top:12px;">
+      <tr><th>Tool</th><th>Status</th></tr>
+      <tr><td>MCP Figma</td><td><span class="tag green">active</span></td></tr>
+      <tr><td>Plugin: code-review</td><td><span class="tag green">installed</span></td></tr>
+    </table>
+  </div>
+</details>
+
+<details>
+  <summary>Architecture</summary>
+  <div class="inner" style="font-family:'SF Mono',monospace; font-size:11px; white-space:pre; line-height:1.7;">
+Mac launchd ─── Strategists (09:30) ── claude --print ── Report + Telegram
+            ─── Architect  (Sun 10) ── Report + Calendar + Dashboard
+            ─── Hard Stop  (22:30)  ── Notification
+
+GitHub ──────── CI (push/PR) ── tsc + vitest
+            ─── CodeRabbit (PR) ── review → backlog
+            ─── Backup (03:00) ── SQLite → artifacts
+
+Railway ─────── SAMI Bot (:3000) ── /health /report /backup
+            ─── Hunter Bot (:3000) ── / /backup
+
+Vercel ──────── Jyotish ── auto-deploy from main
+  </div>
+</details>
+
+<details>
+  <summary>How it works</summary>
+  <div class="inner">
+    <p>Два бота (SAMI и Hunter) крутятся 24/7 на Railway — автодеплой при пуше в main.</p>
+    <p>Каждое утро в 09:30 МСК стратеги анализируют проекты через Claude и шлют отчёт в Telegram. По воскресеньям Architect делает глубокий недельный ревью.</p>
+    <p>При пуше CI проверяет типы и тесты. При PR — CodeRabbit ревьюит и пишет замечания в бэклог. Pre-commit hook не даёт коммитить с ошибками.</p>
+    <p>Каждую ночь в 03:00 бэкап SQLite баз обоих ботов.</p>
+  </div>
+</details>
 
 <script>
-async function checkHealth() {
-  document.getElementById('last-check').textContent = 'Checking... ' + new Date().toLocaleTimeString('ru');
+let okCount = 0;
 
-  // SAMI
+async function check(id, url, verId, parse) {
   try {
-    const r = await fetch('https://courageous-happiness-production.up.railway.app/health', { signal: AbortSignal.timeout(10000) });
-    const d = await r.json();
-    document.getElementById('sami-status').className = 'status ok';
-    document.getElementById('sami-version').textContent = d.version || '?';
-    document.getElementById('sami-uptime').textContent = d.uptime || '?';
-  } catch (e) {
-    document.getElementById('sami-status').className = 'status fail';
-    document.getElementById('sami-version').textContent = 'unreachable';
-  }
-
-  // Hunter
-  try {
-    const r = await fetch('https://hunter-production-0b65.up.railway.app/', { signal: AbortSignal.timeout(10000) });
-    const d = await r.json();
-    document.getElementById('hunter-status').className = 'status ok';
-    document.getElementById('hunter-version').textContent = d.version || '?';
-  } catch (e) {
-    document.getElementById('hunter-status').className = 'status fail';
-    document.getElementById('hunter-version').textContent = 'unreachable';
-  }
-
-  // Jyotish
-  try {
-    const r = await fetch('https://sugata-jyotish.vercel.app/', { mode: 'no-cors', signal: AbortSignal.timeout(10000) });
-    document.getElementById('jyotish-status').className = 'status ok';
-  } catch (e) {
-    document.getElementById('jyotish-status').className = 'status fail';
-  }
-
-  // Portfolio
-  try {
-    const r = await fetch('https://diyor.design/', { mode: 'no-cors', signal: AbortSignal.timeout(10000) });
-    document.getElementById('portfolio-status').className = 'status ok';
-  } catch (e) {
-    document.getElementById('portfolio-status').className = 'status fail';
-  }
-
-  document.getElementById('last-check').textContent = 'Last check: ' + new Date().toLocaleTimeString('ru');
+    const r = await fetch(url, { signal: AbortSignal.timeout(10000), mode: parse ? 'cors' : 'no-cors' });
+    document.getElementById(id).className = 'dot ok';
+    okCount++;
+    if (parse && verId) { const d = await r.json(); document.getElementById(verId).textContent = 'v' + (d.version || '?'); }
+    else if (verId) { document.getElementById(verId).textContent = 'ok'; }
+  } catch { document.getElementById(id).className = 'dot fail'; if (verId) document.getElementById(verId).textContent = 'down'; }
 }
 
-checkHealth();
+Promise.all([
+  check('s-sami', 'https://courageous-happiness-production.up.railway.app/health', 'v-sami', true),
+  check('s-hunter', 'https://hunter-production-0b65.up.railway.app/', 'v-hunter', true),
+  check('s-jyotish', 'https://sugata-jyotish.vercel.app/', 'v-jyotish', false),
+  check('s-portfolio', 'https://diyor.design/', null, false),
+]).then(() => {
+  document.getElementById('n-services').textContent = okCount + '/4';
+  document.getElementById('n-services').style.color = okCount === 4 ? '#3fb950' : '#f85149';
+  document.getElementById('last-check').textContent = new Date().toLocaleTimeString('ru');
+});
 
-// Load live stats from status.json (updated by Architect weekly)
 fetch('status.json?' + Date.now()).then(r => r.json()).then(s => {
-  document.getElementById('live-stats').style.display = 'block';
-  document.getElementById('stat-tests').textContent =
-    'Tests: SAMI ' + s.tests.sami + ' | Hunter ' + s.tests.hunter;
-  document.getElementById('stat-backlogs').textContent =
-    'Open tasks: SAMI ' + s.backlogs.sami_open + ' | Hunter ' + s.backlogs.hunter_open + ' | Architect ' + s.backlogs.architect_open;
-  document.getElementById('stat-updated').textContent =
-    'Last Architect report: ' + s.report_date;
+  const sami = parseInt(s.tests.sami) || 0;
+  const hunter = parseInt(s.tests.hunter) || 0;
+  document.getElementById('n-tests').textContent = sami + hunter;
 }).catch(() => {});
 
-// Load backlog and render open tasks
 fetch('BACKLOG.md?' + Date.now()).then(r => r.text()).then(md => {
-  const lines = md.split('\n');
-  let html = '';
-  let currentSection = '';
-  lines.forEach(line => {
-    if (line.startsWith('## From Review') || line.startsWith('### P')) {
-      const title = line.replace(/^#+\s*/, '');
-      currentSection = title;
-    }
-    if (line.match(/^- \[ \] /)) {
-      const task = line.replace('- [ ] ', '').replace(/\*\*/g, '');
-      const transfer = task.match(/\(перенос x(\d+)\)/);
-      const transferTag = transfer ? ' <span class="tag red">x' + transfer[1] + '</span>' : '';
-      if (!html.includes(currentSection + '</')) {
-        html += '<div style="margin-top:12px;font-size:12px;color:#58a6ff;font-weight:600;">' + currentSection + '</div>';
-      }
-      html += '<div style="margin:4px 0;padding:4px 0;border-bottom:1px solid #21262d;font-size:13px;">' + task.replace(/\(перенос x\d+\)/, '').trim() + transferTag + '</div>';
-    }
-  });
-  if (!html) html = '<span style="color:#3fb950;">All tasks completed!</span>';
-  document.getElementById('backlog-content').innerHTML = html;
-}).catch(() => { document.getElementById('backlog-content').textContent = 'Failed to load'; });
+  const open = md.split('\n').filter(l => l.match(/^- \[ \] /));
+  document.getElementById('n-tasks').textContent = open.length;
+  document.getElementById('n-tasks').style.color = open.length === 0 ? '#3fb950' : '#d29922';
+  if (open.length === 0) {
+    document.getElementById('backlog-list').innerHTML = '<span style="color:#3fb950;">All clear</span>';
+  } else {
+    document.getElementById('backlog-list').innerHTML = open.map(l => {
+      const text = l.replace('- [ ] ', '').replace(/\*\*/g, '');
+      const x = text.match(/перенос x(\d+)/);
+      const tag = x ? ' <span class="tag red">x' + x[1] + '</span>' : '';
+      return '<div class="task">' + text.replace(/\(перенос x\d+\)/, '').trim() + tag + '</div>';
+    }).join('');
+  }
+}).catch(() => {});
 </script>
 </body>
 </html>
