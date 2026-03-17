@@ -57,7 +57,7 @@
   <div class="card-title">Services</div>
   <div class="row"><span class="label"><span class="dot unknown" id="s-sami"></span>SAMI Bot</span><span class="value" id="v-sami">checking...</span></div>
   <div class="row"><span class="label"><span class="dot unknown" id="s-hunter"></span>Hunter Bot</span><span class="value" id="v-hunter">checking...</span></div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-jyotish"></span>Sugata Jyotish</span><span class="value" id="v-jyotish">checking...</span></div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-jyotish"></span>Vedik Astroloji</span><span class="value" id="v-jyotish">checking...</span></div>
   <div class="row"><span class="label"><span class="dot unknown" id="s-portfolio"></span>Portfolio</span><span class="value">diyor.design</span></div>
 </div>
 
@@ -87,7 +87,7 @@
   <summary>Quality Gates</summary>
   <div class="inner">
     <table>
-      <tr><th></th><th>SAMI</th><th>Hunter</th><th>Jyotish</th></tr>
+      <tr><th></th><th>SAMI</th><th>Hunter</th><th>Vedik Astroloji</th></tr>
       <tr><td>Pre-commit</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
       <tr><td>CI</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td></tr>
       <tr><td>Coverage</td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td></tr>
@@ -118,7 +118,7 @@
       <tr><th>Project</th><th>Skills</th></tr>
       <tr><td>SAMI</td><td class="mono">/deploy /backlog /status /catchup /save</td></tr>
       <tr><td>Hunter</td><td class="mono">/deploy /backlog /status /catchup /save</td></tr>
-      <tr><td>Jyotish</td><td class="mono">/deploy /backlog /status /catchup</td></tr>
+      <tr><td>Vedik Astroloji</td><td class="mono">/deploy /backlog /status /catchup</td></tr>
       <tr><td>Portfolio</td><td class="mono">/deploy /save /audit-seo /copy-review</td></tr>
     </table>
     <table style="margin-top:12px;">
@@ -143,14 +143,14 @@ GitHub ──────── CI (push/PR) ── tsc + vitest
 Railway ─────── SAMI Bot (:3000) ── /health /report /backup
             ─── Hunter Bot (:3000) ── / /backup
 
-Vercel ──────── Jyotish ── auto-deploy from main
+Vercel ──────── Vedik Astroloji ── auto-deploy from main
   </div>
 </details>
 
 <div class="card" style="border-left: 3px solid #58a6ff; margin-top: 16px;">
   <div class="card-title">How it works</div>
   <div style="font-size:13px; color:#8b949e; line-height:2;">
-    <p><b style="color:#f0f6fc;">4 проекта:</b> SAMI (fitness community bot), Hunter (job aggregator bot) — Railway 24/7, автодеплой из main. Sugata Jyotish (vedic astrology) — Vercel. Portfolio (diyor.design) — GitHub Pages.</p>
+    <p><b style="color:#f0f6fc;">4 проекта:</b> SAMI (fitness community bot), Hunter (job aggregator bot) — Railway 24/7, автодеплой из main. Vedik Astroloji Türkiye (vedic astrology) — Vercel. Portfolio (diyor.design) — GitHub Pages.</p>
 
     <p style="margin-top:10px;"><b style="color:#f0f6fc;">Ежедневно 09:30 МСК</b> — на Mac запускаются 2 стратега (SAMI + Hunter). Каждый через Claude анализирует свой проект: бэклог, метрики, код — и шлёт отчёт с рекомендациями в Telegram. Предложения стратега попадают в бэклог проекта.</p>
 
