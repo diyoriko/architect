@@ -125,4 +125,19 @@ if [ -n "$BOT_TOKEN" ]; then
     > /dev/null 2>&1 || echo "$(date -Iseconds) Telegram notification failed"
 fi
 
+# Google Calendar event
+CRITICAL=$(echo "$REPORT" | grep -c "critical\|Critical\|CRITICAL" || true)
+SUMMARY="Code Review: ${CRITICAL} critical issues"
+if command -v gcalcli >/dev/null 2>&1; then
+  ITEMS=$(echo "$REPORT" | grep -A 10 "## Action Items" | grep "^[0-9]\." | head -5 | tr '\n' ' ' | cut -c1-200)
+  gcalcli add \
+    --calendar "Personal" \
+    --title "Code Review — $DATE" \
+    --when "$(date -v+1H '+%Y-%m-%dT%H:%M:%S' 2>/dev/null || date '+%Y-%m-%dT%H:%M:%S')" \
+    --duration 15 \
+    --description "${ITEMS:-No critical issues}" \
+    --noprompt 2>/dev/null && echo "$(date -Iseconds) Google Calendar event created" \
+    || echo "$(date -Iseconds) Google Calendar event failed (non-critical)"
+fi
+
 echo "$(date -Iseconds) Code review complete"
