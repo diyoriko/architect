@@ -125,6 +125,32 @@ if [ -n "$BOT_TOKEN" ]; then
     > /dev/null 2>&1 || echo "$(date -Iseconds) Telegram notification failed"
 fi
 
+# Extract action items and append to project backlogs
+echo "$(date -Iseconds) Syncing action items to project backlogs..."
+
+SAMI_ITEMS=$(echo "$REPORT" | grep -E "SAMI|sami" | grep -E "approval|shared|db\.|index\.|analytics|scheduler|notify|rubrics|config" | head -5 | sed 's/^[0-9]*\. /- [ ] **Code Review:** /' | sed 's/|.*|/—/')
+HUNTER_ITEMS=$(echo "$REPORT" | grep -E "Hunter|hunter" | grep -E "bot\.|db\.|config\.|scorer|cover-letter|index" | head -5 | sed 's/^[0-9]*\. /- [ ] **Code Review:** /' | sed 's/|.*|/—/')
+
+if [ -n "$SAMI_ITEMS" ]; then
+  TASKS_FILE="$SAMI_DIR/COMMUNITY_TASKS.md"
+  if [ -f "$TASKS_FILE" ] && ! grep -q "Code Review: $DATE" "$TASKS_FILE" 2>/dev/null; then
+    echo "" >> "$TASKS_FILE"
+    echo "### Code Review $DATE" >> "$TASKS_FILE"
+    echo "$SAMI_ITEMS" >> "$TASKS_FILE"
+    echo "$(date -Iseconds) SAMI backlog updated with code review items"
+  fi
+fi
+
+if [ -n "$HUNTER_ITEMS" ]; then
+  TASKS_FILE="$HUNTER_DIR/BACKLOG.md"
+  if [ -f "$TASKS_FILE" ] && ! grep -q "Code Review: $DATE" "$TASKS_FILE" 2>/dev/null; then
+    echo "" >> "$TASKS_FILE"
+    echo "### Code Review $DATE" >> "$TASKS_FILE"
+    echo "$HUNTER_ITEMS" >> "$TASKS_FILE"
+    echo "$(date -Iseconds) Hunter backlog updated with code review items"
+  fi
+fi
+
 # Google Calendar event
 CRITICAL=$(echo "$REPORT" | grep -c "critical\|Critical\|CRITICAL" || true)
 SUMMARY="Code Review: ${CRITICAL} critical issues"
