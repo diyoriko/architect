@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mega Reviewer — Backlog</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 24px; max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; color: #f0f6fc; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #484f58; margin-bottom: 20px; }
+  .stats { display: flex; gap: 20px; margin-bottom: 20px; }
+  .stat { text-align: center; }
+  .stat-n { font-size: 28px; font-weight: 700; color: #f0f6fc; }
+  .stat-l { font-size: 11px; color: #484f58; text-transform: uppercase; }
+  .stat-n.red { color: #f85149; }
+  .stat-n.yellow { color: #d29922; }
+  .stat-n.green { color: #3fb950; }
+  .section { font-size: 13px; color: #58a6ff; font-weight: 600; margin: 20px 0 8px; }
+  .task { padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; display: flex; gap: 8px; }
+  .task.done { color: #484f58; text-decoration: line-through; }
+  .sev { font-size: 10px; padding: 2px 6px; border-radius: 8px; font-weight: 600; flex-shrink: 0; margin-top: 2px; }
+  .sev-critical { background: #da3633; color: #fff; }
+  .sev-high { background: #9e6a03; color: #fff; }
+  .sev-medium { background: #30363d; color: #8b949e; }
+  .file { font-family: 'SF Mono', monospace; font-size: 11px; color: #79c0ff; }
+  .back { font-size: 13px; color: #58a6ff; text-decoration: none; display: inline-block; margin-bottom: 16px; }
+  .review-link { font-size: 12px; color: #484f58; margin-top: 16px; }
+  #content { min-height: 100px; }
+  .refresh { font-size: 11px; color: #484f58; cursor: pointer; }
+  .refresh:hover { color: #58a6ff; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← Dashboard</a>
+<h1>Mega Reviewer</h1>
+<div class="subtitle">Code, UX, tests, backlog, security — all projects <span class="refresh" onclick="load()">[refresh]</span></div>
+
+<div class="stats" id="stats"></div>
+<div id="content">Loading...</div>
+<div class="review-link" id="review-link"></div>
+
+<script>
+function load() {
+  fetch('mega-review-BACKLOG.md?' + Date.now()).then(r => r.text()).then(render).catch(() => {
+    document.getElementById('content').textContent = 'Failed to load';
+  });
+
+  fetch('mega-review-latest.md?' + Date.now()).then(r => r.ok ? r.text() : null).then(md => {
+    if (md) {
+      const lines = md.split('\n');
+      const title = lines.find(l => l.startsWith('# ')) || '';
+      document.getElementById('review-link').innerHTML = 'Latest review: ' + title.replace('# ', '');
+    }
+  }).catch(() => {});
+}
+
+function render(md) {
+  const lines = md.split('\n');
+  let html = '', section = '', critical = 0, high = 0, medium = 0, done = 0, total = 0;
+
+  lines.forEach(l => {
+    if (l.match(/^###?\s/)) {
+      section = l.replace(/^#+\s*/, '');
+      html += '<div class="section">' + section + '</div>';
+    }
+    if (l.match(/^- \[[ x]\]/)) {
+      const isDone = l.includes('[x]');
+      total++;
+      if (isDone) { done++; return; }
+
+      let text = l.replace(/^- \[ \]\s*/, '').replace(/\*\*/g, '');
+      let sev = '', sevClass = '';
+      if (section.match(/Critical/i)) { sev = 'critical'; sevClass = 'sev-critical'; critical++; }
+      else if (section.match(/High/i)) { sev = 'high'; sevClass = 'sev-high'; high++; }
+      else { sev = 'medium'; sevClass = 'sev-medium'; medium++; }
+
+      const fileMatch = text.match(/`([^`]+:\~?\d+)`|— `([^`]+)`/);
+      const file = fileMatch ? (fileMatch[1] || fileMatch[2]) : '';
+      text = text.replace(/— `[^`]+`$/, '').replace(/`[^`]+:\~?\d+`/, '').trim();
+      if (text.endsWith(' —')) text = text.slice(0, -2);
+
+      html += '<div class="task">';
+      html += '<span class="sev ' + sevClass + '">' + sev + '</span>';
+      html += '<span>' + text;
+      if (file) html += ' <span class="file">' + file + '</span>';
+      html += '</span></div>';
+    }
+  });
+
+  const open = total - done;
+  document.getElementById('stats').innerHTML = [
+    { n: critical, l: 'Critical', c: 'red' },
+    { n: high, l: 'High', c: 'yellow' },
+    { n: medium, l: 'Medium', c: '' },
+    { n: done, l: 'Done', c: 'green' },
+  ].map(s => '<div class="stat"><div class="stat-n ' + s.c + '">' + s.n + '</div><div class="stat-l">' + s.l + '</div></div>').join('');
+
+  document.getElementById('content').innerHTML = html || '<p style="color:#3fb950;">All clear</p>';
+}
+
+load();
+setInterval(load, 30000); // auto-refresh every 30s
+</script>
+</body>
+</html>
