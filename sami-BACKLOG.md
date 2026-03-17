@@ -631,3 +631,10 @@
 | Claude CLI | Стратег-агент (`claude --print`) | Входит в подписку Max |
 | YouTube Data API v3 | Поиск видео | Бесплатная квота (10K units/day) |
 | Telegram Bot API | Бот | Бесплатно |
+
+### Code Review 2026-03-17
+SAMI и Hunter технически стабильны: тесты идут, деплой работает, основные фичи закрыты. Главная боль этой недели — три монолита по 1500+ строк (bot-menu.ts, bot.ts, db.ts) и критический баг в SAMI: данные от Mac-стратега не записываются в БД. Hunter несёт устаревший Claude model ID, который скоро сломает A/B тест обложек. Бэклоги приоритизированы адекватно, но есть мёртвый код в approval-флоу SAMI.
+- [ ] **Code Review:** **SAMI** — Исправить критический баг: `JSON.parse(payload.packet)` в `/packet` handler — `index.ts:~530`
+- [ ] **Code Review:** **SAMI** — Сохранить `challengeContext` в БД вместо in-memory Map — `approval.ts:26`
+- [ ] **Code Review:** **SAMI** — Удалить мёртвый `reject` из callback pattern или добавить кнопку — `approval.ts:~280`
+- [ ] **Code Review:** **SAMI** — Удалить `CATEGORY_EMOJI_MAP`, унифицировать с `CATEGORY_EMOJI` — `shared.ts:~213`
