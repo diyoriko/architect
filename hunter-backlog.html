@@ -3,449 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hunter — AI-поиск вакансий в Telegram</title>
-<meta name="description" content="Telegram-бот для поиска IT-вакансий. Скорит вакансии под твой профиль, генерирует сопроводительные письма через AI.">
-<meta property="og:title" content="Hunter — AI-поиск вакансий в Telegram">
-<meta property="og:description" content="Бот находит вакансии на hh.ru и Habr, оценивает совпадение с твоим профилем и пишет сопроводительные письма.">
-<meta property="og:type" content="website">
+<title>Hunter — Backlog</title>
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --border: #1e1e2e;
-    --text: #e8e8f0;
-    --text-secondary: #8888a0;
-    --accent: #6366f1;
-    --accent-light: #818cf8;
-    --accent-glow: rgba(99, 102, 241, 0.15);
-    --green: #22c55e;
-    --radius: 16px;
-  }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .container {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  /* Hero */
-  .hero {
-    padding: 80px 0 60px;
-    text-align: center;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    background: var(--accent-glow);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    border-radius: 20px;
-    font-size: 13px;
-    color: var(--accent-light);
-    margin-bottom: 24px;
-  }
-
-  .hero-badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  h1 {
-    font-size: clamp(32px, 6vw, 48px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -1px;
-    margin-bottom: 16px;
-  }
-
-  h1 span {
-    background: linear-gradient(135deg, var(--accent-light), #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    font-size: 18px;
-    color: var(--text-secondary);
-    max-width: 480px;
-    margin: 0 auto 40px;
-  }
-
-  .cta-group {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.3);
-  }
-
-  .btn-primary:hover {
-    background: var(--accent-light);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 32px rgba(99, 102, 241, 0.4);
-  }
-
-  .btn-secondary {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-
-  .btn-secondary:hover {
-    background: var(--border);
-  }
-
-  /* Features */
-  .features {
-    padding: 40px 0 60px;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .feature {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    transition: border-color 0.2s;
-  }
-
-  .feature:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-  }
-
-  .feature-icon {
-    font-size: 28px;
-    margin-bottom: 12px;
-  }
-
-  .feature-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .feature-text {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.5;
-  }
-
-  /* How it works */
-  .how {
-    padding: 40px 0 60px;
-  }
-
-  .section-title {
-    font-size: 24px;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 32px;
-    letter-spacing: -0.5px;
-  }
-
-  .steps {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .step {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-  }
-
-  .step-num {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: var(--accent-glow);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: var(--accent-light);
-    font-size: 14px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .step-content {
-    flex: 1;
-  }
-
-  .step-title {
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-
-  .step-text {
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-
-  /* Pricing */
-  .pricing {
-    padding: 40px 0 60px;
-  }
-
-  .plans {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .plan {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px 24px;
-  }
-
-  .plan-pro {
-    border-color: rgba(99, 102, 241, 0.4);
-    background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, var(--surface) 100%);
-  }
-
-  .plan-name {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-
-  .plan-price {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 16px;
-  }
-
-  .plan-price strong {
-    font-size: 24px;
-    color: var(--text);
-  }
-
-  .plan-features {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .plan-features li {
-    font-size: 14px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .plan-features li::before {
-    content: '\2713';
-    color: var(--green);
-    font-weight: 700;
-    font-size: 12px;
-    flex-shrink: 0;
-  }
-
-  .plan-features li.limited::before {
-    content: '\2013';
-    color: var(--text-secondary);
-  }
-
-  /* Footer CTA */
-  .footer-cta {
-    padding: 40px 0;
-    text-align: center;
-    border-top: 1px solid var(--border);
-  }
-
-  .footer-cta p {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin-top: 16px;
-  }
-
-  /* Responsive */
-  @media (max-width: 540px) {
-    .hero { padding: 48px 0 40px; }
-    .features-grid { grid-template-columns: 1fr; }
-    .plans { grid-template-columns: 1fr; }
-    .cta-group { flex-direction: column; align-items: center; }
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 24px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+  h1 { font-size: 20px; font-weight: 600; color: #f0f6fc; margin-bottom: 8px; }
+  .back { font-size: 13px; color: #58a6ff; text-decoration: none; margin-bottom: 20px; display: inline-block; }
+  .task { padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
+  .task.done { color: #484f58; text-decoration: line-through; }
+  .section { font-size: 13px; color: #58a6ff; font-weight: 600; margin-top: 16px; margin-bottom: 4px; }
+  .stats { font-size: 13px; color: #8b949e; margin-bottom: 16px; }
+  #content { margin-top: 16px; }
+  .note { font-size: 12px; color: #484f58; margin-top: 20px; }
 </style>
 </head>
 <body>
-
-<div class="container">
-
-  <section class="hero">
-    <div class="hero-badge">
-      <span class="hero-badge-dot"></span>
-      Telegram-бот
-    </div>
-    <h1>AI-поиск вакансий.<br><span>Письма за секунды.</span></h1>
-    <p class="hero-sub">Hunter находит IT-вакансии на hh.ru и Habr, оценивает совпадение с твоим профилем и генерирует сопроводительные письма через AI.</p>
-    <div class="cta-group">
-      <a href="https://t.me/jobhunt_ai_bot" class="btn btn-primary">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-        Начать в Telegram
-      </a>
-    </div>
-  </section>
-
-  <section class="features">
-    <div class="features-grid">
-      <div class="feature">
-        <div class="feature-icon">🎯</div>
-        <div class="feature-title">Персональный скоринг</div>
-        <div class="feature-text">Каждая вакансия оценивается по твоим навыкам, зарплате, формату работы и отрасли.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">✍️</div>
-        <div class="feature-title">AI-письма</div>
-        <div class="feature-text">Claude пишет сопроводительные письма под конкретную вакансию и твой профиль.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">Умный дайджест</div>
-        <div class="feature-text">3 раза в день бот собирает новые вакансии и присылает лучшие прямо в Telegram.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🔍</div>
-        <div class="feature-title">hh.ru + Habr</div>
-        <div class="feature-text">Два крупнейших источника IT-вакансий в одном месте. Не нужно проверять каждый сайт.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">📱</div>
-        <div class="feature-title">Прямо в Telegram</div>
-        <div class="feature-text">Никаких приложений. Весь поиск, фильтры и письма — в одном чате.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">⚡</div>
-        <div class="feature-title">Быстрый старт</div>
-        <div class="feature-text">Заполни профиль за пару минут или загрузи резюме — бот извлечёт данные сам.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="how">
-    <h2 class="section-title">Как это работает</h2>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Заполни профиль</div>
-          <div class="step-text">Должность, навыки, зарплата, формат — или просто загрузи PDF/DOCX резюме.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Получай дайджест</div>
-          <div class="step-text">Бот скорит вакансии 3 раза в день и показывает лучшие совпадения.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Генерируй письма</div>
-          <div class="step-text">Нажми кнопку — AI напишет сопроводительное письмо за 5 секунд.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">Откликайся</div>
-          <div class="step-text">Перейди на вакансию, вставь письмо и отправь. Трекай статус прямо в боте.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="pricing">
-    <h2 class="section-title">Тарифы</h2>
-    <div class="plans">
-      <div class="plan">
-        <div class="plan-name">Free</div>
-        <div class="plan-price"><strong>0</strong> Stars</div>
-        <ul class="plan-features">
-          <li>5 писем в неделю</li>
-          <li>15 вакансий в дайджесте</li>
-          <li>2 push-уведомления</li>
-          <li>Импорт резюме</li>
-          <li>3 дня Pro при старте</li>
-        </ul>
-      </div>
-      <div class="plan plan-pro">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price"><strong>200</strong> Stars/нед</div>
-        <ul class="plan-features">
-          <li>Безлимит писем</li>
-          <li>Все вакансии в дайджесте</li>
-          <li>5 push-уведомлений</li>
-          <li>Импорт резюме</li>
-          <li>Приоритетная поддержка</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="footer-cta">
-    <a href="https://t.me/jobhunt_ai_bot" class="btn btn-primary">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-      Начать в Telegram
-    </a>
-    <p>Бесплатно. 3 дня Pro в подарок.</p>
-  </section>
-
-</div>
-
+<a href="./" class="back">← Dashboard</a>
+<h1>Hunter — Backlog</h1>
+<div class="stats" id="stats"></div>
+<div id="content">Loading...</div>
+<div class="note" id="note"></div>
+<script>
+function render(md) {
+  const lines = md.split('\n');
+  let html = '', section = '', open = 0, closed = 0, skip = false;
+  lines.forEach(l => {
+    if (l.match(/^#{1,3}\s/)) {
+      const t = l.replace(/^#+\s*/, '');
+      skip = !!t.match(/^Сделано|^Метаданные/);
+      if (!skip) html += '<div class="section">' + t + '</div>';
+      section = t;
+    }
+    if (skip) { if (l.match(/^---/)) skip = false; return; }
+    if (l.match(/^- \[ \]/)) {
+      open++;
+      html += '<div class="task">' + l.replace(/^- \[ \]\s*/, '').replace(/\*\*/g, '') + '</div>';
+    }
+    if (l.match(/^- \[x\]/)) closed++;
+  });
+  document.getElementById('content').innerHTML = html || '<p style="color:#3fb950;">All clear</p>';
+  document.getElementById('stats').textContent = open + ' open / ' + closed + ' closed';
+}
+fetch('hunter-BACKLOG.md?' + Date.now()).then(r => r.ok ? r.text() : null).then(md => {
+  if (md) { render(md); return; }
+  document.getElementById('content').innerHTML = '<p style="color:#8b949e;">Synced at build time. Use /backlog in Claude Code for live data.</p>';
+}).catch(() => {});
+</script>
 </body>
 </html>

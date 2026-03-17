@@ -373,6 +373,10 @@ cat > "$STATUS_FILE" <<STATUSJSON
 STATUSJSON
 echo "$(date -Iseconds) status.json updated"
 
+# Sync project backlogs for dashboard
+cp "$HUNTER_DIR/BACKLOG.md" "$SCRIPT_DIR/hunter-BACKLOG.md" 2>/dev/null || true
+cp "$SAMI_DIR/COMMUNITY_TASKS.md" "$SCRIPT_DIR/sami-BACKLOG.md" 2>/dev/null || true
+
 # Push dashboard updates to GitHub Pages
 if cd "$SCRIPT_DIR" && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   git add status.json reports/ BACKLOG.md 2>/dev/null
