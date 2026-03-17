@@ -108,22 +108,7 @@ fi
 echo "$REPORT" > "$REPORT_FILE"
 echo "$(date -Iseconds) Review saved to $REPORT_FILE"
 
-# Telegram notification
-PREVIEW=$(echo "$REPORT" | head -25)
-NOTIFY_TEXT="Code Review — $DATE
-
-${PREVIEW}
-
-...полный отчёт в Architect/code-reviews/$DATE.md"
-NOTIFY_TEXT="${NOTIFY_TEXT:0:4000}"
-
-if [ -n "$BOT_TOKEN" ]; then
-  curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-    -d "chat_id=${ADMIN_CHAT_ID}" \
-    -d "disable_web_page_preview=true" \
-    --data-urlencode "text=${NOTIFY_TEXT}" \
-    > /dev/null 2>&1 || echo "$(date -Iseconds) Telegram notification failed"
-fi
+# No Telegram — only Google Calendar (less noise)
 
 # Extract action items and append to project backlogs
 echo "$(date -Iseconds) Syncing action items to project backlogs..."
@@ -155,13 +140,15 @@ fi
 CRITICAL=$(echo "$REPORT" | grep -c "critical\|Critical\|CRITICAL" || true)
 SUMMARY="Code Review: ${CRITICAL} critical issues"
 if command -v gcalcli >/dev/null 2>&1; then
-  ITEMS=$(echo "$REPORT" | grep -A 10 "## Action Items" | grep "^[0-9]\." | head -5 | tr '\n' ' ' | cut -c1-200)
+  SUMMARY=$(echo "$REPORT" | head -5 | tail -3 | sed 's/\*\*//g' | sed 's/`//g' | sed 's/^#\+ //' | tr '\n' ' ' | cut -c1-150)
+  ITEMS=$(echo "$REPORT" | grep -A 10 "## Action Items" | grep "^[0-9]\." | head -5 | sed 's/\*\*//g' | sed 's/`//g' | tr '\n' '\n')
+  DESC="$(printf '%s\n\n%s\n\nReport: ~/Documents/Projects/Architect/code-reviews/%s.md' "$SUMMARY" "$ITEMS" "$DATE")"
   gcalcli add \
     --calendar "Personal" \
-    --title "Code Review — $DATE" \
+    --title "Mega Review — $DATE ($CRITICAL critical)" \
     --when "$(date -v+1H '+%Y-%m-%dT%H:%M:%S' 2>/dev/null || date '+%Y-%m-%dT%H:%M:%S')" \
     --duration 15 \
-    --description "${ITEMS:-No critical issues}" \
+    --description "$DESC" \
     --noprompt 2>/dev/null && echo "$(date -Iseconds) Google Calendar event created" \
     || echo "$(date -Iseconds) Google Calendar event failed (non-critical)"
 fi

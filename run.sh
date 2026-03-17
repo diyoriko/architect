@@ -318,29 +318,11 @@ if [ -n "$BACKLOG_SECTION" ] && [ ${#BACKLOG_SECTION} -gt 10 ]; then
   fi
 fi
 
-# Send Telegram notification
-PREVIEW=$(echo "$REPORT" | head -30)
-NOTIFY_TEXT="$(cat <<EOF
-Architect Review — $DATE
-
-${PREVIEW}
-
-...полный отчёт в Projects/Architect/reports/$DATE.md
-EOF
-)"
-NOTIFY_TEXT="${NOTIFY_TEXT:0:4000}"
-
-if [ -n "$BOT_TOKEN" ]; then
-  curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-    -d "chat_id=${ADMIN_CHAT_ID}" \
-    -d "disable_web_page_preview=true" \
-    --data-urlencode "text=${NOTIFY_TEXT}" \
-    > /dev/null 2>&1 || echo "$(date -Iseconds) Telegram notification failed"
-fi
+# No Telegram — only Google Calendar (less noise)
 
 # Create Google Calendar event
-ACTION_ITEMS=$(echo "$REPORT" | grep -A 10 "Action Items" | grep "^[0-9]\." | head -5 | tr '\n' '\n')
-DESCRIPTION="$(printf '%s\n\n%s' "${ACTION_ITEMS:-See full report}" "Full report: Projects/Architect/reports/$DATE.md")"
+ACTION_ITEMS=$(echo "$REPORT" | grep -A 10 "Action Items" | grep "^[0-9]\." | head -5 | sed 's/\*\*//g' | sed 's/`//g' | tr '\n' '\n')
+DESCRIPTION="$(printf '%s\n\n%s' "${ACTION_ITEMS:-No action items}" "Report: ~/Documents/Projects/Architect/reports/$DATE.md")"
 
 if command -v gcalcli >/dev/null 2>&1; then
   gcalcli add \
