@@ -263,6 +263,17 @@ echo "$(date -Iseconds) Starting architect review..."
   launchctl list | grep -E "sami|hunter|architect|hardstop" || echo "(none found)"
   echo ""
 
+  # Latest code review (Saturday → Sunday continuity)
+  echo "=== CODE REVIEW: latest ==="
+  LAST_CR=$(ls -t "$SCRIPT_DIR/code-reviews"/*.md 2>/dev/null | head -1 || true)
+  if [ -n "$LAST_CR" ]; then
+    echo "File: $(basename "$LAST_CR")"
+    head -60 "$LAST_CR"
+  else
+    echo "(no code reviews yet)"
+  fi
+  echo ""
+
   # Current Architect backlog
   echo "=== ARCHITECT: current backlog ==="
   cat "$SCRIPT_DIR/BACKLOG.md" 2>/dev/null || echo "(no backlog)"
