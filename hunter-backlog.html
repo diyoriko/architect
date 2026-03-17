@@ -3,51 +3,1152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hunter — Backlog</title>
+<title>Hunter Backlog</title>
 <style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --p0: #f85149;
+    --p1: #d29922;
+    --p2: #3fb950;
+    --p3: #8b949e;
+    --done: #238636;
+    --done-bg: rgba(35,134,54,0.15);
+    --deployed: #a371f7;
+    --deployed-bg: rgba(163,113,247,0.15);
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 24px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
-  h1 { font-size: 20px; font-weight: 600; color: #f0f6fc; margin-bottom: 8px; }
-  .back { font-size: 13px; color: #58a6ff; text-decoration: none; margin-bottom: 20px; display: inline-block; }
-  .task { padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
-  .task.done { color: #484f58; text-decoration: line-through; }
-  .section { font-size: 13px; color: #58a6ff; font-weight: 600; margin-top: 16px; margin-bottom: 4px; }
-  .stats { font-size: 13px; color: #8b949e; margin-bottom: 16px; }
-  #content { margin-top: 16px; }
-  .note { font-size: 12px; color: #484f58; margin-top: 20px; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    max-width: 960px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .meta {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .meta .live {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--p2);
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  /* Sections */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .section-header:hover {
+    background: rgba(255,255,255,0.03);
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .section-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-active { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .badge-done { background: var(--done-bg); color: var(--done); }
+  .badge-planned { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+
+  .section-body {
+    padding: 0 20px 16px;
+  }
+
+  .collapse-icon {
+    transition: transform 0.2s;
+    color: var(--text-muted);
+  }
+
+  .collapsed .collapse-icon {
+    transform: rotate(-90deg);
+  }
+
+  .collapsed .section-body {
+    display: none;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  /* Groups */
+  .group {
+    margin-bottom: 16px;
+  }
+
+  .group:last-child {
+    margin-bottom: 0;
+  }
+
+  .group-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Tasks */
+  .task {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    font-size: 14px;
+    transition: background 0.15s;
+  }
+
+  .task:hover {
+    background: rgba(255,255,255,0.03);
+  }
+
+  .task.has-detail {
+    cursor: pointer;
+  }
+
+  .task-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .task-done .task-check {
+    background: var(--done);
+    border-color: var(--done);
+  }
+
+  .task-done .task-check::after {
+    content: '\2713';
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .task-done .task-text {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(139,148,158,0.4);
+  }
+
+  .task-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .task-text {
+    flex: 1;
+  }
+
+  .task-text strong {
+    font-weight: 600;
+  }
+
+  .task-detail {
+    display: none;
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid var(--border);
+    border-radius: 0 4px 4px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .task-detail.open {
+    display: block;
+  }
+
+  .expand-icon {
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform 0.15s;
+    flex-shrink: 0;
+  }
+
+  .task.expanded .expand-icon {
+    transform: rotate(90deg);
+  }
+
+  /* Release (done section) */
+  .done-section .section-body {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .release-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .release-item::before {
+    content: '\2713';
+    color: var(--done);
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Info tables — classic table layout at top */
+  .info-tables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .info-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .info-table-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 12px 16px 8px;
+  }
+
+  .info-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .info-table td {
+    padding: 6px 16px;
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+
+  .info-table td:first-child {
+    color: var(--text-muted);
+    white-space: nowrap;
+    width: 1%;
+  }
+
+  .info-table td:last-child {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .info-table .cost {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  .info-table .cost.paid {
+    color: var(--p1);
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin: 24px 0 12px;
+  }
+
+  /* Agent card */
+  .agent-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .agent-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .agent-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: rgba(88,166,255,0.15);
+  }
+
+  .agent-name {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .agent-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .agent-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: rgba(88,166,255,0.1);
+    color: var(--accent);
+  }
+
+  .agent-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .agent-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .skill-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  /* Schedule table */
+  .schedule-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .schedule-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .schedule-table th {
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .schedule-table td {
+    padding: 8px 16px;
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+
+  .schedule-table td:first-child {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+    width: 80px;
+  }
+
+  .schedule-table td:nth-child(2) {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .schedule-table td:nth-child(3) {
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .schedule-table td:last-child {
+    color: var(--text-muted);
+  }
+
+  .schedule-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+  }
+
+  /* Three column info layout */
+  .info-tables-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .info-tables, .info-tables-3 { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
-<a href="./" class="back">← Dashboard</a>
-<h1>Hunter — Backlog</h1>
+
+<header>
+  <h1>Hunter Backlog</h1>
+  <div class="meta"><span class="live"></span> <span id="lastUpdate"></span></div>
+</header>
+
 <div class="stats" id="stats"></div>
-<div id="content">Loading...</div>
-<div class="note" id="note"></div>
+<div id="infopanel"></div>
+<div id="schedule"></div>
+<div id="agent"></div>
+<div id="content"></div>
+
 <script>
-function render(md) {
+// === GitHub raw URL (uncomment when repo is created) ===
+const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/diyoriko/hunter/main/BACKLOG.md';
+
+// === Markdown parser for Hunter BACKLOG.md format ===
+
+function parseBacklogMd(md) {
   const lines = md.split('\n');
-  let html = '', section = '', open = 0, closed = 0, skip = false;
-  lines.forEach(l => {
-    if (l.match(/^#{1,3}\s/)) {
-      const t = l.replace(/^#+\s*/, '');
-      skip = !!t.match(/^Сделано|^Метаданные/);
-      if (!skip) html += '<div class="section">' + t + '</div>';
-      section = t;
+  const done = { version: '', date: '', items: [] };
+  const sprints = [];
+  let section = null;
+  let currentSprint = null;
+  let currentGroup = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Done section: ## Сделано (v0.1.0 — 12.03.2026)
+    const doneMatch = line.match(/^## Сделано\s*\((v[\d.]+)\s*[—\-]\s*(.+?)\)/);
+    if (doneMatch) {
+      done.version = doneMatch[1];
+      done.date = doneMatch[2];
+      section = 'done';
+      continue;
     }
-    if (skip) { if (l.match(/^---/)) skip = false; return; }
-    if (l.match(/^- \[ \]/)) {
-      open++;
-      html += '<div class="task">' + l.replace(/^- \[ \]\s*/, '').replace(/\*\*/g, '') + '</div>';
+
+    // Sprint: ## SPRINT 1 — Name
+    const sprintMatch = line.match(/^## SPRINT (\d+) — (.+)/);
+    if (sprintMatch) {
+      section = 'sprint';
+      currentSprint = {
+        number: parseInt(sprintMatch[1]),
+        name: sprintMatch[2].trim(),
+        status: 'active',
+        groups: []
+      };
+      sprints.push(currentSprint);
+      currentGroup = null;
+      continue;
     }
-    if (l.match(/^- \[x\]/)) closed++;
-  });
-  document.getElementById('content').innerHTML = html || '<p style="color:#3fb950;">All clear</p>';
-  document.getElementById('stats').textContent = open + ' open / ' + closed + ' closed';
+
+    // Priority group: ### P0: Name  or  ### P0-1: Name (subgroups)
+    const groupMatch = line.match(/^### (P\d)(?:-\d+)?:\s*(.+)/);
+    if (groupMatch && currentSprint) {
+      currentGroup = {
+        priority: groupMatch[1].toLowerCase(),
+        title: groupMatch[2].trim(),
+        tasks: []
+      };
+      currentSprint.groups.push(currentGroup);
+      continue;
+    }
+
+    // Separator resets section
+    if (/^---\s*$/.test(line)) {
+      if (section === 'done') section = null;
+      currentGroup = null;
+      continue;
+    }
+
+    // Metadata section
+    if (/^## Метаданные/.test(line)) {
+      section = 'metadata';
+      continue;
+    }
+
+    // Task: - [x] or - [ ] with optional **bold** — detail
+    const taskMatch = line.match(/^- \[([ x])\]\s+(.+)/);
+    if (taskMatch) {
+      const isDone = taskMatch[1] === 'x';
+      let raw = taskMatch[2].trim();
+
+      if (section === 'done') {
+        // Strip markdown bold
+        raw = raw.replace(/\*\*/g, '');
+        done.items.push(raw);
+        continue;
+      }
+
+      if (currentGroup) {
+        let text = raw;
+        let detail = '';
+        const boldMatch = raw.match(/^\*\*(.+?)\*\*\s*[—\-]\s*(.*)/);
+        if (boldMatch) {
+          text = boldMatch[1];
+          detail = boldMatch[2] || '';
+        } else {
+          const plainBold = raw.match(/^\*\*(.+?)\*\*/);
+          if (plainBold) text = plainBold[1];
+        }
+        const task = { text, done: isDone };
+        if (detail) task.detail = detail;
+        currentGroup.tasks.push(task);
+      }
+      continue;
+    }
+  }
+
+  return { done, sprints };
 }
-fetch('hunter-BACKLOG.md?' + Date.now()).then(r => r.ok ? r.text() : null).then(md => {
-  if (md) { render(md); return; }
-  document.getElementById('content').innerHTML = '<p style="color:#8b949e;">Synced at build time. Use /backlog in Claude Code for live data.</p>';
-}).catch(() => {});
+
+// === Embedded BACKLOG.md (source of truth until GitHub repo) ===
+
+const BACKLOG_MD = `# Hunter — Backlog
+
+> Источник правды для задач. Стратег добавляет, владелец приоритизирует.
+> Последнее обновление: 2026-03-15
+
+---
+
+## Сделано (v0.2.0 — 12.03.2026)
+
+- [x] Мультиюзерная архитектура (users, user_vacancies, cover_letters)
+- [x] Онбординг: 14-step state machine с skip/back
+- [x] Скрейперы: hh.ru API + Habr Career API
+- [x] Скоринг: навыки 40%, зп 25%, формат 20%, отрасль 15%
+- [x] Персонализированный дайджест с пагинацией
+- [x] Cover letters через Claude CLI (Sonnet)
+- [x] Кнопки: Дайджест, Профиль, Статистика, Очистить
+- [x] Owner seed (пропуск онбординга)
+- [x] Агент-стратег (launchd, ежедневно)
+- [x] Inline-кнопки в онбординге (Пропустить, Назад)
+- [x] 22 отрасли + свободный ввод
+- [x] Field-by-field редактирование (12 полей) с escape hatch
+- [x] Deploy-уведомления в Telegram
+- [x] Railway 24/7: volume, healthcheck, env vars, автодеплой
+- [x] Admin ID в config
+- [x] Scheduler: node-cron 3x/день + push + утренний дайджест
+- [x] Убрана кнопка «Поиск» + автоскрейп после онбординга
+- [x] Graceful shutdown (SIGTERM → stopScheduler + bot.stop)
+
+---
+
+## SPRINT 2 — Монетизация (путь к первому рублю)
+
+### P0: Автоскрейп + push (retention)
+
+- [x] **Scheduler** — node-cron: скрейп для всех юзеров 3x/день (09:00, 13:00, 17:00 MSK)
+- [x] **Push-уведомления** — после скрейпа слать юзерам вакансии score>70 как instant alert
+- [x] **Утренний дайджест** — ежедневная push-сводка: "N новых вакансий, M high-score"
+- [x] **Убрать кнопку «Поиск»** — с автоскрейпом ручной поиск не нужен, оставить только Дайджест
+- [x] **Автоскрейп после онбординга** — запускать первый скрейп сразу после завершения настройки профиля
+
+### P0: Freemium лимиты (gates перед оплатой)
+
+- [x] **Schema migration** — plan, plan_expires_at, letters_used, credits в users
+- [x] **Лимиты Free** — 5 cover letters (lifetime), 15 вакансий в дайджесте, 2 push-алерта
+- [x] **Лимиты Pro** — безлимит писем/дайджеста, 5 push-алертов
+- [x] **Guards** — проверка лимитов перед generateCoverLetter и restyle, лимит дайджеста/пагинации
+- [x] **Paywall UX** — "Лимит исчерпан" с ссылкой на /subscribe
+- [x] **Команда /subscribe** — тарифы Free/Pro/Год + кредиты
+- [x] **Plan info** — план и остаток в статистике
+- [x] **Auto-expire** — scheduler проверяет и деактивирует истёкшие Pro-планы
+- [x] **Credits система** — кредиты как альтернатива подписке (1 письмо = 5 кредитов)
+
+### P0: Telegram Stars оплата — гибридная модель
+
+- [x] **Команда /subscribe** — тарифы, лимиты, кредиты (UI ready)
+- [x] **Pro подписка** — ctx.replyWithInvoice(), 700 Stars/мес (~\$7.70)
+- [x] **Credits пакеты** — 100 Stars = 3 letters, 300 Stars = 10 letters (снижает барьер первой оплаты)
+- [x] **pre_checkout_query + successful_payment** — обработка оплаты, обновление plan/credits в БД
+- [x] **Напоминание о продлении** — за 3 дня до окончания Pro
+- [x] **Годовой план** — 6720 Stars/год (скидка 20% vs 700×12=8400)
+
+### P0: Остаток
+
+- [x] **Переименовать бота** — "AI Ловец вакансий" в @BotFather (username @jobhunt_ai_bot не меняется)
+- [x] **Deploy report** — после деплоя бот шлёт админу: метрики (юзеры, вакансии, avg score)
+
+---
+
+## SPRINT 3 — Качество и polish
+
+### P1: Cover letter resilience
+
+- [x] **Таймаут** — сообщение "Генерация занимает дольше обычного..." после 15с
+- [x] **Fallback при ошибке** — показывать вакансию с кнопками + «Повторить», а не голый текст ошибки
+
+### P1: Защита и валидация
+
+- [x] **Input validation** — лимит длины в онбординге: имя 100, title 200, about 2000, skills 500
+- [x] **Salary parser** — поддержка "k", "K", пробелов, запятых: "300k-500k" → 300000-500000
+- [x] **Silent catch → logger.warn** — заменить пустые catch блоки в bot.ts
+- [x] **Задержки в scraper runner** — добавить random delay 1-3с между запросами к hh.ru/Habr для снижения риска бана при масштабировании
+
+### P1: UX polish
+
+- [x] **Дайджест: подзаголовок «вот N из них»** — после заголовка «Дайджест — 263 вакансии под тебя» добавить «Вот 15 лучших:» (или текущий лимит). При медленном интернете пользователь может думать что увидит все 263 — нужно сразу показать что это топ-N
+- [x] **Пагинация** — "Показано 1–15 из 127" вместо "Показано 15 из 127"
+- [x] **Пустой дайджест** — предложить расширить профиль если 0 вакансий
+- [x] **Vacancy после "Откликнулся"** — не удалять, добавить ✅ к заголовку
+- [x] **"Очистить" → подтверждение** — предупреждение + переименовать в "Очистить чат"
+- [x] **Карточка вакансии: моноширинные поля** — Зарплата, Формат, Скор, Навыки — в code
+
+### P1: Статистика
+
+- [x] **Полировка экрана** — убрать превью Хабра, убрать эмодзи из заголовка, сверить описание скора с scorer.ts
+- [x] **Admin stats команда** — /adminstats для ADMIN_TELEGRAM_ID: MAU, total users, pro users, cover letters count, avg score
+
+### P1: Скоринг и данные
+
+- [x] **Fix salary scoring bug** — \`if (midVacancy > userMax) return 90\` логически неверно: вакансия выше диапазона получает почти максимум. Скорректировать: до 30% выше → 75, 30-60% → 50, сильно выше → 30
+- [x] **SQLite busy_timeout** — добавить \`PRAGMA busy_timeout = 5000\` при инициализации БД
+
+### P1: Мелкий UX
+
+- [x] **Профиль с пояснениями** — показать как Red flags и Блеклист влияют на скоринг
+- [x] **Возвращение пользователя** — при /start показать последнее действие или быстрые кнопки
+- [x] **Edit menu в 2 колонки** — на мобильном 3 кнопки в ряд слишком мелкие
+- [x] **Ошибки с контекстом** — вместо "Ошибка: ..." добавить совет что делать дальше
+
+---
+
+## SPRINT 4 — Рост и фичи
+
+### Перенесено из Sprint 3
+
+- [x] **Rate limiting** — cooldown 30с на генерацию cover letter (cover + restyle), предотвращает спам-клики
+- [x] **Feedback при скрейпе** — прогресс при автоскрейпе после онбординга: «Ищу на hh.ru...» → «Ищу на Habr...» → «Оцениваю вакансии...» → «Готово!»
+- [x] **Проверка timezone scheduler** — верифицировано: node-cron Europe/Moscow работает корректно на Railway
+- [x] **Качественный порог скора** — /adminscore команда: распределение скоров, медиана, P25/P75, % выше порогов (40/60/80)
+- [x] **"Скрыть" = навсегда** — верифицировано: rejected status сохраняется, upsertUserVacancy не перезаписывает status
+- [x] **FK CASCADE** — ON DELETE CASCADE для user_vacancies, cover_letters, payments (миграция с пересозданием таблиц)
+- [x] **Кнопка "Все навыки"** — кнопка «🛠️ Все навыки» в карточке вакансии → полный список навыков + описание (до 1000 символов)
+- [ ] **UX-ревью всех текстов** — глубокий ревью текстов бота через UX-редактора. _Причина: ручная задача, нужен живой UX-ревьюер_
+- [x] **Approval flow стратега** — предложения стратега приходят с кнопками «Одобрить»/«Отклонить», одобренные добавляются в BACKLOG.md при следующем запуске
+
+### P2: Привлечение (первые 100-500 юзеров)
+
+- [ ] **Лендинг** — минимальная страница: что делает бот, "Начать в Telegram" (Tilda/HTML). Нужен до статьи на VC.ru
+- [ ] **Пост в TG-чатах дизайнеров** — целевые чаты: @designerjobs, @ux_jobs_ru, @design_jobs_russia. Текст без воды: что бот делает + CTA
+- [ ] **Статья VC.ru** — "Я сделал AI-бота для поиска работы за 2 недели". Фокус на боли соискателя, скриншоты, CTA. При 20+ юзерах
+- [x] **hh.ru User-Agent ротация** — массив browser UA в hh.ts, случайный на каждый запрос (v0.11.0, 15.03.2026)
+- [ ] **Статья Habr** — технический пост о стеке и архитектуре
+
+### P2: Виральность и retention
+
+- [x] **Реферальная программа** — /invite → уникальная ссылка → +1 мес Pro за платящего, deep link в /start (v0.11.0, 15.03.2026)
+- [x] **Progress tracking** — трекать: найдено вакансий, отправлено откликов per user (v0.11.0, 15.03.2026)
+- [x] **Share progress** — кнопка «Поделиться» в статистике → карточка «Hunter помог найти X вакансий» (v0.11.0, 15.03.2026)
+- [ ] **Inline bot mode** — @hunterbot senior designer remote в чатах → вакансии. Мощный механизм роста
+- [x] **Трекер откликов** — /track: список applied вакансий + inline-кнопки (интервью/оффер/отказ) (v0.11.0, 15.03.2026)
+- [x] **«Напомни через 3 месяца» кнопка** — после «Откликнулся» → кнопка напоминания + scheduler cron (v0.11.0, 15.03.2026)
+- [x] **«Я нашёл работу» flow** — кнопка в статистике, reminder 90 дней, re-engagement push (v0.11.0, 15.03.2026)
+### P2: Аналитика
+
+- [x] **Метрики** — DAU/MAU/WAJS в /adminstats (v0.11.0, 15.03.2026). _Конверсия free→pro, churn rate — когда будут данные_
+
+### P2: Источники и контент
+
+- [ ] **RU источники** — Getmatch, Careerspace, Telegram-каналы вакансий
+- [ ] **Superjob** — документированный API, добавить как 3-й scraper
+- [x] **Domain scoring** — scorer.ts: keyword matching по 21 отрасли (уже было, верифицировано)
+- [x] **Фильтры в дайджесте** — inline-кнопки: удалёнка/гибрид/офис, hh.ru/Habr, сброс (v0.11.0, 15.03.2026)
+
+### P2: UX и polish
+
+- [x] **Match score визуализация** — 🟢/🟡/🔴 emoji рядом со скором в карточке вакансии (v0.11.0, 15.03.2026)
+- [x] **Очистить: пояснение лимитов** — текст с пояснением ограничения Telegram API (до 48ч, только свои) (v0.11.0, 15.03.2026)
+- [x] **Убрать эмодзи из заголовков вакансий** — эмодзи скора (🔥/✅/💡/⚪) не нужны в заголовке (v0.10.0, 15.03.2026)
+- [ ] **Architect Review: человекочитаемый формат** — ревью архитектора приходит в сыром Markdown с таблицами, нечитаемо в Telegram. Переверстать в чистый текст с эмодзи-статусами без таблиц
+- [x] **Ручной скрейп для Free** — кнопка «Искать сейчас» в пустом дайджесте, callback manual_scrape (v0.11.0, 15.03.2026)
+- [x] **Убрать автоскрейп после онбординга** — бот не должен автоматически искать после заполнения профиля (v0.10.0, 15.03.2026)
+- [x] **Ревизия списка отраслей** — убрать Auto, «Своя отрасль» (v0.10.0, 15.03.2026)
+- [x] **Дайджест пуст для нового юзера** — авто-скоринг при первом дайджесте + кнопка ручного скрейпа (v0.10.0+v0.11.0)
+- [x] **Профиль: отсутствует поле «О себе»** — в /profile не показывалось поле about (v0.10.0, 15.03.2026)
+- [x] **Баг редактирования профиля** — после сохранения поля бот заново показывал полное меню редактирования. Теперь показывает короткое подтверждение «✅ ... обновлено» (v0.10.0, 15.03.2026)
+- [x] **«Что хотят» — структурированный вид** — парсинг HTML по секциям: Обязанности, Требования, Условия, О компании (v0.11.0, 15.03.2026)
+
+### P2: Профиль и AI
+
+- [ ] **Импорт резюме** — парсинг PDF/DOCX или hh.ru профиль
+- [x] **A/B cover letters** — чередование Haiku (быстро) и Sonnet (качество), логирование модели (v0.11.0, 15.03.2026)
+- [x] **Anthropic SDK** — CLI → \`@anthropic-ai/sdk\` (v0.9.0, 15.03.2026)
+
+### P2: Расширение аудитории
+
+- [x] **Все IT-профессии** — scorer.ts: группы профессий (дизайн, бэкенд, data/ML, QA) с кросс-фильтрацией (v0.11.0, 15.03.2026)
+
+---
+
+## SPRINT 5 — Перспектива
+
+### P3: Career Copilot (расширение JTBD — увеличивает LTV с 1 до 3-6 мес)
+
+- [ ] **Interview prep** — /interview: типовые вопросы, подготовка ответов по профилю
+- [ ] **Salary negotiation** — /salary: рыночные данные по позиции, скрипты переговоров
+- [ ] **Offer comparison** — /offers: сравнение офферов (зп, формат, бенефиты, рост)
+- [ ] **Saved searches** — сохранённые фильтры с автоматическим мониторингом
+
+### P3: B2B (x10 revenue, запускать при 3000+ юзерах)
+
+- [ ] **Job postings** — работодатели размещают: \$49/вакансия, \$99/featured, \$199/highlight
+- [ ] **Talent pool** — рекрутеры: \$49/мес за доступ к анонимным профилям
+- [ ] **"Post a job"** — кнопка появляется при достижении 3000+ юзеров
+
+### P3: Глобализация
+
+- [ ] **EN интерфейс** — мультиязычность (открывает 50M+ IT-специалистов)
+- [ ] **EN источники** — Wellfound, YC Jobs, Remote OK, LinkedIn
+- [ ] **Telegram Mini App** — веб-интерфейс для профиля и дайджеста
+
+---
+
+## Метаданные
+
+| Параметр | Значение |
+|----------|----------|
+| Bot | @jobhunt_ai_bot ("AI Ловец вакансий") |
+| Admin | env: ADMIN_TELEGRAM_ID |
+| DB | jobs.db (SQLite WAL) |
+| Hosting | Railway 24/7, автодеплой из main |
+| Стратег | launchd com.hunter.strategist.plist, ежедневно |
+| Стек | Node.js 22, TypeScript, grammY, better-sqlite3, Anthropic SDK |
+
+| Сервис | Назначение | Стоимость |
+|--------|-----------|-----------|
+| Railway | Хостинг 24/7 | ~\$5/мес |
+| Anthropic SDK | Cover letters (claude-sonnet) | ~\$3-5/мес |
+| Telegram Stars | Оплата (план) | ~30% комиссия |
+| hh.ru API | Вакансии | Бесплатно |
+| Habr Career API | Вакансии | Бесплатно |
+`;
+
+// === Static data for sections not in markdown ===
+
+const agentData = {
+  name: 'Strategist',
+  icon: '\uD83C\uDFAF',
+  platform: 'GitHub Actions',
+  schedule: '10:00 MSK ежедневно',
+  status: 'cron',
+  skills: ['Монетизация', 'Фичи', 'Дистрибуция', 'Конкуренты', 'Тренды'],
+  model: 'Claude Sonnet 4.6'
+};
+
+const scheduleData = [
+  { time: '03:00', component: 'Backup', trigger: 'GH Actions cron', result: 'SQLite snapshot → artifact (30 дней)' },
+  { time: '09:00', component: 'Scraper', trigger: 'node-cron', result: 'hh.ru + Habr → vacancies → scoring' },
+  { time: '09:15', component: 'Morning Digest', trigger: 'node-cron', result: 'push-сводка юзерам' },
+  { time: '10:00', component: 'Strategist', trigger: 'GH Actions cron', result: 'отчёт + proposals → TG' },
+  { time: '13:00', component: 'Scraper', trigger: 'node-cron', result: 'hh.ru + Habr → push-алерты' },
+  { time: '17:00', component: 'Scraper', trigger: 'node-cron', result: 'hh.ru + Habr → push-алерты' },
+  { time: 'on push', component: 'CI', trigger: 'GH Actions', result: 'typecheck + 371 tests' },
+  { time: 'on PR', component: 'CodeRabbit', trigger: 'GH Actions', result: 'AI review → BACKLOG' },
+];
+
+const servicesData = [
+  { name: 'Railway', purpose: 'Бот 24/7, HTTP, scheduler', cost: '~$5/мес', paid: true },
+  { name: 'Anthropic SDK', purpose: 'Cover letters (Sonnet 4)', cost: '~$3-5/мес', paid: true },
+  { name: 'Telegram Stars', purpose: 'Оплата Pro/кредитов', cost: '30% комиссия', paid: false },
+  { name: 'hh.ru API', purpose: 'Скрейпинг вакансий', cost: 'Бесплатно', paid: false },
+  { name: 'Habr Career', purpose: 'Скрейпинг вакансий', cost: 'Бесплатно', paid: false },
+  { name: 'GitHub Actions', purpose: 'CI, backup, стратег', cost: 'Бесплатно', paid: false },
+];
+
+const metaData = [
+  { key: 'Bot', value: '@jobhunt_ai_bot ("AI Ловец вакансий")' },
+  { key: 'Admin', value: 'env: ADMIN_TELEGRAM_ID' },
+  { key: 'DB', value: 'jobs.db (SQLite WAL)' },
+  { key: 'Hosting', value: 'Railway 24/7, Dockerfile multi-stage' },
+  { key: 'Stack', value: 'Node.js 22, TypeScript, grammY, better-sqlite3, Anthropic SDK' },
+];
+
+// === Fetch from GitHub or use embedded ===
+
+async function loadBacklog() {
+  if (GITHUB_RAW_URL) {
+    try {
+      const res = await fetch(GITHUB_RAW_URL + '?t=' + Date.now());
+      if (!res.ok) throw new Error(res.status);
+      const md = await res.text();
+      const parsed = parseBacklogMd(md);
+      localStorage.setItem('hunter_backlog', JSON.stringify(parsed));
+      localStorage.setItem('hunter_backlog_ts', Date.now().toString());
+      return parsed;
+    } catch (err) {
+      console.warn('[backlog] fetch failed, trying cache:', err);
+      const cached = localStorage.getItem('hunter_backlog');
+      if (cached) return JSON.parse(cached);
+    }
+  }
+  return parseBacklogMd(BACKLOG_MD);
+}
+
+// === Renderers ===
+
+const priorityColors = { p0: 'var(--p0)', p1: 'var(--p1)', p2: 'var(--p2)', p3: 'var(--p3)' };
+const priorityLabels = { p0: 'P0 Critical', p1: 'P1 Important', p2: 'P2 Nice to have', p3: 'P3 Future' };
+
+function countTasks(sprints) {
+  let total = 0, done = 0;
+  const byPriority = { p0: 0, p1: 0, p2: 0, p3: 0 };
+  for (const s of sprints) {
+    for (const g of s.groups) {
+      for (const t of g.tasks) {
+        total++;
+        if (t.done) done++;
+        if (!t.done) byPriority[g.priority] = (byPriority[g.priority] || 0) + 1;
+      }
+    }
+  }
+  return { total, done, todo: total - done, byPriority };
+}
+
+function renderStats(doneItems, sprints) {
+  const counts = countTasks(sprints);
+  const totalDone = doneItems.length + counts.done;
+  const totalAll = totalDone + counts.todo;
+
+  const items = [
+    { value: totalAll, label: 'Всего', color: 'var(--text)' },
+    { value: totalDone, label: 'Сделано', color: 'var(--done)' },
+    { value: counts.byPriority.p0 || 0, label: 'P0', color: 'var(--p0)' },
+    { value: counts.byPriority.p1 || 0, label: 'P1', color: 'var(--p1)' },
+    { value: counts.byPriority.p2 + counts.byPriority.p3, label: 'P2+P3', color: 'var(--p2)' },
+  ];
+
+  document.getElementById('stats').innerHTML = items.map(s =>
+    `<div class="stat">
+      <div class="stat-value" style="color:${s.color}">${s.value}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>`
+  ).join('');
+}
+
+function renderSchedule() {
+  const rows = scheduleData.map(s =>
+    `<tr><td>${esc(s.time)}</td><td>${esc(s.component)}</td><td>${esc(s.trigger)}</td><td>${esc(s.result)}</td></tr>`
+  ).join('');
+
+  document.getElementById('schedule').innerHTML = `
+    <div class="section-label">Schedule (MSK)</div>
+    <div class="schedule-table">
+      <table>
+        <thead><tr><th>Время</th><th>Компонент</th><th>Триггер</th><th>Результат</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderAgent() {
+  const a = agentData;
+  document.getElementById('agent').innerHTML = `
+    <div class="section-label">Agents</div>
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-icon">${a.icon}</div>
+        <div>
+          <div class="agent-name">${a.name}</div>
+          <div class="agent-meta">${a.platform} &middot; ${a.model}</div>
+        </div>
+      </div>
+      <div class="agent-status">
+        <span class="agent-status-dot"></span>
+        ${a.schedule}
+      </div>
+      <div class="agent-skills">
+        ${a.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderDone(done) {
+  if (!done.items.length) return '';
+  return `
+    <div class="section done-section collapsed">
+      <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <div>
+          <span class="section-title">${done.version} — ${done.date}</span>
+          <span class="section-badge badge-done">deployed</span>
+        </div>
+        <span class="collapse-icon">&#x25BC;</span>
+      </div>
+      <div class="section-body">
+        ${done.items.map(item => `<div class="release-item">${esc(item)}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderSprint(sprint) {
+  const allTasks = sprint.groups.flatMap(g => g.tasks);
+  const doneCount = allTasks.filter(t => t.done).length;
+  const total = allTasks.length;
+  const pct = total ? Math.round(doneCount / total * 100) : 0;
+  const badgeClass = sprint.status === 'active' ? 'badge-active' : 'badge-planned';
+  const badgeText = sprint.status === 'active' ? 'active' : 'planned';
+
+  return `
+    <div class="section">
+      <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <div>
+          <span class="section-title">Sprint ${sprint.number} — ${esc(sprint.name)}</span>
+          <span class="section-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:12px;color:var(--text-muted)">${doneCount}/${total}</span>
+          <span class="collapse-icon">&#x25BC;</span>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="section-body">
+        ${sprint.groups.map(renderGroup).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderGroup(group) {
+  const color = priorityColors[group.priority] || 'var(--text-muted)';
+  return `
+    <div class="group">
+      <div class="group-title">
+        <span class="priority-dot" style="background:${color}"></span>
+        ${esc(group.priority.toUpperCase())}: ${esc(group.title)}
+      </div>
+      ${group.tasks.map(renderTask).join('')}
+    </div>
+  `;
+}
+
+function renderTask(task) {
+  const doneClass = task.done ? 'task-done' : '';
+  const hasDetail = task.detail ? 'has-detail' : '';
+  const clickHandler = task.detail ? 'onclick="toggleDetail(this)"' : '';
+
+  return `
+    <div class="task ${doneClass} ${hasDetail}" ${clickHandler}>
+      <div class="task-check"></div>
+      <div class="task-content">
+        <div class="task-row">
+          <span class="task-text"><strong>${esc(task.text)}</strong></span>
+          ${task.detail ? '<span class="expand-icon">&#x25B6;</span>' : ''}
+        </div>
+        ${task.detail ? `<div class="task-detail">${esc(task.detail)}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderInfoPanel() {
+  const metaRows = metaData.map(m =>
+    `<tr><td>${esc(m.key)}</td><td>${esc(m.value)}</td></tr>`
+  ).join('');
+
+  const serviceRows = servicesData.map(s =>
+    `<tr><td>${esc(s.name)}</td><td>${esc(s.purpose)}</td><td class="cost ${s.paid ? 'paid' : ''}">${esc(s.cost)}</td></tr>`
+  ).join('');
+
+  document.getElementById('infopanel').innerHTML = `
+    <div class="info-tables">
+      <div class="info-table">
+        <div class="info-table-title">Project</div>
+        <table>${metaRows}</table>
+      </div>
+      <div class="info-table">
+        <div class="info-table-title">Services</div>
+        <table>${serviceRows}</table>
+      </div>
+    </div>
+  `;
+}
+
+// === Helpers ===
+
+function esc(str) {
+  const el = document.createElement('span');
+  el.textContent = str;
+  return el.innerHTML;
+}
+
+function toggleDetail(el) {
+  el.classList.toggle('expanded');
+  const detail = el.querySelector('.task-detail');
+  if (detail) detail.classList.toggle('open');
+}
+
+// === Main ===
+
+async function main() {
+  const data = await loadBacklog();
+  if (!data) {
+    document.getElementById('content').innerHTML = '<p style="color:var(--text-muted)">Failed to load backlog</p>';
+    return;
+  }
+
+  // Last update
+  const ts = localStorage.getItem('hunter_backlog_ts');
+  const updateText = GITHUB_RAW_URL && ts
+    ? `Updated ${new Date(parseInt(ts)).toLocaleString('ru-RU')}`
+    : 'Embedded data';
+  document.getElementById('lastUpdate').textContent = updateText;
+
+  // Render
+  renderStats(data.done.items, data.sprints);
+  renderInfoPanel();
+  renderSchedule();
+  renderAgent();
+
+  let html = '';
+  html += '<div class="section-label">Releases</div>';
+  html += renderDone(data.done);
+  html += '<div class="section-label">Sprints</div>';
+  html += data.sprints.map(renderSprint).join('');
+  document.getElementById('content').innerHTML = html;
+}
+
+main();
 </script>
 </body>
 </html>
