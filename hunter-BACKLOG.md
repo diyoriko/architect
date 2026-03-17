@@ -329,6 +329,30 @@
 
 ---
 
+## SPRINT 9 — Quality & Scale (18.03.2026)
+
+### P0: Code Review (Architect, 17.03.2026)
+
+- [ ] **Обновить model ID до `claude-sonnet-4-6`** — `cover-letter.ts:115`. Текущий `claude-sonnet-4-20250514` устареет. Причина переноса: обнаружено архитектором после Sprint 8
+- [ ] **Передать `employerIndustry` в `scoreVacancy` или удалить параметр** — `scorer.ts:~257`. Мёртвый параметр, вводит в заблуждение
+
+### P1: Перенесено из Sprint 8
+
+- [ ] **46 silent catch → conditional logging** — заменить пустые catch на лог с фильтром (игнорировать "not modified", "not found"). Причина переноса: низкий приоритет, большой объём (~46 мест)
+- [ ] **N+1 в feedback patterns** — `getUserFeedbackPatterns()` в цикле по юзерам. Батчить. Причина переноса: не блокирует при <100 юзерах
+- [ ] **hh.ru enrichment: логировать % успеха** — добавить `enriched X/Y`. Причина переноса: minor observability
+
+### P1: Источники
+
+- [ ] **Superjob** — документированный API, 4-й scraper
+- [ ] **Статья Habr** — технический пост о стеке и архитектуре
+
+### P2: Архитектура
+
+- [ ] **Разбить bot.ts** — 1550+ строк. Вынести admin commands, filter logic, vacancy callbacks в отдельные модули
+
+---
+
 ## Метаданные
 
 | Параметр | Значение |
@@ -347,8 +371,3 @@
 | Telegram Stars | Оплата (план) | ~30% комиссия |
 | hh.ru API | Вакансии | Бесплатно |
 | Habr Career API | Вакансии | Бесплатно |
-
-### Code Review 2026-03-17
-SAMI и Hunter технически стабильны: тесты идут, деплой работает, основные фичи закрыты. Главная боль этой недели — три монолита по 1500+ строк (bot-menu.ts, bot.ts, db.ts) и критический баг в SAMI: данные от Mac-стратега не записываются в БД. Hunter несёт устаревший Claude model ID, который скоро сломает A/B тест обложек. Бэклоги приоритизированы адекватно, но есть мёртвый код в approval-флоу SAMI.
-- [ ] **Code Review:** **Hunter** — Обновить model ID до `claude-sonnet-4-6` — `cover-letter.ts:140`
-- [ ] **Code Review:** **Hunter** — Передать `employerIndustry` в `scoreVacancy` или удалить параметр — `scorer.ts:~273`
