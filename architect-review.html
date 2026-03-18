@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architect — Process Review</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 24px; max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; color: #f0f6fc; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #484f58; margin-bottom: 20px; }
+  .stats { display: flex; gap: 20px; margin-bottom: 20px; }
+  .stat { text-align: center; }
+  .stat-n { font-size: 28px; font-weight: 700; color: #f0f6fc; }
+  .stat-l { font-size: 11px; color: #484f58; text-transform: uppercase; }
+  .stat-n.red { color: #f85149; }
+  .stat-n.yellow { color: #d29922; }
+  .stat-n.green { color: #3fb950; }
+  .stat-n.blue { color: #58a6ff; }
+  .section { font-size: 13px; color: #58a6ff; font-weight: 600; margin: 20px 0 8px; }
+  .task { padding: 8px 0; border-bottom: 1px solid #21262d; font-size: 14px; display: flex; gap: 8px; }
+  .task.done { color: #484f58; text-decoration: line-through; }
+  .tag { font-size: 10px; padding: 2px 6px; border-radius: 8px; font-weight: 600; flex-shrink: 0; margin-top: 2px; }
+  .tag-p0 { background: #da3633; color: #fff; }
+  .tag-p1 { background: #9e6a03; color: #fff; }
+  .tag-p2 { background: #238636; color: #fff; }
+  .tag-done { background: #30363d; color: #3fb950; }
+  .back { font-size: 13px; color: #58a6ff; text-decoration: none; display: inline-block; margin-bottom: 16px; }
+  .report-info { font-size: 12px; color: #484f58; margin-top: 16px; padding-top: 12px; border-top: 1px solid #21262d; }
+  #content { min-height: 100px; }
+  .refresh { font-size: 11px; color: #484f58; cursor: pointer; }
+  .refresh:hover { color: #58a6ff; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← Dashboard</a>
+<h1>Architect</h1>
+<div class="subtitle">Process, tools, AI workflow, infrastructure <span class="refresh" onclick="load()">[refresh]</span></div>
+
+<div class="stats" id="stats"></div>
+<div id="content">Loading...</div>
+<div class="report-info" id="report-info"></div>
+
+<script>
+function load() {
+  fetch('BACKLOG.md?' + Date.now()).then(r => r.text()).then(renderBacklog).catch(() => {
+    document.getElementById('content').textContent = 'Failed to load';
+  });
+
+  fetch('architect-report-latest.md?' + Date.now()).then(r => r.ok ? r.text() : null).then(md => {
+    if (md) {
+      const title = md.split('\n').find(l => l.startsWith('# ')) || '';
+      document.getElementById('report-info').innerHTML = 'Latest report: ' + title.replace('# ', '');
+    }
+  }).catch(() => {});
+}
+
+function renderBacklog(md) {
+  const lines = md.split('\n');
+  let html = '', section = '', open = 0, done = 0, p0 = 0, p1 = 0;
+
+  lines.forEach(l => {
+    if (l.match(/^#{1,3}\s/) && !l.match(/^# Architect/)) {
+      section = l.replace(/^#+\s*/, '');
+      if (section.match(/^Completed|^completed/i)) { section = '_done'; return; }
+      if (!section.startsWith('_')) html += '<div class="section">' + section + '</div>';
+    }
+    if (section === '_done') return;
+
+    if (l.match(/^- \[ \]/)) {
+      open++;
+      const text = l.replace(/^- \[ \]\s*/, '').replace(/\*\*/g, '');
+      let tag = 'p2', tagClass = 'tag-p2';
+      if (section.match(/P0|Блокер|Critical/i)) { tag = 'P0'; tagClass = 'tag-p0'; p0++; }
+      else if (section.match(/P1|Высок|High/i)) { tag = 'P1'; tagClass = 'tag-p1'; p1++; }
+
+      html += '<div class="task"><span class="tag ' + tagClass + '">' + tag + '</span><span>' + text + '</span></div>';
+    }
+    if (l.match(/^- \[x\]/)) done++;
+  });
+
+  document.getElementById('stats').innerHTML = [
+    { n: open, l: 'Open', c: open > 0 ? 'yellow' : 'green' },
+    { n: p0, l: 'P0', c: p0 > 0 ? 'red' : 'green' },
+    { n: p1, l: 'P1', c: p1 > 0 ? 'yellow' : 'green' },
+    { n: done, l: 'Done', c: 'green' },
+  ].map(s => '<div class="stat"><div class="stat-n ' + s.c + '">' + s.n + '</div><div class="stat-l">' + s.l + '</div></div>').join('');
+
+  document.getElementById('content').innerHTML = html || '<p style="color:#3fb950;">All clear</p>';
+}
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

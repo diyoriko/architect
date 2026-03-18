@@ -9,8 +9,9 @@
 ## Проекты
 
 1. **SAMI** — Telegram fitness community (grammY, SQLite, Railway)
-2. **Hunter** — Job aggregator bot с Telegram Stars (grammY, SQLite, Railway)
-3. **Sugata Jyotish** — Vedic astrology platform (Next.js, Vercel) — если есть код
+2. **Hunter (AI Ловец вакансий)** — Job aggregator bot с Telegram Stars (grammY, SQLite, Railway)
+3. **Vedic Turkiye** — Vedik Astroloji platformu (Next.js 16, VedAstro API, Shopier, Groq/Gemini/Claude AI, Vercel)
+4. **Portfolio (diyor.design)** — Personal portfolio site (HTML/CSS/JS, GitHub Pages)
 
 ## Что анализировать
 
@@ -58,7 +59,20 @@
 - Вовлечение: completions, retention
 - Модерация: капча, spam, UGC flow
 
-### 8. Дизайн и бренд
+### 8. Vedic Turkiye
+- Калькулятор: точность расчётов (beta — Duygu верифицировала неточности)
+- AI интерпретации: качество промптов, модели (Groq/Gemini/Claude)
+- Платежи: Shopier интеграция, flow покупки
+- SEO: мета-теги, структура страниц, мультиязычность (TR/EN)
+- API routes: безопасность, rate limiting, error handling
+
+### 9. Portfolio (diyor.design)
+- Контент: актуальность кейсов, тексты
+- Вёрстка: адаптивность, accessibility, производительность
+- SEO: мета-теги, sitemap, структурированные данные
+- Код: чистота JS/CSS, мертвый код
+
+### 10. Дизайн и бренд
 - Консистентность: одинаковый tone of voice?
 - Лендинги: если есть — качество, CTA
 - Telegram Bot UI: аватар, описание, команды
@@ -95,6 +109,28 @@
 
 ### Backlog
 - Open: {N}, Balance: {features/bugs/debt %}, Stale: {N}
+
+## Vedic Turkiye
+
+### Code Health
+| Severity | Issue | File:line | Fix |
+
+### Калькулятор & AI
+- {точность расчётов}
+- {качество интерпретаций}
+
+### Платежи & SEO
+- {Shopier flow}
+- {мультиязычность}
+
+## Portfolio
+
+### Code & Design
+| Severity | Issue | File:line | Fix |
+
+### Контент & SEO
+- {актуальность кейсов}
+- {мета-теги, доступность}
 
 ## Cross-Project
 - Shared patterns: {что дублируется}

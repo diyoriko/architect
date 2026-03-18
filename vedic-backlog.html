@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vedic Turkiye Backlog</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #d4a0b9;
+    --p0: #f85149;
+    --p1: #d29922;
+    --p2: #3fb950;
+    --p3: #8b949e;
+    --done: #238636;
+    --done-bg: rgba(35,134,54,0.15);
+    --blocker: #da3633;
+    --blocker-bg: rgba(218,54,51,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    max-width: 960px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+  .meta { font-size: 13px; color: var(--text-muted); }
+  .meta .live { display: inline-block; width: 8px; height: 8px; background: var(--p2); border-radius: 50%; margin-right: 4px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 32px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+  .section-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .section-header:hover { background: rgba(255,255,255,0.03); }
+  .section-title { font-size: 16px; font-weight: 600; }
+  .section-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-active { background: rgba(212,160,185,0.15); color: var(--accent); }
+  .badge-done { background: var(--done-bg); color: var(--done); }
+  .badge-blocker { background: var(--blocker-bg); color: var(--blocker); }
+  .badge-planned { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+  .section-body { padding: 0 20px 16px; }
+  .collapse-icon { transition: transform 0.2s; color: var(--text-muted); }
+  .collapsed .collapse-icon { transform: rotate(-90deg); }
+  .collapsed .section-body { display: none; }
+
+  .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+
+  .group { margin-bottom: 16px; }
+  .group:last-child { margin-bottom: 0; }
+  .group-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .task { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: 6px; margin-bottom: 2px; font-size: 14px; transition: background 0.15s; }
+  .task:hover { background: rgba(255,255,255,0.03); }
+  .task.has-detail { cursor: pointer; }
+  .task-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+  .task-done .task-check { background: var(--done); border-color: var(--done); }
+  .task-done .task-check::after { content: '\2713'; color: white; font-size: 12px; font-weight: 700; }
+  .task-done .task-text { color: var(--text-muted); text-decoration: line-through; text-decoration-color: rgba(139,148,158,0.4); }
+  .task-content { flex: 1; min-width: 0; }
+  .task-row { display: flex; align-items: center; gap: 8px; }
+  .task-text { flex: 1; }
+  .task-text strong { font-weight: 600; }
+  .task-id { font-size: 11px; color: var(--text-muted); font-family: monospace; flex-shrink: 0; }
+  .task-detail { display: none; margin-top: 6px; padding: 8px 12px; background: rgba(255,255,255,0.02); border-left: 2px solid var(--border); border-radius: 0 4px 4px 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .task-detail.open { display: block; }
+  .expand-icon { font-size: 10px; color: var(--text-muted); transition: transform 0.15s; flex-shrink: 0; }
+  .task.expanded .expand-icon { transform: rotate(90deg); }
+
+  .done-section .section-body { max-height: 200px; overflow-y: auto; }
+  .release-item { display: flex; align-items: flex-start; gap: 10px; padding: 5px 12px; font-size: 13px; color: var(--text-muted); }
+  .release-item::before { content: '\2713'; color: var(--done); font-weight: 700; font-size: 12px; margin-top: 2px; flex-shrink: 0; }
+
+  .info-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .info-table { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .info-table-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 12px 16px 8px; }
+  .info-table table { width: 100%; border-collapse: collapse; }
+  .info-table td { padding: 6px 16px; font-size: 13px; border-top: 1px solid var(--border); }
+  .info-table td:first-child { color: var(--text-muted); white-space: nowrap; width: 1%; }
+  .info-table td:last-child { color: var(--text); font-weight: 500; }
+  .info-table .cost { color: var(--text-muted); font-weight: 400; font-size: 12px; }
+  .info-table .cost.paid { color: var(--p1); }
+
+  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 24px 0 12px; }
+
+  /* Cards (from Vercel dashboard) */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .card-title { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #21262d; }
+  .row:last-child { border: none; }
+  .label { font-size: 14px; }
+  .value { font-size: 14px; color: var(--text-muted); }
+  .value b { color: var(--text); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot.ok { background: #3fb950; }
+  .dot.fail { background: #f85149; }
+  .dot.warn { background: #d29922; }
+  .dot.unknown { background: #484f58; animation: pulse 1.5s infinite; }
+  .dot.gray { background: #30363d; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+  .tag.green { background: #238636; color: #fff; }
+  .tag.red { background: #da3633; color: #fff; }
+  .tag.yellow { background: #9e6a03; color: #fff; }
+  .tag.gray { background: #30363d; color: #8b949e; }
+  .tag.rose { background: #5e3a3e; color: #d4a0a8; }
+  .mono { font-family: 'SF Mono', monospace; font-size: 12px; color: #79c0ff; }
+  details { margin-bottom: 12px; }
+  details summary { cursor: pointer; font-size: 13px; color: #58a6ff; padding: 8px 0; }
+  details summary:hover { color: #79c0ff; }
+  details .inner { padding: 12px 0; font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+  details table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  details th { text-align: left; color: var(--text-muted); font-weight: 500; padding: 4px 8px; }
+  details td { padding: 4px 8px; border-bottom: 1px solid #21262d; }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .info-tables { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Vedic Turkiye Backlog</h1>
+  <div class="meta"><span class="live"></span> <span id="lastUpdate"></span></div>
+</header>
+
+<div class="stats" id="stats"></div>
+<div id="infopanel"></div>
+
+<!-- Services Health -->
+<div class="card">
+  <div class="card-title">Services</div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-site"></span>Vercel (site)</span><span class="value" id="v-site">checking...</span></div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-vedastro"></span>VedAstro API</span><span class="value" id="v-vedastro">checking...</span></div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-nominatim"></span>Nominatim (geocode)</span><span class="value" id="v-nominatim">checking...</span></div>
+  <div class="row"><span class="label"><span class="dot unknown" id="s-timeapi"></span>TimeAPI.io (timezone)</span><span class="value" id="v-timeapi">checking...</span></div>
+</div>
+
+<!-- API Providers -->
+<div class="card">
+  <div class="card-title">Chart Calculation APIs</div>
+  <div class="row"><span class="label"><span class="dot ok"></span>VedAstro (free charts)</span><span class="value">$1/mo unlimited <span class="tag green">active</span></span></div>
+  <div class="row"><span class="label"><span class="dot warn"></span>Prokerala (paid reports)</span><span class="value">5K free/mo <span class="tag yellow">needs API key</span></span></div>
+  <div class="row"><span class="label"><span class="dot warn"></span>VedicAstroAPI (Turkish)</span><span class="value">14-day trial <span class="tag yellow">needs API key</span></span></div>
+  <div class="row"><span class="label"><span class="dot gray"></span>AstrologyAPI.com</span><span class="value">$30/mo <span class="tag gray">not needed yet</span></span></div>
+</div>
+
+<!-- Chart Calculator Status -->
+<div class="card" style="border-left: 3px solid var(--p1);">
+  <div class="card-title">Chart Calculator</div>
+  <div class="row"><span class="label">Status</span><span class="value"><span class="tag yellow">BETA</span></span></div>
+  <div class="row"><span class="label">API Format</span><span class="value"><span class="tag green">Fixed (17.03)</span></span></div>
+  <div class="row"><span class="label">Ayanamsha</span><span class="value mono">Lahiri (default)</span></div>
+  <div class="row"><span class="label">10-chart verification</span><span class="value"><span class="tag yellow">Awaiting Duygu</span></span></div>
+  <div class="row"><span class="label">Dasha dates</span><span class="value"><span class="tag green">Vimshottari est.</span></span></div>
+</div>
+
+<!-- AI Interpretation -->
+<div class="card">
+  <div class="card-title">AI Interpretation</div>
+  <div class="row"><span class="label">Free tier</span><span class="value mono">Groq &rarr; Llama 3.3 70B</span></div>
+  <div class="row"><span class="label">Paid reports</span><span class="value mono">Claude Sonnet 4 <span class="tag gray">not configured</span></span></div>
+  <div class="row"><span class="label">System prompt</span><span class="value">Parashara tradition, TR + EN</span></div>
+</div>
+
+<!-- Pricing -->
+<div class="card">
+  <div class="card-title">Pricing</div>
+  <div class="row"><span class="label">Sade Sati "Strateji" Raporu</span><span class="value"><b>2,450 &#x20BA;</b></span></div>
+  <div class="row"><span class="label">Vedik Do&#x11F;um Haritas&#x131; Analizi</span><span class="value"><b>2,950 &#x20BA;</b></span></div>
+  <div class="row"><span class="label">Premium Karma Paketi (bundle)</span><span class="value"><b>4,950 &#x20BA;</b></span></div>
+  <div class="row"><span class="label">Payments</span><span class="value"><span class="tag yellow">Shopier &mdash; awaiting account</span></span></div>
+</div>
+
+<!-- Blockers -->
+<div class="card" style="border-left: 3px solid var(--p0);">
+  <div class="card-title">Blockers (awaiting Duygu)</div>
+  <div class="row"><span class="label">VT-001: Domain decision</span><span class="tag yellow">in review</span></div>
+  <div class="row"><span class="label">VT-002: Shopier account registration</span><span class="tag red">blocked</span></div>
+  <div class="row"><span class="label">VT-003: 10-chart accuracy verification</span><span class="tag red">blocked</span></div>
+  <div class="row"><span class="label">VT-004: New pricing approval</span><span class="tag yellow">in review</span></div>
+  <div class="row"><span class="label">VT-005: Visual direction approval</span><span class="tag yellow">in review</span></div>
+</div>
+
+<!-- Expandable: Tech Stack -->
+<details>
+  <summary>Tech Stack</summary>
+  <div class="inner">
+    <table>
+      <tr><th>Layer</th><th>Tech</th><th>Status</th></tr>
+      <tr><td>Framework</td><td class="mono">Next.js 16 + TypeScript</td><td><span class="tag green">ok</span></td></tr>
+      <tr><td>Styling</td><td class="mono">Tailwind CSS v4</td><td><span class="tag green">ok</span></td></tr>
+      <tr><td>Animation</td><td class="mono">Framer Motion 12</td><td><span class="tag green">ok</span></td></tr>
+      <tr><td>Calculations</td><td class="mono">VedAstro API (free)</td><td><span class="tag yellow">beta</span></td></tr>
+      <tr><td>AI (free)</td><td class="mono">Groq &mdash; Llama 3.3 70B</td><td><span class="tag green">ok</span></td></tr>
+      <tr><td>AI (paid)</td><td class="mono">Claude Sonnet 4</td><td><span class="tag gray">no key</span></td></tr>
+      <tr><td>Calc (paid)</td><td class="mono">Prokerala API (OAuth2)</td><td><span class="tag yellow">needs key</span></td></tr>
+      <tr><td>Payments</td><td class="mono">Shopier</td><td><span class="tag yellow">pending</span></td></tr>
+      <tr><td>Email</td><td class="mono">Brevo</td><td><span class="tag green">ok</span></td></tr>
+      <tr><td>Geocoding</td><td class="mono">Nominatim (free)</td><td><span class="tag green">ok</span></td></tr>
+      <tr><td>PDF</td><td class="mono">@react-pdf/renderer</td><td><span class="tag green">ok</span></td></tr>
+      <tr><td>Analytics</td><td class="mono">Plausible</td><td><span class="tag green">ok</span></td></tr>
+      <tr><td>Hosting</td><td class="mono">Vercel (free tier)</td><td><span class="tag green">ok</span></td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- Expandable: Quality Gates -->
+<details>
+  <summary>Quality Gates</summary>
+  <div class="inner">
+    <table>
+      <tr><th>Gate</th><th>Status</th></tr>
+      <tr><td>Pre-commit (tsc --noEmit)</td><td><span class="tag green">on</span></td></tr>
+      <tr><td>CI (typecheck + vitest)</td><td><span class="tag green">on</span></td></tr>
+      <tr><td>Coverage threshold</td><td><span class="tag green">20%</span></td></tr>
+      <tr><td>CodeRabbit AI review</td><td><span class="tag green">on</span></td></tr>
+      <tr><td>Backlog = single truth</td><td><span class="tag green">yes</span></td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- Expandable: Pages -->
+<details>
+  <summary>Pages (20 routes)</summary>
+  <div class="inner">
+    <table>
+      <tr><th>Route (TR)</th><th>Route (EN)</th><th>Type</th></tr>
+      <tr><td class="mono">/</td><td class="mono">/en</td><td>Landing</td></tr>
+      <tr><td class="mono">/chart</td><td class="mono">/en/chart</td><td>Calculator <span class="tag yellow">beta</span></td></tr>
+      <tr><td class="mono">/vedik-astroloji</td><td class="mono">/en/vedic-astrology</td><td>Education</td></tr>
+      <tr><td class="mono">/sade-sati</td><td class="mono">/en/sade-sati</td><td>Product landing</td></tr>
+      <tr><td class="mono">/reports</td><td class="mono">/en/reports</td><td>Report catalog</td></tr>
+      <tr><td class="mono">/blog</td><td class="mono">/en/blog</td><td>Blog index</td></tr>
+      <tr><td class="mono">/blog/[slug]</td><td class="mono">/en/blog/[slug]</td><td>Blog post (5)</td></tr>
+      <tr><td class="mono">/glossary</td><td class="mono">/en/glossary</td><td>Term glossary</td></tr>
+      <tr><td class="mono">/about</td><td class="mono">/en/about</td><td>About platform</td></tr>
+      <tr><td class="mono">/payment/success</td><td>&mdash;</td><td>Payment callback</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- Expandable: Rebrand Progress -->
+<details>
+  <summary>Rebrand Progress (17.03.2026)</summary>
+  <div class="inner" style="line-height: 2;">
+    &#x2705; "Sugata Jyotish" &rarr; "Vedik Astroloji T&uuml;rkiye" (0 stale refs)<br>
+    &#x2705; Gold palette &rarr; Dusty rose (#c2979f)<br>
+    &#x2705; Homepage &rarr; Platform-first (no personal bio)<br>
+    &#x2705; Removed: /consultation, /course, /circle<br>
+    &#x2705; New pages: /vedik-astroloji, /sade-sati, /about<br>
+    &#x2705; SiteNav: brand "Vedik Astroloji"<br>
+    &#x2705; Deleted: iyzico.ts (Shopier only)<br>
+    &#x2705; Chart URL format fixed (critical bug)<br>
+    &#x2705; Pricing: 2,450 / 2,950 / 4,950 TL<br>
+    &#x2705; Email sender: info@vedikastroloji.com<br>
+    &#x2705; PDF branding: VEDIK ASTROLOJI<br>
+    &#x2705; User-Agent: VedikAstroloji/1.0<br>
+    &#x23F3; Domain decision (VT-001)<br>
+    &#x23F3; Shopier account (VT-002)<br>
+    &#x23F3; Chart verification (VT-003)
+  </div>
+</details>
+
+<!-- Expandable: Architecture -->
+<details>
+  <summary>Architecture</summary>
+  <div class="inner" style="font-family:'SF Mono',monospace; font-size:11px; white-space:pre; line-height:1.7;">
+User &#x2500;&#x2500;&#x2500;&#x2500; Next.js (Vercel) &#x2500;&#x2500;&#x2500;&#x2500; Pages (SSG/SSR)
+                &#x2502;
+                &#x251C;&#x2500;&#x2500; POST /api/chart
+                &#x2502;     &#x251C;&#x2500;&#x2500; Nominatim &rarr; lat/lon
+                &#x2502;     &#x251C;&#x2500;&#x2500; TimeAPI.io &rarr; timezone
+                &#x2502;     &#x251C;&#x2500;&#x2500; VedAstro API &rarr; chart data (Lahiri)
+                &#x2502;     &#x2514;&#x2500;&#x2500; Groq/Claude &rarr; AI interpretation
+                &#x2502;
+                &#x251C;&#x2500;&#x2500; POST /api/payment
+                &#x2502;     &#x2514;&#x2500;&#x2500; Shopier &rarr; hosted checkout
+                &#x2502;
+                &#x251C;&#x2500;&#x2500; POST /api/payment/callback
+                &#x2502;     &#x2514;&#x2500;&#x2500; Shopier webhook &rarr; PDF &rarr; Brevo email
+                &#x2502;
+                &#x2514;&#x2500;&#x2500; POST /api/email/subscribe
+                      &#x2514;&#x2500;&#x2500; Brevo &rarr; contact list
+  </div>
+</details>
+
+<div id="content"></div>
+
+<script>
+const BACKLOG_URL = 'vedic-BACKLOG.md';
+
+function parseBacklogMd(md) {
+  const lines = md.split('\n');
+  const phases = [];
+  const done = { items: [] };
+  let currentPhase = null;
+  let currentGroup = null;
+  let section = null;
+  let inCompleted = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Completed legacy section
+    if (/^## Completed/.test(line)) {
+      section = 'done';
+      inCompleted = true;
+      continue;
+    }
+
+    if (inCompleted) {
+      const taskMatch = line.match(/^- \[x\]\s+(.+)/);
+      if (taskMatch) done.items.push(taskMatch[1].replace(/\*\*/g, ''));
+      if (/^---\s*$/.test(line)) inCompleted = false;
+      continue;
+    }
+
+    // Phase/Sprint: ## Current Sprint, ## Phase 0, ## Phase 1, ## Code Quality
+    const phaseMatch = line.match(/^## (.+)/);
+    if (phaseMatch) {
+      const name = phaseMatch[1].trim();
+      if (name === 'Completed' || name.startsWith('Completed')) continue;
+      section = 'phase';
+      currentPhase = { name, groups: [], status: 'planned' };
+      if (/Current Sprint|Phase 0/i.test(name)) currentPhase.status = 'active';
+      phases.push(currentPhase);
+      currentGroup = null;
+      continue;
+    }
+
+    // Group: ### P0 — Name, ### Blockers, ### P1 — Name, ### Technical Debt, etc.
+    const groupMatch = line.match(/^### (.+)/);
+    if (groupMatch && currentPhase) {
+      const title = groupMatch[1].trim();
+      let priority = 'p2';
+      if (/^P0|^Blocker/i.test(title)) priority = 'p0';
+      else if (/^P1/i.test(title)) priority = 'p1';
+      else if (/^P2|^Technical/i.test(title)) priority = 'p2';
+      else if (/^P3/i.test(title)) priority = 'p3';
+      else if (/Completed|Vercel/i.test(title)) priority = 'done';
+
+      currentGroup = { priority, title, tasks: [] };
+      currentPhase.groups.push(currentGroup);
+      continue;
+    }
+
+    if (/^---\s*$/.test(line)) {
+      currentGroup = null;
+      continue;
+    }
+
+    // Task
+    const taskMatch = line.match(/^- \[([ x~—])\]\s+(.+)/);
+    if (taskMatch && currentGroup) {
+      const isDone = taskMatch[1] === 'x';
+      let raw = taskMatch[2].trim();
+
+      // Extract VT-xxx ID
+      let id = '';
+      const idMatch = raw.match(/^(VT-\d+|DS-\d+|SJ-\d+):\s*/);
+      if (idMatch) {
+        id = idMatch[1];
+        raw = raw.substring(idMatch[0].length);
+      }
+
+      let text = raw;
+      let detail = '';
+      const boldMatch = raw.match(/^\*\*(.+?)\*\*\s*[—\-]\s*(.*)/s);
+      if (boldMatch) {
+        text = boldMatch[1];
+        detail = boldMatch[2] || '';
+      } else {
+        const plainBold = raw.match(/^\*\*(.+?)\*\*/);
+        if (plainBold) text = plainBold[1];
+      }
+
+      const task = { text, done: isDone, id };
+      if (detail) task.detail = detail;
+      currentGroup.tasks.push(task);
+      continue;
+    }
+  }
+
+  return { phases, done };
+}
+
+const metaData = [
+  { key: 'Platform', value: 'Vedik Astroloji Turkiye' },
+  { key: 'URL', value: 'sugata-jyotish.vercel.app' },
+  { key: 'Stack', value: 'Next.js 16, TypeScript, Tailwind v4' },
+  { key: 'AI', value: 'Claude API + Groq + Gemini' },
+  { key: 'Payments', value: 'Shopier (taksit)' },
+  { key: 'Hosting', value: 'Vercel' },
+];
+
+const servicesData = [
+  { name: 'Vercel', purpose: 'Hosting + Edge', cost: 'Free tier', paid: false },
+  { name: 'VedAstro API', purpose: 'Free birth charts', cost: 'Free/$1', paid: false },
+  { name: 'Prokerala API', purpose: 'Paid Sade Sati reports', cost: '$19/mo', paid: true },
+  { name: 'Claude API', purpose: 'AI interpretations (paid)', cost: '~$5/mo', paid: true },
+  { name: 'Shopier', purpose: 'Turkish payments + taksit', cost: 'Transaction fee', paid: false },
+  { name: 'Brevo', purpose: 'Email marketing', cost: 'Free tier', paid: false },
+];
+
+const priorityColors = { p0: 'var(--p0)', p1: 'var(--p1)', p2: 'var(--p2)', p3: 'var(--p3)', done: 'var(--done)' };
+
+function countTasks(phases) {
+  let total = 0, done = 0;
+  const byPriority = { p0: 0, p1: 0, p2: 0, p3: 0 };
+  let blockers = 0;
+  for (const p of phases) {
+    for (const g of p.groups) {
+      for (const t of g.tasks) {
+        total++;
+        if (t.done) { done++; continue; }
+        if (g.priority === 'p0') blockers++;
+        byPriority[g.priority] = (byPriority[g.priority] || 0) + 1;
+      }
+    }
+  }
+  return { total, done, todo: total - done, byPriority, blockers };
+}
+
+function renderStats(phases, doneItems) {
+  const c = countTasks(phases);
+  const totalDone = doneItems.length + c.done;
+  const items = [
+    { value: c.total + doneItems.length, label: 'Total', color: 'var(--text)' },
+    { value: totalDone, label: 'Done', color: 'var(--done)' },
+    { value: c.byPriority.p0 || 0, label: 'P0', color: 'var(--p0)' },
+    { value: c.byPriority.p1 || 0, label: 'P1', color: 'var(--p1)' },
+    { value: (c.byPriority.p2 || 0) + (c.byPriority.p3 || 0), label: 'P2+P3', color: 'var(--p2)' },
+  ];
+  document.getElementById('stats').innerHTML = items.map(s =>
+    `<div class="stat"><div class="stat-value" style="color:${s.color}">${s.value}</div><div class="stat-label">${s.label}</div></div>`
+  ).join('');
+}
+
+function renderInfoPanel() {
+  const metaRows = metaData.map(m => `<tr><td>${esc(m.key)}</td><td>${esc(m.value)}</td></tr>`).join('');
+  const serviceRows = servicesData.map(s => `<tr><td>${esc(s.name)}</td><td>${esc(s.purpose)}</td><td class="cost ${s.paid ? 'paid' : ''}">${esc(s.cost)}</td></tr>`).join('');
+  document.getElementById('infopanel').innerHTML = `
+    <div class="info-tables">
+      <div class="info-table"><div class="info-table-title">Project</div><table>${metaRows}</table></div>
+      <div class="info-table"><div class="info-table-title">Services</div><table>${serviceRows}</table></div>
+    </div>`;
+}
+
+function renderPhase(phase) {
+  const allTasks = phase.groups.flatMap(g => g.tasks);
+  const doneCount = allTasks.filter(t => t.done).length;
+  const total = allTasks.length;
+  const pct = total ? Math.round(doneCount / total * 100) : 0;
+  const badgeClass = phase.status === 'active' ? 'badge-active' : 'badge-planned';
+  const badgeText = phase.status === 'active' ? 'active' : 'planned';
+
+  return `
+    <div class="section">
+      <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <div><span class="section-title">${esc(phase.name)}</span> <span class="section-badge ${badgeClass}">${badgeText}</span></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:12px;color:var(--text-muted)">${doneCount}/${total}</span>
+          <span class="collapse-icon">&#x25BC;</span>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="section-body">${phase.groups.map(renderGroup).join('')}</div>
+    </div>`;
+}
+
+function renderGroup(group) {
+  const color = priorityColors[group.priority] || 'var(--text-muted)';
+  return `
+    <div class="group">
+      <div class="group-title"><span class="priority-dot" style="background:${color}"></span>${esc(group.title)}</div>
+      ${group.tasks.map(renderTask).join('')}
+    </div>`;
+}
+
+function renderTask(task) {
+  const doneClass = task.done ? 'task-done' : '';
+  const hasDetail = task.detail ? 'has-detail' : '';
+  const clickHandler = task.detail ? 'onclick="toggleDetail(this)"' : '';
+  return `
+    <div class="task ${doneClass} ${hasDetail}" ${clickHandler}>
+      <div class="task-check"></div>
+      <div class="task-content">
+        <div class="task-row">
+          ${task.id ? `<span class="task-id">${esc(task.id)}</span>` : ''}
+          <span class="task-text"><strong>${esc(task.text)}</strong></span>
+          ${task.detail ? '<span class="expand-icon">&#x25B6;</span>' : ''}
+        </div>
+        ${task.detail ? `<div class="task-detail">${esc(task.detail)}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderDone(done) {
+  if (!done.items.length) return '';
+  return `
+    <div class="section done-section collapsed">
+      <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <div><span class="section-title">Completed (Legacy)</span> <span class="section-badge badge-done">${done.items.length} tasks</span></div>
+        <span class="collapse-icon">&#x25BC;</span>
+      </div>
+      <div class="section-body">${done.items.map(item => `<div class="release-item">${esc(item)}</div>`).join('')}</div>
+    </div>`;
+}
+
+function esc(str) { const el = document.createElement('span'); el.textContent = str; return el.innerHTML; }
+function toggleDetail(el) { el.classList.toggle('expanded'); const d = el.querySelector('.task-detail'); if (d) d.classList.toggle('open'); }
+
+// Health checks
+let okCount = 0;
+async function check(dotId, url, valueId, label) {
+  try {
+    const start = Date.now();
+    await fetch(url, { signal: AbortSignal.timeout(10000), mode: 'no-cors' });
+    const ms = Date.now() - start;
+    document.getElementById(dotId).className = 'dot ok';
+    document.getElementById(valueId).textContent = label + ' (' + ms + 'ms)';
+    okCount++;
+  } catch {
+    document.getElementById(dotId).className = 'dot fail';
+    document.getElementById(valueId).textContent = 'down';
+  }
+}
+
+Promise.all([
+  check('s-site', 'https://sugata-jyotish.vercel.app/', 'v-site', 'ok'),
+  check('s-vedastro', 'https://api.vedastro.org/api/Calculate/LagnaSignName/Location/Istanbul/Time/12:00/01/01/2020/+03:00', 'v-vedastro', 'ok'),
+  check('s-nominatim', 'https://nominatim.openstreetmap.org/search?q=Istanbul&format=json&limit=1', 'v-nominatim', 'ok'),
+  check('s-timeapi', 'https://timeapi.io/api/timezone/coordinate?latitude=41&longitude=29', 'v-timeapi', 'ok'),
+]);
+
+async function main() {
+  let md;
+  try {
+    const res = await fetch(BACKLOG_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    md = await res.text();
+  } catch (err) {
+    document.getElementById('content').innerHTML = '<p style="color:var(--text-muted)">Failed to load backlog</p>';
+    return;
+  }
+
+  document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleString('ru-RU');
+  const data = parseBacklogMd(md);
+
+  renderStats(data.phases, data.done.items);
+  renderInfoPanel();
+
+  let html = '<div class="section-label">Phases</div>';
+  html += data.phases.map(renderPhase).join('');
+  html += '<div class="section-label">Archive</div>';
+  html += renderDone(data.done);
+  document.getElementById('content').innerHTML = html;
+}
+
+main();
+</script>
+</body>
+</html>

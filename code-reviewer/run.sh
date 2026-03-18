@@ -5,6 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ARCHITECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 SAMI_DIR="${SAMI_PROJECT_DIR:-$HOME/Documents/Projects/Sami}"
 HUNTER_DIR="${HUNTER_PROJECT_DIR:-$HOME/Documents/Projects/Hunter}"
+PORTFOLIO_DIR="${PORTFOLIO_PROJECT_DIR:-$HOME/Documents/Projects/Portfolio}"
+VEDIC_DIR="${VEDIC_PROJECT_DIR:-$HOME/Documents/Projects/Vedic Turkey}"
 REPORT_DIR="$ARCHITECT_DIR/code-reviews"
 DATE=$(date +%Y-%m-%d)
 REPORT_FILE="$REPORT_DIR/$DATE.md"
@@ -86,6 +88,75 @@ echo "$(date -Iseconds) Starting code review..."
     echo ""
   done
 
+  # Portfolio source code (HTML + JS + CSS)
+  echo "=== PORTFOLIO: site/ files ==="
+  for f in "$PORTFOLIO_DIR"/site/index.html "$PORTFOLIO_DIR"/site/about.html "$PORTFOLIO_DIR"/site/script.js "$PORTFOLIO_DIR"/site/styles.css; do
+    if [ -f "$f" ]; then
+      name=$(basename "$f")
+      lines=$(wc -l < "$f")
+      echo "--- $name ($lines lines) ---"
+      cat "$f"
+      echo ""
+    fi
+  done
+  # Portfolio project pages (sample)
+  for f in "$PORTFOLIO_DIR"/site/projects/*.html; do
+    if [ -f "$f" ]; then
+      name=$(basename "$f")
+      lines=$(wc -l < "$f")
+      echo "--- projects/$name ($lines lines) ---"
+      if [ "$lines" -gt 500 ]; then
+        head -50 "$f"
+        echo "... (truncated)"
+      else
+        cat "$f"
+      fi
+      echo ""
+    fi
+  done
+
+  # Vedic Turkiye source code (Next.js)
+  echo "=== VEDIC TURKIYE: src/lib/ ==="
+  for f in "$VEDIC_DIR"/src/lib/**/*.ts; do
+    if [ -f "$f" ]; then
+      name=${f#"$VEDIC_DIR"/src/}
+      lines=$(wc -l < "$f")
+      echo "--- $name ($lines lines) ---"
+      if [ "$lines" -gt 800 ]; then
+        grep -n "^export function\|^export class\|^export const\|^function " "$f" || true
+      else
+        cat "$f"
+      fi
+      echo ""
+    fi
+  done
+
+  echo "=== VEDIC TURKIYE: src/components/ ==="
+  for f in "$VEDIC_DIR"/src/components/**/*.tsx; do
+    if [ -f "$f" ]; then
+      name=${f#"$VEDIC_DIR"/src/}
+      lines=$(wc -l < "$f")
+      echo "--- $name ($lines lines) ---"
+      if [ "$lines" -gt 800 ]; then
+        grep -n "^export function\|^export class\|^export const\|^function " "$f" || true
+      else
+        cat "$f"
+      fi
+      echo ""
+    fi
+  done
+
+  echo "=== VEDIC TURKIYE: src/app/api/ ==="
+  for f in "$VEDIC_DIR"/src/app/api/**/*.ts; do
+    if [ -f "$f" ]; then
+      name=${f#"$VEDIC_DIR"/src/}
+      lines=$(wc -l < "$f")
+      echo "--- $name ($lines lines) ---"
+      cat "$f"
+      echo ""
+    fi
+  done
+
   # Previous code review for continuity
   LAST_REVIEW=$(ls -t "$REPORT_DIR"/*.md 2>/dev/null | head -1 || true)
   if [ -n "$LAST_REVIEW" ] && [ "$LAST_REVIEW" != "$REPORT_FILE" ]; then
@@ -114,7 +185,9 @@ echo "$(date -Iseconds) Review saved to $REPORT_FILE"
 echo "$(date -Iseconds) Syncing action items to project backlogs..."
 
 SAMI_ITEMS=$(echo "$REPORT" | grep -E "SAMI|sami" | grep -E "approval|shared|db\.|index\.|analytics|scheduler|notify|rubrics|config" | head -5 | sed 's/^[0-9]*\. /- [ ] **Code Review:** /' | sed 's/|.*|/—/')
-HUNTER_ITEMS=$(echo "$REPORT" | grep -E "Hunter|hunter" | grep -E "bot\.|db\.|config\.|scorer|cover-letter|index" | head -5 | sed 's/^[0-9]*\. /- [ ] **Code Review:** /' | sed 's/|.*|/—/')
+HUNTER_ITEMS=$(echo "$REPORT" | grep -E "Hunter|hunter|Ловец" | grep -E "bot\.|db\.|config\.|scorer|cover-letter|index|scrapers" | head -5 | sed 's/^[0-9]*\. /- [ ] **Code Review:** /' | sed 's/|.*|/—/')
+VEDIC_ITEMS=$(echo "$REPORT" | grep -E "Vedic|vedic|Vedik|vedik|Turkiye|Jyotish" | grep -E "calculate\|interpret\|shopier\|chart\|api/\|landing\|geocode\|pdf\|brevo" | head -5 | sed 's/^[0-9]*\. /- [ ] **Code Review:** /' | sed 's/|.*|/—/')
+PORTFOLIO_ITEMS=$(echo "$REPORT" | grep -E "Portfolio|portfolio|diyor\.design" | grep -E "script\|styles\|index\|about\|projects/" | head -5 | sed 's/^[0-9]*\. /- [ ] **Code Review:** /' | sed 's/|.*|/—/')
 
 if [ -n "$SAMI_ITEMS" ]; then
   TASKS_FILE="$SAMI_DIR/COMMUNITY_TASKS.md"
@@ -133,6 +206,26 @@ if [ -n "$HUNTER_ITEMS" ]; then
     echo "### Code Review $DATE" >> "$TASKS_FILE"
     echo "$HUNTER_ITEMS" >> "$TASKS_FILE"
     echo "$(date -Iseconds) Hunter backlog updated with code review items"
+  fi
+fi
+
+if [ -n "$VEDIC_ITEMS" ]; then
+  TASKS_FILE="$VEDIC_DIR/BACKLOG.md"
+  if [ -f "$TASKS_FILE" ] && ! grep -q "Code Review: $DATE" "$TASKS_FILE" 2>/dev/null; then
+    echo "" >> "$TASKS_FILE"
+    echo "### Code Review $DATE" >> "$TASKS_FILE"
+    echo "$VEDIC_ITEMS" >> "$TASKS_FILE"
+    echo "$(date -Iseconds) Vedic Turkiye backlog updated with code review items"
+  fi
+fi
+
+if [ -n "$PORTFOLIO_ITEMS" ]; then
+  TASKS_FILE="$PORTFOLIO_DIR/BACKLOG.md"
+  if [ -f "$TASKS_FILE" ] && ! grep -q "Code Review: $DATE" "$TASKS_FILE" 2>/dev/null; then
+    echo "" >> "$TASKS_FILE"
+    echo "### Code Review $DATE" >> "$TASKS_FILE"
+    echo "$PORTFOLIO_ITEMS" >> "$TASKS_FILE"
+    echo "$(date -Iseconds) Portfolio backlog updated with code review items"
   fi
 fi
 
