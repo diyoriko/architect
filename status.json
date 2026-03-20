@@ -1,19 +1,19 @@
 {
-  "updated": "2026-03-15T23:57:33+03:00",
-  "report_date": "2026-03-15",
+  "updated": "2026-03-20T14:30:27+03:00",
+  "report_date": "2026-03-20",
   "agents": {
     "sami_strategist": { "schedule": "09:30 MSK daily", "platform": "launchd" },
     "hunter_strategist": { "schedule": "09:30 MSK daily", "platform": "launchd" },
     "architect": { "schedule": "Sun 10:00 MSK", "platform": "launchd" }
   },
   "tests": {
-    "sami": "260 passed",
-    "hunter": "371 passed"
+    "sami": "268 passed",
+    "hunter": "430 passed"
   },
   "backlogs": {
-    "sami_open": 9,
+    "sami_open": 48,
     "hunter_open": 20,
-    "architect_open": 21
+    "architect_open": 8
   },
-  "summary": "---  # Architect Review — 2026-03-15  ## Health "
+  "summary": "# Architect Review — 2026-03-20  ## Health  | Проект | Сервис | CI | Бэкап | Стратег | "
 }
