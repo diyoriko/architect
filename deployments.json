@@ -1,0 +1,65 @@
+{
+  "updated": "2026-03-21",
+  "projects": [
+    {
+      "name": "SAMI Bot",
+      "type": "backend",
+      "host": "Railway",
+      "url": "https://courageous-happiness-production.up.railway.app",
+      "health": "https://courageous-happiness-production.up.railway.app/health",
+      "repo": "diyoriko/sami",
+      "color": "#58a6ff"
+    },
+    {
+      "name": "Hunter Bot",
+      "type": "backend",
+      "host": "Railway",
+      "url": "https://hunter-production-0b65.up.railway.app",
+      "health": "https://hunter-production-0b65.up.railway.app/",
+      "repo": "diyoriko/hunter",
+      "color": "#3fb950"
+    },
+    {
+      "name": "Vedic Turkiye",
+      "type": "website",
+      "host": "Vercel",
+      "url": "https://vedic-turkiye.vercel.app",
+      "health": "https://vedic-turkiye.vercel.app/",
+      "repo": "diyoriko/vedic-turkiye",
+      "color": "#d4a0b9"
+    },
+    {
+      "name": "Portfolio",
+      "type": "website",
+      "host": "GitHub Pages",
+      "url": "https://diyor.design",
+      "health": "https://diyor.design/",
+      "repo": "diyoriko/portfolio",
+      "color": "#F8401C"
+    },
+    {
+      "name": "SAMI Channel",
+      "type": "telegram",
+      "host": "Telegram",
+      "url": "https://t.me/sami_workouts",
+      "label": "@sami_workouts",
+      "color": "#58a6ff"
+    },
+    {
+      "name": "SAMI Bot",
+      "type": "telegram",
+      "host": "Telegram",
+      "url": "https://t.me/sami_workout_bot",
+      "label": "@sami_workout_bot",
+      "color": "#58a6ff"
+    },
+    {
+      "name": "Hunter Bot",
+      "type": "telegram",
+      "host": "Telegram",
+      "url": "https://t.me/jobhunt_ai_bot",
+      "label": "@jobhunt_ai_bot",
+      "color": "#3fb950"
+    }
+  ]
+}

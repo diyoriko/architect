@@ -3,382 +3,254 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Backlog</title>
+<title>Portfolio -- Backlog</title>
 <style>
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --text-muted: #8b949e;
-    --accent: #F8401C;
-    --p0: #f85149;
-    --p1: #d29922;
-    --p2: #3fb950;
-    --p3: #8b949e;
-    --done: #238636;
-    --done-bg: rgba(35,134,54,0.15);
-    --cancelled: #484f58;
+    --bg: #0F172A; --surface: #1E293B; --surface-2: #273549; --border: #334155;
+    --text: #F8FAFC; --text-2: #CBD5E1; --muted: #94A3B8; --dim: #64748B;
+    --green: #22C55E; --red: #EF4444; --amber: #F59E0B; --blue: #3B82F6;
+    --purple: #A78BFA; --pink: #F472B6;
+    --mono: 'SF Mono', 'Fira Code', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 24px;
-    max-width: 960px;
-    margin: 0 auto;
-    line-height: 1.5;
+    font-family: var(--sans); background: var(--bg); color: var(--text);
+    padding: 24px; max-width: 960px; margin: 0 auto; line-height: 1.5;
   }
+  a { color: var(--muted); text-decoration: none; }
+  a:hover { color: var(--text-2); }
 
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 32px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-  }
+  /* Header */
+  .nav { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 0; overflow-x: auto; }
+  .nav a { font-size: 13px; padding: 8px 14px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; font-weight: 500; white-space: nowrap; }
+  .nav a:hover { color: var(--text-2); }
+  .nav a.active { color: var(--text); border-bottom-color: var(--red); }
+  .header { margin-bottom: 24px; }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--red); }
+  .meta { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+  .live { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .desc-text { font-size: 13px; color: var(--dim); margin-top: 2px; }
+  .header-links { display: flex; gap: 12px; margin-top: 8px; font-size: 12px; }
+  .header-links a { color: var(--muted); text-decoration: none; padding: 2px 10px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); transition: all 0.15s; }
+  .header-links a:hover { color: var(--text); border-color: var(--dim); background: var(--surface-2); }
 
-  h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
-  .meta { font-size: 13px; color: var(--text-muted); }
-  .meta .live { display: inline-block; width: 8px; height: 8px; background: var(--p2); border-radius: 50%; margin-right: 4px; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
+  /* Stats */
   .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 32px; }
   .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
   .stat-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 
+  /* Sections */
   .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
-  .section-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .section-header {
+    padding: 16px 20px; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
   .section-header:hover { background: rgba(255,255,255,0.03); }
   .section-title { font-size: 16px; font-weight: 600; }
-  .section-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-  .badge-active { background: rgba(248,64,28,0.15); color: var(--accent); }
-  .badge-done { background: var(--done-bg); color: var(--done); }
-  .badge-planned { background: rgba(139,148,158,0.15); color: var(--text-muted); }
+  .section-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 10px; }
+  .badge-active { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-done { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-planned { background: rgba(148,163,184,0.15); color: var(--muted); }
   .section-body { padding: 0 20px 16px; }
-  .collapse-icon { transition: transform 0.2s; color: var(--text-muted); }
+  .collapse-icon { transition: transform 0.2s; color: var(--muted); }
   .collapsed .collapse-icon { transform: rotate(-90deg); }
   .collapsed .section-body { display: none; }
 
+  /* Progress bar */
   .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+  .progress-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.3s; }
 
+  /* Groups */
   .group { margin-bottom: 16px; }
   .group:last-child { margin-bottom: 0; }
-  .group-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .group-title { font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
   .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
+  /* Tasks */
   .task { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: 6px; margin-bottom: 2px; font-size: 14px; transition: background 0.15s; }
   .task:hover { background: rgba(255,255,255,0.03); }
-  .task.has-detail { cursor: pointer; }
-  .task-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
-  .task-done .task-check { background: var(--done); border-color: var(--done); }
-  .task-done .task-check::after { content: '\2713'; color: white; font-size: 12px; font-weight: 700; }
-  .task-cancelled .task-check { background: var(--cancelled); border-color: var(--cancelled); }
-  .task-cancelled .task-check::after { content: '\2014'; color: #8b949e; font-size: 12px; font-weight: 700; }
-  .task-done .task-text, .task-cancelled .task-text { color: var(--text-muted); text-decoration: line-through; text-decoration-color: rgba(139,148,158,0.4); }
+  .task-check {
+    width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border);
+    flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
   .task-content { flex: 1; min-width: 0; }
-  .task-row { display: flex; align-items: center; gap: 8px; }
   .task-text { flex: 1; }
-  .task-text strong { font-weight: 600; }
-  .task-id { font-size: 11px; color: var(--text-muted); font-family: monospace; flex-shrink: 0; }
-  .task-detail { display: none; margin-top: 6px; padding: 8px 12px; background: rgba(255,255,255,0.02); border-left: 2px solid var(--border); border-radius: 0 4px 4px 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-  .task-detail.open { display: block; }
-  .expand-icon { font-size: 10px; color: var(--text-muted); transition: transform 0.15s; flex-shrink: 0; }
-  .task.expanded .expand-icon { transform: rotate(90deg); }
 
-  .info-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .info-table { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .info-table-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 12px 16px 8px; }
-  .info-table table { width: 100%; border-collapse: collapse; }
-  .info-table td { padding: 6px 16px; font-size: 13px; border-top: 1px solid var(--border); }
-  .info-table td:first-child { color: var(--text-muted); white-space: nowrap; width: 1%; }
-  .info-table td:last-child { color: var(--text); font-weight: 500; }
-  .info-table .cost { color: var(--text-muted); font-weight: 400; font-size: 12px; }
+  /* Done */
+  .task-done .task-check { background: var(--green); border-color: var(--green); }
+  .task-done .task-check::after { content: '\2713'; color: white; }
+  .task-done .task-text { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(148,163,184,0.4); }
 
-  .agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-  .agent-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .agent-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(248,64,28,0.15); }
-  .agent-name { font-size: 16px; font-weight: 600; }
-  .agent-meta { font-size: 12px; color: var(--text-muted); }
-  .agent-status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 8px; border-radius: 10px; background: rgba(248,64,28,0.1); color: var(--accent); }
-  .agent-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-  .agent-skills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-  .skill-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); }
+  /* Cancelled */
+  .task-cancelled .task-check { background: var(--dim); border-color: var(--dim); }
+  .task-cancelled .task-check::after { content: '\00D7'; color: var(--muted); }
+  .task-cancelled .task-text { color: var(--dim); text-decoration: line-through; text-decoration-color: rgba(100,116,139,0.4); }
 
-  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 24px 0 12px; }
-
-  /* Cases grid */
-  .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-  .case-item { padding: 8px 12px; border-radius: 6px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-  .case-item .case-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  /* In progress */
+  .task-progress { background: rgba(59,130,246,0.05); }
+  .task-progress .task-check { border-color: var(--blue); background: transparent; }
+  .task-progress .task-check::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
 
   @media (max-width: 600px) {
     .stats { grid-template-columns: repeat(3, 1fr); }
-    .info-tables { grid-template-columns: 1fr; }
-    .cases-grid { grid-template-columns: 1fr; }
+    body { padding: 16px; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Portfolio Backlog</h1>
-  <div class="meta"><span class="live"></span> <span id="lastUpdate"></span></div>
-</header>
+<div class="nav">
+  <a href="index.html">Architect</a>
+  <a href="mega-review.html">Health</a>
+  <a href="hunter-backlog.html">Hunter</a>
+  <a href="sami-backlog.html">SAMI</a>
+  <a href="vedic-backlog.html">Vedic</a>
+  <a class="active" href="portfolio-backlog.html">Portfolio</a>
+</div>
+<div class="header">
+  <div class="header-top">
+    <h1>Portfolio</h1>
+    <div class="meta"><span class="live"></span><span id="lastUpdate">--</span></div>
+  </div>
+  <div class="desc-text">Портфолио diyor.design. HTML/CSS/JS, GitHub Pages. 7 кейсов: Skysmart, Teletype, ENXT, SAMI, Hunter, Prosto, Kombo.</div>
+  <div class="header-links">
+    <a href="https://diyor.design" target="_blank">diyor.design</a>
+  </div>
+</div>
 
 <div class="stats" id="stats"></div>
-<div id="infopanel"></div>
-<div id="agent"></div>
 <div id="content"></div>
 
 <script>
-const BACKLOG_URL = 'portfolio-BACKLOG.md';
+const SRC = 'portfolio-BACKLOG.md?' + Date.now();
+const REFRESH = 30000;
 
 function parseBacklogMd(md) {
   const lines = md.split('\n');
   const sections = [];
-  let currentSection = null;
-  let currentGroup = null;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Section: ## P0 — Name, ## P1 — Name, ## P2 — Name
-    const sectionMatch = line.match(/^## (.+)/);
-    if (sectionMatch) {
-      const name = sectionMatch[1].trim();
-      let priority = 'p2';
-      let status = 'planned';
-      if (/^P0/i.test(name)) { priority = 'p0'; status = 'active'; }
-      else if (/^P1/i.test(name)) { priority = 'p1'; status = 'active'; }
-      else if (/^P2/i.test(name)) priority = 'p2';
-      else if (/^P3/i.test(name)) priority = 'p3';
-
-      currentSection = { name, priority, status, groups: [] };
-      sections.push(currentSection);
-      currentGroup = null;
-      continue;
+  let cur = null, grp = null;
+  for (const line of lines) {
+    const sm = line.match(/^## (.+)/);
+    if (sm) {
+      const name = sm[1].trim();
+      let pri = 'p2', status = 'planned';
+      if (/^P0/i.test(name)) { pri = 'p0'; status = 'active'; }
+      else if (/^P1/i.test(name)) { pri = 'p1'; status = 'active'; }
+      else if (/^P2/i.test(name)) pri = 'p2';
+      else if (/^P3/i.test(name)) pri = 'p3';
+      cur = { name, priority: pri, status, groups: [] };
+      sections.push(cur); grp = null; continue;
     }
-
-    // Group: ### BUG-01, ### CASE-01, ### DEV-01, ### DEPLOY-01, etc.
-    const groupMatch = line.match(/^### (.+)/);
-    if (groupMatch && currentSection) {
-      const title = groupMatch[1].trim();
-      currentGroup = { title, tasks: [] };
-      currentSection.groups.push(currentGroup);
-      continue;
-    }
-
-    if (/^---\s*$/.test(line)) {
-      currentGroup = null;
-      continue;
-    }
-
-    // Task: - [x], - [ ], - [~], - [—]
-    const taskMatch = line.match(/^- \[([ x~—])\]\s+(.+)/);
-    if (taskMatch && currentGroup) {
-      const status = taskMatch[1];
-      const isDone = status === 'x';
-      const isCancelled = status === '—';
-      const isProgress = status === '~';
-      let raw = taskMatch[2].trim();
-
-      let text = raw;
-      let detail = '';
-      const boldMatch = raw.match(/^\*\*(.+?)\*\*\s*[—\-]\s*(.*)/s);
-      if (boldMatch) {
-        text = boldMatch[1];
-        detail = boldMatch[2] || '';
-      }
-
-      // Extract ID if present
-      let id = '';
-      const idMatch = text.match(/^(BUG-\d+|CASE-\d+|DEV-\d+|DEPLOY-\d+|STRAT-\d+|ABOUT-\d+|POLISH-\d+)/);
-      if (idMatch) id = idMatch[1];
-
-      const task = { text: text.replace(/\*\*/g, ''), done: isDone, cancelled: isCancelled, progress: isProgress, id };
-      if (detail) task.detail = detail;
-      currentGroup.tasks.push(task);
-      continue;
+    const gm = line.match(/^### (.+)/);
+    if (gm && cur) { grp = { title: gm[1].trim(), tasks: [] }; cur.groups.push(grp); continue; }
+    if (/^---\s*$/.test(line)) { grp = null; continue; }
+    const tm = line.match(/^- \[([ x~\u2014])\]\s+(.+)/);
+    if (tm && grp) {
+      const s = tm[1]; const raw = tm[2].trim();
+      grp.tasks.push({ text: raw, done: s === 'x', cancelled: s === '\u2014', progress: s === '~' });
     }
   }
-
-  return { sections };
+  return sections;
 }
 
-const metaData = [
-  { key: 'Site', value: 'diyor.design' },
-  { key: 'Stack', value: 'HTML5, CSS3, Vanilla JS' },
-  { key: 'Hosting', value: 'GitHub Pages' },
-  { key: 'Analytics', value: 'GoatCounter' },
-  { key: 'Langs', value: 'RU + EN' },
-  { key: 'Cases', value: 'Skysmart, Teletype, ENXT, SAMI, Hunter, Prosto, Kombo' },
-];
-
-const servicesData = [
-  { name: 'GitHub Pages', purpose: 'Hosting + CDN' },
-  { name: 'GoatCounter', purpose: 'Analytics (cookie-free)' },
-  { name: 'Google Search Console', purpose: 'SEO monitoring' },
-  { name: 'Readymag', purpose: 'Previous platform (disabled)' },
-];
-
-const priorityColors = { p0: 'var(--p0)', p1: 'var(--p1)', p2: 'var(--p2)', p3: 'var(--p3)' };
-
-function countTasks(sections) {
-  let total = 0, done = 0, cancelled = 0, open = 0;
-  const byPriority = { p0: 0, p1: 0, p2: 0, p3: 0 };
-  for (const s of sections) {
-    for (const g of s.groups) {
-      for (const t of g.tasks) {
-        total++;
-        if (t.done) { done++; continue; }
-        if (t.cancelled) { cancelled++; continue; }
-        open++;
-        byPriority[s.priority] = (byPriority[s.priority] || 0) + 1;
-      }
-    }
+function count(sections) {
+  let open = 0, done = 0, cancelled = 0, progress = 0;
+  for (const s of sections) for (const g of s.groups) for (const t of g.tasks) {
+    if (t.done) done++; else if (t.cancelled) cancelled++; else if (t.progress) { progress++; open++; } else open++;
   }
-  return { total, done, cancelled, open, byPriority };
+  const active = done + open;
+  return { open, done, cancelled, progress, pct: active ? Math.round(done / active * 100) : 0 };
 }
+
+function esc(s) { const e = document.createElement('span'); e.textContent = s; return e.innerHTML; }
 
 function renderStats(sections) {
-  const c = countTasks(sections);
+  const c = count(sections);
   const items = [
-    { value: c.total, label: 'Total', color: 'var(--text)' },
-    { value: c.done, label: 'Done', color: 'var(--done)' },
-    { value: c.open, label: 'Open', color: 'var(--p1)' },
-    { value: c.cancelled, label: 'Cancelled', color: 'var(--cancelled, #484f58)' },
-    { value: Math.round(c.done / (c.total - c.cancelled) * 100) + '%', label: 'Progress', color: 'var(--accent)' },
+    { v: c.open, l: 'Open', c: 'var(--text)' },
+    { v: c.done, l: 'Done', c: 'var(--green)' },
+    { v: c.cancelled, l: 'Cancelled', c: 'var(--dim)' },
+    { v: c.progress, l: 'In Progress', c: 'var(--amber)' },
+    { v: c.pct + '%', l: 'Progress', c: 'var(--red)' },
   ];
   document.getElementById('stats').innerHTML = items.map(s =>
-    `<div class="stat"><div class="stat-value" style="color:${s.color}">${s.value}</div><div class="stat-label">${s.label}</div></div>`
+    `<div class="stat"><div class="stat-value" style="color:${s.c}">${s.v}</div><div class="stat-label">${s.l}</div></div>`
   ).join('');
 }
 
-function renderInfoPanel() {
-  const metaRows = metaData.map(m => `<tr><td>${esc(m.key)}</td><td>${esc(m.value)}</td></tr>`).join('');
-  const serviceRows = servicesData.map(s => `<tr><td>${esc(s.name)}</td><td>${esc(s.purpose)}</td></tr>`).join('');
-  document.getElementById('infopanel').innerHTML = `
-    <div class="info-tables">
-      <div class="info-table"><div class="info-table-title">Project</div><table>${metaRows}</table></div>
-      <div class="info-table"><div class="info-table-title">Services</div><table>${serviceRows}</table></div>
-    </div>`;
+function groupColor(title) {
+  if (/^BUG/i.test(title)) return 'var(--red)';
+  if (/^CASE/i.test(title)) return 'var(--blue)';
+  if (/^DEV/i.test(title)) return 'var(--amber)';
+  if (/^DEPLOY/i.test(title)) return 'var(--green)';
+  if (/^STRAT/i.test(title)) return 'var(--purple)';
+  if (/^POLISH/i.test(title)) return 'var(--green)';
+  if (/^SEO/i.test(title)) return 'var(--pink)';
+  if (/^FIGMA/i.test(title)) return 'var(--purple)';
+  if (/^A11Y/i.test(title)) return 'var(--amber)';
+  if (/^UX/i.test(title)) return 'var(--blue)';
+  if (/^SYNC/i.test(title)) return 'var(--muted)';
+  if (/^CONTENT/i.test(title)) return 'var(--pink)';
+  if (/^DIST/i.test(title)) return 'var(--green)';
+  if (/^ABOUT/i.test(title)) return 'var(--blue)';
+  return 'var(--muted)';
 }
 
-function renderAgent() {
-  document.getElementById('agent').innerHTML = `
-    <div class="section-label">Agents</div>
-    <div class="agent-card">
-      <div class="agent-header">
-        <div class="agent-icon">&#x1F3A8;</div>
-        <div>
-          <div class="agent-name">Portfolio Strategist</div>
-          <div class="agent-meta">launchd &middot; Claude Sonnet 4.6</div>
-        </div>
+function renderTask(t) {
+  let cls = '';
+  if (t.done) cls = 'task-done';
+  else if (t.cancelled) cls = 'task-cancelled';
+  else if (t.progress) cls = 'task-progress';
+  return `<div class="task ${cls}"><div class="task-check"></div><div class="task-content"><span class="task-text">${esc(t.text)}</span></div></div>`;
+}
+
+function renderSection(sec) {
+  const tasks = sec.groups.flatMap(g => g.tasks);
+  const active = tasks.filter(t => !t.cancelled);
+  const d = active.filter(t => t.done).length;
+  const tot = active.length;
+  const pct = tot ? Math.round(d / tot * 100) : 0;
+  const allDone = pct === 100;
+  const badge = allDone ? 'badge-done' : sec.status === 'active' ? 'badge-active' : 'badge-planned';
+  const badgeText = allDone ? 'done' : sec.status;
+
+  return `<div class="section${allDone ? ' collapsed' : ''}">
+    <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div><span class="section-title">${esc(sec.name)}</span><span class="section-badge ${badge}">${badgeText}</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:var(--muted)">${d}/${tot}</span>
+        <span class="collapse-icon">&#x25BC;</span>
       </div>
-      <div class="agent-status"><span class="agent-status-dot"></span>Sun 11:00 MSK weekly</div>
-      <div class="agent-skills">
-        <span class="skill-tag">Cases</span>
-        <span class="skill-tag">Copy</span>
-        <span class="skill-tag">Design</span>
-        <span class="skill-tag">SEO</span>
-        <span class="skill-tag">Code</span>
-      </div>
-    </div>`;
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="section-body">${sec.groups.map(g => `<div class="group">
+      <div class="group-title"><span class="priority-dot" style="background:${groupColor(g.title)}"></span>${esc(g.title)}</div>
+      ${g.tasks.map(renderTask).join('')}
+    </div>`).join('')}</div>
+  </div>`;
 }
 
-function renderSection(section) {
-  const allTasks = section.groups.flatMap(g => g.tasks);
-  const active = allTasks.filter(t => !t.cancelled);
-  const doneCount = active.filter(t => t.done).length;
-  const total = active.length;
-  const pct = total ? Math.round(doneCount / total * 100) : 0;
-  const badgeClass = section.status === 'active' ? 'badge-active' : 'badge-planned';
-
-  return `
-    <div class="section${pct === 100 ? ' collapsed' : ''}">
-      <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-        <div><span class="section-title">${esc(section.name)}</span> <span class="section-badge ${badgeClass}">${pct === 100 ? 'done' : section.status}</span></div>
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-size:12px;color:var(--text-muted)">${doneCount}/${total}</span>
-          <span class="collapse-icon">&#x25BC;</span>
-        </div>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="section-body">${section.groups.map(renderGroup).join('')}</div>
-    </div>`;
-}
-
-function renderGroup(group) {
-  // Determine priority from group title or parent
-  let color = 'var(--text-muted)';
-  if (/^BUG/i.test(group.title)) color = 'var(--p0)';
-  else if (/^CASE/i.test(group.title)) color = 'var(--accent)';
-  else if (/^DEV/i.test(group.title)) color = 'var(--p1)';
-  else if (/^DEPLOY/i.test(group.title)) color = 'var(--p2)';
-  else if (/^STRAT/i.test(group.title)) color = 'var(--accent)';
-  else if (/^POLISH/i.test(group.title)) color = 'var(--p2)';
-
-  return `
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:${color}"></span>${esc(group.title)}</div>
-      ${group.tasks.map(renderTask).join('')}
-    </div>`;
-}
-
-function renderTask(task) {
-  let stateClass = '';
-  if (task.done) stateClass = 'task-done';
-  else if (task.cancelled) stateClass = 'task-cancelled';
-  const hasDetail = task.detail ? 'has-detail' : '';
-  const clickHandler = task.detail ? 'onclick="toggleDetail(this)"' : '';
-
-  return `
-    <div class="task ${stateClass} ${hasDetail}" ${clickHandler}>
-      <div class="task-check"></div>
-      <div class="task-content">
-        <div class="task-row">
-          <span class="task-text"><strong>${esc(task.text)}</strong></span>
-          ${task.detail ? '<span class="expand-icon">&#x25B6;</span>' : ''}
-        </div>
-        ${task.detail ? `<div class="task-detail">${esc(task.detail)}</div>` : ''}
-      </div>
-    </div>`;
-}
-
-function esc(str) { const el = document.createElement('span'); el.textContent = str; return el.innerHTML; }
-function toggleDetail(el) { el.classList.toggle('expanded'); const d = el.querySelector('.task-detail'); if (d) d.classList.toggle('open'); }
-
-async function main() {
-  let md;
+async function load() {
   try {
-    const res = await fetch(BACKLOG_URL + '?t=' + Date.now());
+    const res = await fetch(SRC);
     if (!res.ok) throw new Error(res.status);
-    md = await res.text();
-  } catch (err) {
-    document.getElementById('content').innerHTML = '<p style="color:var(--text-muted)">Failed to load backlog</p>';
-    return;
+    const md = await res.text();
+    const sections = parseBacklogMd(md);
+    renderStats(sections);
+    document.getElementById('content').innerHTML = sections.map(renderSection).join('');
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    document.getElementById('content').innerHTML = '<p style="color:var(--muted);padding:20px">Failed to load backlog</p>';
   }
-
-  document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleString('ru-RU');
-  const data = parseBacklogMd(md);
-
-  renderStats(data.sections);
-  renderInfoPanel();
-  renderAgent();
-
-  let html = '<div class="section-label">Sections</div>';
-  html += data.sections.map(renderSection).join('');
-  document.getElementById('content').innerHTML = html;
 }
 
-main();
+load();
+setInterval(() => { location.replace(location.href); }, REFRESH);
 </script>
 </body>
 </html>

@@ -3,29 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vedik Astroloji Turkiye — Backlog</title>
+<title>Vedic Turkiye — Backlog</title>
 <style>
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --text-muted: #8b949e;
-    --accent: #d4a0b9;
-    --p0: #f85149;
-    --p1: #d29922;
-    --p2: #3fb950;
-    --p3: #8b949e;
-    --done: #238636;
-    --done-bg: rgba(35,134,54,0.15);
-    --blocker: #da3633;
-    --blocker-bg: rgba(218,54,51,0.15);
+    --bg: #0F172A; --surface: #1E293B; --surface-2: #273549; --border: #334155;
+    --text: #F8FAFC; --text-2: #CBD5E1; --muted: #94A3B8; --dim: #64748B;
+    --green: #22C55E; --red: #EF4444; --amber: #F59E0B; --blue: #3B82F6;
+    --purple: #A78BFA; --pink: #F472B6;
+    --mono: 'SF Mono', 'Fira Code', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+    --done: #22C55E; --done-bg: rgba(34,197,94,0.12);
+    --blocker: #EF4444; --blocker-bg: rgba(239,68,68,0.1);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    font-family: var(--sans);
     background: var(--bg);
     color: var(--text);
     padding: 24px;
@@ -34,45 +28,51 @@
     line-height: 1.5;
   }
 
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 32px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-  }
+  a { color: var(--pink); text-decoration: none; }
+  a:hover { text-decoration: underline; }
 
-  h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
-  .meta { font-size: 13px; color: var(--text-muted); }
-  .meta .live { display: inline-block; width: 8px; height: 8px; background: var(--p2); border-radius: 50%; margin-right: 4px; animation: pulse 2s infinite; }
+  .header { margin-bottom: 24px; }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .nav { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 0; overflow-x: auto; }
+  .nav a { font-size: 13px; padding: 8px 14px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; font-weight: 500; white-space: nowrap; }
+  .nav a:hover { color: var(--text-2); }
+  .nav a.active { color: var(--text); border-bottom-color: var(--pink); }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--pink); }
+  .desc-text { font-size: 13px; color: var(--dim); margin-top: 2px; }
+  .header-links { display: flex; gap: 12px; margin-top: 8px; font-size: 12px; }
+  .header-links a { color: var(--muted); text-decoration: none; padding: 2px 10px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); transition: all 0.15s; }
+  .header-links a:hover { color: var(--text); border-color: var(--dim); background: var(--surface-2); }
+  .meta { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+  .meta .live { display: inline-block; width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
   .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 32px; }
   .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
   .stat-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 
   .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
   .section-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
   .section-header:hover { background: rgba(255,255,255,0.03); }
   .section-title { font-size: 16px; font-weight: 600; }
   .section-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-  .badge-active { background: rgba(212,160,185,0.15); color: var(--accent); }
+  .badge-active { background: rgba(244,114,182,0.15); color: var(--pink); }
   .badge-done { background: var(--done-bg); color: var(--done); }
+  .badge-planned { background: rgba(148,163,184,0.15); color: var(--muted); }
   .badge-blocker { background: var(--blocker-bg); color: var(--blocker); }
-  .badge-planned { background: rgba(139,148,158,0.15); color: var(--text-muted); }
   .section-body { padding: 0 20px 16px; }
-  .collapse-icon { transition: transform 0.2s; color: var(--text-muted); }
+  .collapse-icon { transition: transform 0.2s; color: var(--muted); }
   .collapsed .collapse-icon { transform: rotate(-90deg); }
   .collapsed .section-body { display: none; }
 
   .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+  .progress-fill { height: 100%; background: var(--pink); border-radius: 2px; transition: width 0.3s; }
 
   .group { margin-bottom: 16px; }
   .group:last-child { margin-bottom: 0; }
-  .group-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .group-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .group.blockers { border-left: 3px solid var(--amber); padding-left: 12px; margin-left: -12px; }
+  .group.blockers .group-title { color: var(--amber); }
   .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
   .task { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: 6px; margin-bottom: 2px; font-size: 14px; transition: background 0.15s; }
@@ -81,1408 +81,268 @@
   .task-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
   .task-done .task-check { background: var(--done); border-color: var(--done); }
   .task-done .task-check::after { content: '\2713'; color: white; font-size: 12px; font-weight: 700; }
-  .task-done .task-text { color: var(--text-muted); text-decoration: line-through; text-decoration-color: rgba(139,148,158,0.4); }
+  .task-done .task-text { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(148,163,184,0.4); }
   .task-content { flex: 1; min-width: 0; }
   .task-row { display: flex; align-items: center; gap: 8px; }
   .task-text { flex: 1; }
   .task-text strong { font-weight: 600; }
-  .task-id { font-size: 11px; color: var(--text-muted); font-family: monospace; flex-shrink: 0; }
-  .task-detail { display: none; margin-top: 6px; padding: 8px 12px; background: rgba(255,255,255,0.02); border-left: 2px solid var(--border); border-radius: 0 4px 4px 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .task-id { font-size: 11px; color: var(--dim); font-family: var(--mono); flex-shrink: 0; }
+  .task-detail { display: none; margin-top: 6px; padding: 8px 12px; background: rgba(255,255,255,0.02); border-left: 2px solid var(--border); border-radius: 0 4px 4px 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
   .task-detail.open { display: block; }
-  .expand-icon { font-size: 10px; color: var(--text-muted); transition: transform 0.15s; flex-shrink: 0; }
+  .expand-icon { font-size: 10px; color: var(--muted); transition: transform 0.15s; flex-shrink: 0; }
   .task.expanded .expand-icon { transform: rotate(90deg); }
 
   .done-section .section-body { max-height: 300px; overflow-y: auto; }
-  .release-item { display: flex; align-items: flex-start; gap: 10px; padding: 5px 12px; font-size: 13px; color: var(--text-muted); }
+  .release-item { display: flex; align-items: flex-start; gap: 10px; padding: 5px 12px; font-size: 13px; color: var(--muted); }
   .release-item::before { content: '\2713'; color: var(--done); font-weight: 700; font-size: 12px; margin-top: 2px; flex-shrink: 0; }
 
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
-  .card-title { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #21262d; }
-  .row:last-child { border: none; }
-  .label { font-size: 14px; }
-  .value { font-size: 14px; color: var(--text-muted); }
-  .value b { color: var(--text); }
-  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-  .dot.ok { background: #3fb950; }
-  .dot.fail { background: #f85149; }
-  .dot.warn { background: #d29922; }
-  .dot.unknown { background: #484f58; animation: pulse 1.5s infinite; }
-  .dot.gray { background: #30363d; }
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
-  .tag.green { background: #238636; color: #fff; }
-  .tag.red { background: #da3633; color: #fff; }
-  .tag.yellow { background: #9e6a03; color: #fff; }
-  .tag.gray { background: #30363d; color: #8b949e; }
-  .tag.rose { background: #5e3a3e; color: #d4a0a8; }
-  .mono { font-family: 'SF Mono', monospace; font-size: 12px; color: #79c0ff; }
+  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 24px 0 12px; }
 
-  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 24px 0 12px; }
-
-  details { margin-bottom: 12px; }
-  details summary { cursor: pointer; font-size: 13px; color: #58a6ff; padding: 8px 0; }
-  details summary:hover { color: #79c0ff; }
-  details .inner { padding: 12px 0; font-size: 13px; color: var(--text-muted); line-height: 1.8; }
-  details table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  details th { text-align: left; color: var(--text-muted); font-weight: 500; padding: 4px 8px; }
-  details td { padding: 4px 8px; border-bottom: 1px solid #21262d; }
-
-  .env-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .env-table td { padding: 6px 12px; font-size: 13px; border-bottom: 1px solid #21262d; }
-  .env-table td:first-child { font-family: 'SF Mono', monospace; font-size: 12px; color: #79c0ff; }
+  .error-msg { color: var(--muted); padding: 40px 20px; text-align: center; font-size: 14px; }
 
   @media (max-width: 600px) {
     .stats { grid-template-columns: repeat(3, 1fr); }
+    .header-top { flex-direction: column; gap: 4px; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Vedik Astroloji T&uuml;rkiye &mdash; Backlog</h1>
-  <div class="meta"><span class="live"></span> Updated 18.03.2026</div>
-</header>
-
-<!-- Stats -->
-<div class="stats">
-  <div class="stat"><div class="stat-value" style="color:var(--text)">131</div><div class="stat-label">Total</div></div>
-  <div class="stat"><div class="stat-value" style="color:var(--done)">67</div><div class="stat-label">Done</div></div>
-  <div class="stat"><div class="stat-value" style="color:var(--text)">64</div><div class="stat-label">Open</div></div>
-  <div class="stat"><div class="stat-value" style="color:var(--blocker)">5</div><div class="stat-label">Blockers</div></div>
-  <div class="stat"><div class="stat-value" style="color:var(--accent)">51%</div><div class="stat-label">Progress</div></div>
+<div class="nav">
+  <a href="index.html">Architect</a>
+  <a href="mega-review.html">Health</a>
+  <a href="hunter-backlog.html">Hunter</a>
+  <a href="sami-backlog.html">SAMI</a>
+  <a class="active" href="vedic-backlog.html">Vedic</a>
+  <a href="portfolio-backlog.html">Portfolio</a>
 </div>
-
-<!-- Blockers — prominent at top -->
-<div class="card" style="border-left: 3px solid var(--p0);">
-  <div class="card-title" style="color:var(--blocker);">Blockers (awaiting Duygu)</div>
-  <div class="row"><span class="label">VT-001: Domain decision</span><span class="tag red">blocked</span></div>
-  <div class="row"><span class="label">VT-002: Shopier account registration</span><span class="tag red">blocked</span></div>
-  <div class="row"><span class="label">VT-003: Chart accuracy verification (10+ charts)</span><span class="tag red">blocked</span></div>
-  <div class="row"><span class="label">VT-004: New pricing approval</span><span class="tag red">blocked</span></div>
-  <div class="row"><span class="label">VT-005: Visual direction approval</span><span class="tag red">blocked</span></div>
-</div>
-
-<!-- Services Health -->
-<div class="card">
-  <div class="card-title">Services</div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-site"></span>Vercel (site)</span><span class="value" id="v-site">checking...</span></div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-vedastro"></span>VedAstro API</span><span class="value" id="v-vedastro">checking...</span></div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-nominatim"></span>Nominatim (geocode)</span><span class="value" id="v-nominatim">checking...</span></div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-timeapi"></span>TimeAPI.io (timezone)</span><span class="value" id="v-timeapi">checking...</span></div>
-</div>
-
-<!-- API Providers -->
-<div class="card">
-  <div class="card-title">Chart Calculation APIs</div>
-  <div class="row"><span class="label"><span class="dot ok"></span>VedAstro (free charts)</span><span class="value">$1/mo unlimited <span class="tag green">active</span></span></div>
-  <div class="row"><span class="label"><span class="dot ok"></span>Prokerala (paid reports)</span><span class="value">5K free/mo <span class="tag green">integrated</span></span></div>
-  <div class="row"><span class="label"><span class="dot ok"></span>VedicAstroAPI (Turkish)</span><span class="value">14-day trial <span class="tag green">integrated</span></span></div>
-  <div class="row"><span class="label"><span class="dot gray"></span>AstrologyAPI.com</span><span class="value">$30/mo <span class="tag gray">not needed yet</span></span></div>
-</div>
-
-<!-- Chart Calculator Status -->
-<div class="card" style="border-left: 3px solid var(--p1);">
-  <div class="card-title">Chart Calculator</div>
-  <div class="row"><span class="label">Status</span><span class="value"><span class="tag yellow">BETA</span></span></div>
-  <div class="row"><span class="label">API Format</span><span class="value"><span class="tag green">Fixed (18.03)</span></span></div>
-  <div class="row"><span class="label">Ayanamsha</span><span class="value mono">Lahiri (default)</span></div>
-  <div class="row"><span class="label">10-chart verification</span><span class="value"><span class="tag yellow">Awaiting Duygu</span></span></div>
-  <div class="row"><span class="label">Dasha dates</span><span class="value"><span class="tag green">Vimshottari est.</span></span></div>
-  <div class="row"><span class="label">Production deploy</span><span class="value"><span class="tag green">Verified working (18.03)</span></span></div>
-</div>
-
-<!-- Vercel Env Vars -->
-<div class="card">
-  <div class="card-title">Vercel Env Vars</div>
-  <table class="env-table">
-    <tr><td>NEXT_PUBLIC_BASE_URL</td><td><span class="tag green">set</span></td></tr>
-    <tr><td>NEXT_PUBLIC_PLAUSIBLE_DOMAIN</td><td><span class="tag green">set</span></td></tr>
-    <tr><td>BREVO_API_KEY</td><td><span class="tag green">set</span></td></tr>
-    <tr><td>GROQ_API_KEY</td><td><span class="tag green">set</span></td></tr>
-    <tr><td>GOOGLE_AI_API_KEY</td><td><span class="tag green">set</span></td></tr>
-    <tr><td>SHOPIER_API_KEY</td><td><span class="tag yellow">awaits VT-002</span></td></tr>
-    <tr><td>SHOPIER_API_SECRET</td><td><span class="tag yellow">awaits VT-002</span></td></tr>
-  </table>
-</div>
-
-<!-- Expandable: Tech Stack -->
-<details>
-  <summary>Tech Stack</summary>
-  <div class="inner">
-    <table>
-      <tr><th>Layer</th><th>Tech</th><th>Status</th></tr>
-      <tr><td>Framework</td><td class="mono">Next.js 16 + TypeScript</td><td><span class="tag green">ok</span></td></tr>
-      <tr><td>Styling</td><td class="mono">Tailwind CSS v4</td><td><span class="tag green">ok</span></td></tr>
-      <tr><td>Animation</td><td class="mono">Framer Motion 12</td><td><span class="tag green">ok</span></td></tr>
-      <tr><td>Calculations</td><td class="mono">VedAstro API (free)</td><td><span class="tag yellow">beta</span></td></tr>
-      <tr><td>Calc (paid)</td><td class="mono">Prokerala API (OAuth2)</td><td><span class="tag green">integrated</span></td></tr>
-      <tr><td>Calc (TR)</td><td class="mono">VedicAstroAPI</td><td><span class="tag green">integrated</span></td></tr>
-      <tr><td>AI (free)</td><td class="mono">Groq &mdash; Llama 3.3 70B</td><td><span class="tag green">ok</span></td></tr>
-      <tr><td>AI (paid)</td><td class="mono">Claude Sonnet 4</td><td><span class="tag gray">no key</span></td></tr>
-      <tr><td>Payments</td><td class="mono">Shopier</td><td><span class="tag yellow">pending</span></td></tr>
-      <tr><td>Email</td><td class="mono">Brevo</td><td><span class="tag green">ok</span></td></tr>
-      <tr><td>Geocoding</td><td class="mono">Nominatim (free)</td><td><span class="tag green">ok</span></td></tr>
-      <tr><td>PDF</td><td class="mono">@react-pdf/renderer</td><td><span class="tag green">ok</span></td></tr>
-      <tr><td>Analytics</td><td class="mono">Plausible</td><td><span class="tag green">ok</span></td></tr>
-      <tr><td>Hosting</td><td class="mono">Vercel (free tier)</td><td><span class="tag green">ok</span></td></tr>
-    </table>
+<div class="header">
+  <div class="header-top">
+    <h1>Vedic Turkiye</h1>
+    <div class="meta"><span class="live"></span> <span id="lastUpdate">loading...</span></div>
   </div>
-</details>
-
-<!-- Expandable: Architecture -->
-<details>
-  <summary>Architecture</summary>
-  <div class="inner" style="font-family:'SF Mono',monospace; font-size:11px; white-space:pre; line-height:1.7;">
-User &#x2500;&#x2500;&#x2500;&#x2500; Next.js (Vercel) &#x2500;&#x2500;&#x2500;&#x2500; Pages (SSG/SSR)
-                &#x2502;
-                &#x251C;&#x2500;&#x2500; POST /api/chart
-                &#x2502;     &#x251C;&#x2500;&#x2500; Nominatim &rarr; lat/lon
-                &#x2502;     &#x251C;&#x2500;&#x2500; TimeAPI.io &rarr; timezone
-                &#x2502;     &#x251C;&#x2500;&#x2500; VedAstro API &rarr; chart data (Lahiri)
-                &#x2502;     &#x2514;&#x2500;&#x2500; Groq/Claude &rarr; AI interpretation
-                &#x2502;
-                &#x251C;&#x2500;&#x2500; POST /api/sade-sati
-                &#x2502;     &#x2514;&#x2500;&#x2500; Prokerala &rarr; Sade Sati dates
-                &#x2502;
-                &#x251C;&#x2500;&#x2500; POST /api/payment
-                &#x2502;     &#x2514;&#x2500;&#x2500; Shopier &rarr; hosted checkout
-                &#x2502;
-                &#x251C;&#x2500;&#x2500; POST /api/payment/callback
-                &#x2502;     &#x2514;&#x2500;&#x2500; Shopier webhook &rarr; PDF &rarr; Brevo email
-                &#x2502;
-                &#x2514;&#x2500;&#x2500; POST /api/email/subscribe
-                      &#x2514;&#x2500;&#x2500; Brevo &rarr; contact list
-  </div>
-</details>
-
-<!-- Expandable: Rebrand Progress -->
-<details>
-  <summary>Rebrand Progress (17&ndash;18.03.2026)</summary>
-  <div class="inner" style="line-height: 2;">
-    &#x2705; "Sugata Jyotish" &rarr; "Vedik Astroloji T&uuml;rkiye" (0 stale refs)<br>
-    &#x2705; Gold palette &rarr; Dusty rose (#c2979f)<br>
-    &#x2705; Homepage &rarr; Platform-first (no personal bio)<br>
-    &#x2705; Removed: /consultation, /course, /circle<br>
-    &#x2705; New pages: /vedik-astroloji, /sade-sati, /about<br>
-    &#x2705; SiteNav: brand "Vedik Astroloji"<br>
-    &#x2705; Deleted: iyzico.ts (Shopier only)<br>
-    &#x2705; Chart URL format fixed (critical bug)<br>
-    &#x2705; VedAstro zero-padding fix (day/month 2 digits)<br>
-    &#x2705; Prokerala API integrated<br>
-    &#x2705; VedicAstroAPI integrated<br>
-    &#x2705; POST /api/sade-sati endpoint created<br>
-    &#x2705; GitHub repo renamed: sugata-jyotish &rarr; vedic-turkiye<br>
-    &#x2705; Charts verified working on production<br>
-    &#x2705; Pricing: 2,450 / 2,950 / 4,950 TL<br>
-    &#x2705; Email sender: info@vedikastroloji.com<br>
-    &#x2705; PDF branding: VEDIK ASTROLOJI<br>
-    &#x2705; User-Agent: VedikAstroloji/1.0<br>
-    &#x23F3; Domain decision (VT-001)<br>
-    &#x23F3; Shopier account (VT-002)<br>
-    &#x23F3; Chart verification (VT-003)
-  </div>
-</details>
-
-<!-- ======== PHASES ======== -->
-<div class="section-label">Current Sprint</div>
-
-<!-- Current Sprint — Rebrand & Accuracy Fix -->
-<div class="section">
-  <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <div><span class="section-title">Current Sprint &mdash; Rebrand &amp; Accuracy Fix (17.03.2026)</span> <span class="section-badge badge-active">active</span></div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:12px;color:var(--text-muted)">16/21</span>
-      <span class="collapse-icon">&#x25BC;</span>
-    </div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" style="width:76%"></div></div>
-  <div class="section-body">
-
-    <!-- Blockers -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--blocker)"></span>Blockers (manual &mdash; needs Duygu)</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-001</span>
-          <span class="task-text"><strong>Domain decision</strong> &mdash; vedikastroloji.com / vedic.com.tr / vedikturkiye.com &mdash; Duygu chooses</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-002</span>
-          <span class="task-text"><strong>Shopier account</strong> &mdash; Duygu registers on shopier.com &rarr; Settings &rarr; API &rarr; gets API_KEY + API_SECRET &rarr; add to Vercel</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-003</span>
-          <span class="task-text"><strong>Chart accuracy verification</strong> &mdash; Duygu tests 10+ charts vs AstroSage: her own + 5 Turkish post-2016 births + 5 international. Log results in a spreadsheet.</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-004</span>
-          <span class="task-text"><strong>New pricing approval</strong> &mdash; Sade Sati 1,950&ndash;2,750 TL / Birth Chart 2,450&ndash;3,250 TL / Bundle 4,500&ndash;5,500 TL &mdash; Duygu confirms final prices</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-005</span>
-          <span class="task-text"><strong>Visual direction approval</strong> &mdash; soft pink / powder tones / warm neutrals palette &mdash; prepare 2 mockups, Duygu picks</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- Completed This Sprint -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--done)"></span>Completed This Sprint</div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>VT-010&ndash;VT-016:</strong> Full rebrand (Sugata Jyotish &rarr; Vedik Astroloji T&uuml;rkiye) (17.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>VT-020&ndash;VT-025:</strong> Calculator hidden, beta banner, bugs fixed (17.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>VT-100&ndash;VT-107:</strong> Homepage redesigned (platform-first) (17.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>VT-110&ndash;VT-112:</strong> Dusty rose palette applied (17.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>VT-120&ndash;VT-122, VT-124:</strong> New pages created (17.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>VT-505&ndash;VT-507:</strong> Code quality fixes (17.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>Prokerala API integrated</strong> (src/lib/astro/prokerala.ts) (18.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>VedicAstroAPI integrated</strong> (src/lib/astro/vedicastro.ts) (18.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>POST /api/sade-sati endpoint created</strong> (18.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>GitHub repo renamed:</strong> sugata-jyotish &rarr; vedic-turkiye (18.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>VedAstro zero-padding fix</strong> (day/month must be 2 digits) (18.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>Vercel manual deploy</strong> (auto-deploy broken after rename) (18.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-text"><strong>Chart calculations verified working on production</strong> (18.03.2026)</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done has-detail" onclick="toggleDetail(this)">
-        <div class="task-check"></div>
-        <div class="task-content">
-          <div class="task-row">
-            <span class="task-id">VT-025</span>
-            <span class="task-text"><strong>API comparison research</strong></span>
-            <span class="expand-icon">&#x25B6;</span>
-          </div>
-          <div class="task-detail">tested VedAstro, Prokerala, VedicAstroAPI, AstrologyAPI.com. VedAstro URL format bug found &amp; fixed. Prokerala recommended for paid Sade Sati reports. (17.03.2026)</div>
-        </div>
-      </div>
-
-      <div class="task task-done has-detail" onclick="toggleDetail(this)">
-        <div class="task-check"></div>
-        <div class="task-content">
-          <div class="task-row">
-            <span class="task-id">VT-022</span>
-            <span class="task-text"><strong>Fix VedAstro URL format</strong></span>
-            <span class="expand-icon">&#x25B6;</span>
-          </div>
-          <div class="task-detail">critical: coordinates in Location field broke parsing. Fixed to use place name only. (17.03.2026)</div>
-        </div>
-      </div>
-    </div>
-
+  <div class="desc-text">Vedik Astroloji platformu. Next.js 16, VedAstro + Prokerala + VedicAstroAPI, Claude AI, Shopier. Vercel.</div>
+  <div class="header-links">
+    <a href="https://vedic-turkiye.vercel.app" target="_blank">vedic-turkiye.vercel.app</a>
   </div>
 </div>
 
-<!-- ======== PHASE 0 ======== -->
-<div class="section-label">Phase 0: Rebrand + Architecture Split (Week 1)</div>
-
-<div class="section">
-  <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <div><span class="section-title">Phase 0: Rebrand + Architecture Split</span> <span class="section-badge badge-active">active</span></div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:12px;color:var(--text-muted)">12/14</span>
-      <span class="collapse-icon">&#x25BC;</span>
-    </div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" style="width:86%"></div></div>
-  <div class="section-body">
-
-    <!-- P0 — Identity Split -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p0)"></span>P0 &mdash; Identity Split</div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-010</span>
-          <span class="task-text"><strong>Rebrand codebase</strong> &mdash; &ldquo;Sugata Jyotish&rdquo; &rarr; &ldquo;Vedik Astroloji T&uuml;rkiye&rdquo; everywhere</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-011</span>
-          <span class="task-text"><strong>Remove personal website sections from homepage</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-012</span>
-          <span class="task-text"><strong>Remove stub pages</strong> &mdash; delete /consultation, /course, /circle and EN mirrors</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-013</span>
-          <span class="task-text"><strong>Update SiteNav</strong> &mdash; remove Consultation, Course, Circle links</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-014</span>
-          <span class="task-text"><strong>Founder trust section</strong> &mdash; redesign about section as 3-line trust block</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-015</span>
-          <span class="task-text"><strong>Update CLAUDE.md</strong> &mdash; new brand, stack (Shopier not iyzico), positioning</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-016</span>
-          <span class="task-text"><strong>New OG image</strong> &mdash; branded for &ldquo;Vedik Astroloji T&uuml;rkiye&rdquo; (SKIP for now)</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P0 — Calculator: Hide or Beta -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p0)"></span>P0 &mdash; Calculator: Hide or Beta</div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-020</span>
-          <span class="task-text"><strong>Hide calculator from homepage</strong> &mdash; replace with waitlist CTA</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-021</span>
-          <span class="task-text"><strong>Keep /chart page but mark as BETA</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-022</span>
-          <span class="task-text"><strong>Fix transit time overflow bug</strong> &mdash; formatTransitTimeParam hour overflow</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-023</span>
-          <span class="task-text"><strong>Fix Dasha date approximation</strong> &mdash; parse real start/end dates from VedAstro</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-024</span>
-          <span class="task-text"><strong>Verify timezone handling</strong> &mdash; test Turkish + international cities with DST</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-025</span>
-          <span class="task-text"><strong>API comparison research</strong> &mdash; test VedAstro vs Prokerala vs VedicAstroAPI vs AstroSage</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-026</span>
-          <span class="task-text"><strong>North Indian chart style option</strong> &mdash; add toggle for North Indian / South Indian chart display</span>
-        </div></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ======== PHASE 1 ======== -->
-<div class="section-label">Phase 1: MVP Relaunch &mdash; Turkish Platform (Week 2&ndash;3)</div>
-
-<div class="section">
-  <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <div><span class="section-title">Phase 1: MVP Relaunch</span> <span class="section-badge badge-active">active</span></div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:12px;color:var(--text-muted)">14/39</span>
-      <span class="collapse-icon">&#x25BC;</span>
-    </div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" style="width:36%"></div></div>
-  <div class="section-body">
-
-    <!-- P0 — Homepage Redesign -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p0)"></span>P0 &mdash; Homepage Redesign</div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-100</span>
-          <span class="task-text"><strong>Hero section rewrite</strong> &mdash; &ldquo;Vedik Astrolojiyi T&uuml;rkiye'de Ke&scedil;fedin&rdquo;</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-101</span>
-          <span class="task-text"><strong>&ldquo;Vedik Astroloji Nedir?&rdquo; section</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-102</span>
-          <span class="task-text"><strong>&ldquo;What users can do&rdquo; section</strong> &mdash; 6 short blocks</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-103</span>
-          <span class="task-text"><strong>Trust section</strong> &mdash; real calculation, not generic AI</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-104</span>
-          <span class="task-text"><strong>Sade Sati highlight section</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-105</span>
-          <span class="task-text"><strong>Founder section (minimal)</strong> &mdash; 3 lines + small photo</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-106</span>
-          <span class="task-text"><strong>Newsletter / Waitlist</strong> &mdash; email capture</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-107</span>
-          <span class="task-text"><strong>Remove sacred geometry backgrounds</strong></span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P0 — Visual Direction -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p0)"></span>P0 &mdash; Visual Direction</div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-110</span>
-          <span class="task-text"><strong>New color palette</strong> &mdash; soft pink, powder tones, warm neutrals</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-111</span>
-          <span class="task-text"><strong>Typography review</strong> &mdash; softer weight, premium feel</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-112</span>
-          <span class="task-text"><strong>Remove dark/occult feeling</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-113</span>
-          <span class="task-text"><strong>Mobile-first audit</strong> &mdash; every page must feel native on mobile</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P0 — New Pages -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p0)"></span>P0 &mdash; New Pages</div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-120</span>
-          <span class="task-text"><strong>&ldquo;Vedik Astroloji Nedir?&rdquo; page</strong> &mdash; rich SEO content</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-121</span>
-          <span class="task-text"><strong>&ldquo;Sade Sati Nedir?&rdquo; page</strong> &mdash; dedicated landing for #1 product</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-122</span>
-          <span class="task-text"><strong>&ldquo;Hakk&#x131;nda&rdquo; page</strong> &mdash; about the platform</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-123</span>
-          <span class="task-text"><strong>&ldquo;&#x130;leti&#x15F;im&rdquo; page</strong> &mdash; contact form or email</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-124</span>
-          <span class="task-text"><strong>Update nav order</strong></span>
-        </div></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ======== PHASE 2 ======== -->
-<div class="section-label">Phase 2: Verified Calculator + First Paid Product (Week 4&ndash;6)</div>
-
-<div class="section">
-  <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <div><span class="section-title">Phase 2: Verified Calculator + Paid Products</span> <span class="section-badge badge-planned">planned</span></div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:12px;color:var(--text-muted)">4/28</span>
-      <span class="collapse-icon">&#x25BC;</span>
-    </div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" style="width:14%"></div></div>
-  <div class="section-body">
-
-    <!-- P1 — Calculator Accuracy -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p1)"></span>P1 &mdash; Calculator Accuracy (depends on VT-003 + VT-025)</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-200</span>
-          <span class="task-text"><strong>Switch to verified API</strong> &mdash; implement the most accurate API (likely Prokerala or VedicAstroAPI)</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-201</span>
-          <span class="task-text"><strong>Lahiri Ayanamsha verification</strong> &mdash; ensure sidereal zodiac + Lahiri is default</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-202</span>
-          <span class="task-text"><strong>DST handling for historical births</strong> &mdash; Turkey pre-2016 had DST</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-203</span>
-          <span class="task-text"><strong>Input: Name field (optional)</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-204</span>
-          <span class="task-text"><strong>Input: Email field (optional)</strong> &mdash; for report delivery</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-205</span>
-          <span class="task-text"><strong>Free output verified</strong> &mdash; Lagna, Rashi, Nakshatra, current Mahadasha+Antardasha</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-206</span>
-          <span class="task-text"><strong>10-chart validation suite</strong> &mdash; automated test in CI</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-207</span>
-          <span class="task-text"><strong>Remove calculator from beta</strong> &mdash; if VT-003 + VT-206 pass</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-208</span>
-          <span class="task-text"><strong>Add rate limiting</strong> &mdash; max 10 calculations/min per IP on /api/chart</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P1 — Multi-API Architecture -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p1)"></span>P1 &mdash; Multi-API Architecture</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-230</span>
-          <span class="task-text"><strong>Register Prokerala free tier</strong> &mdash; API key obtained locally, NOT on Vercel yet</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-231</span>
-          <span class="task-text"><strong>Register VedicAstroAPI trial</strong> &mdash; registered, but API returns 403</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-232</span>
-          <span class="task-text"><strong>VedAstro $1/mo upgrade</strong> &mdash; pay for unlimited rate limit</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-233</span>
-          <span class="task-text"><strong>Prokerala Sade Sati integration test</strong> &mdash; verify dates match AstroSage for 5 known charts</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-234</span>
-          <span class="task-text"><strong>VedicAstroAPI Turkish output test</strong> &mdash; verify quality of Turkish terminology</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P1 — Sade Sati Report -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p1)"></span>P1 &mdash; Sade Sati Report (amiral gemisi &uuml;r&uuml;n)</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-210</span>
-          <span class="task-text"><strong>Sade Sati Report product</strong> &mdash; 1,950&ndash;2,750 TL, personalized Saturn timeline</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-211</span>
-          <span class="task-text"><strong>Premium AI for paid reports</strong> &mdash; Claude (not Groq/Gemini)</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-212</span>
-          <span class="task-text"><strong>Protected web view</strong> &mdash; report as gated web page</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-213</span>
-          <span class="task-text"><strong>PDF download option</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-214</span>
-          <span class="task-text"><strong>Report tone</strong> &mdash; analytical, empathetic, authoritative, calm, not fear-based</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-215</span>
-          <span class="task-text"><strong>Report language</strong> &mdash; Turkish with Sanskrit terms in parentheses</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-216</span>
-          <span class="task-text"><strong>Shopier payment flow for reports</strong> &mdash; VT-002 must be done first, taksit support</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P1 — SEO Knowledge Base -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p1)"></span>P1 &mdash; SEO Knowledge Base</div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-220</span>
-          <span class="task-text"><strong>Article: &ldquo;Vedik Astroloji Nedir?&rdquo;</strong> &mdash; expand existing, optimize for SEO</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-221</span>
-          <span class="task-text"><strong>Article: &ldquo;Sidereal ve Tropical fark&#x131; nedir?&rdquo;</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-222</span>
-          <span class="task-text"><strong>Article: &ldquo;Grahalar nelerdir?&rdquo;</strong> &mdash; all 9 planets</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-223</span>
-          <span class="task-text"><strong>Article: &ldquo;Bhavalar nelerdir?&rdquo;</strong> &mdash; 12 houses</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-224</span>
-          <span class="task-text"><strong>Article: &ldquo;Nakshatra nedir?&rdquo;</strong> &mdash; expand existing</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-225</span>
-          <span class="task-text"><strong>Article: &ldquo;Vimshottari Dasha nedir?&rdquo;</strong> &mdash; expand existing</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-226</span>
-          <span class="task-text"><strong>Article: &ldquo;Sade Sati nedir?&rdquo;</strong> &mdash; expand existing, link to paid report</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-227</span>
-          <span class="task-text"><strong>Glossary expansion</strong> &mdash; add all missing terms from articles</span>
-        </div></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ======== PHASE 3 ======== -->
-<div class="section-label">Phase 3: Full Report Suite + Accounts (Month 2&ndash;3)</div>
-
-<div class="section collapsed">
-  <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <div><span class="section-title">Phase 3: Full Report Suite + Accounts</span> <span class="section-badge badge-planned">planned</span></div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:12px;color:var(--text-muted)">0/16</span>
-      <span class="collapse-icon">&#x25BC;</span>
-    </div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
-  <div class="section-body">
-
-    <!-- P2 — Additional Reports -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p2)"></span>P2 &mdash; Additional Reports</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-300</span>
-          <span class="task-text"><strong>Vedik Do&#x11F;um Haritas&#x131; ve Ya&#x15F;am Yolu Analizi</strong> &mdash; 2,450&ndash;3,250 TL</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-301</span>
-          <span class="task-text"><strong>Premium Karma Paketi (Bundle)</strong> &mdash; 4,500&ndash;5,500 TL</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-302</span>
-          <span class="task-text"><strong>Update pricing across all touchpoints</strong></span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-303</span>
-          <span class="task-text"><strong>Report comparison page</strong> &mdash; side-by-side feature table</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P2 — User Accounts -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p2)"></span>P2 &mdash; User Accounts</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-310</span>
-          <span class="task-text"><strong>Auth system</strong> &mdash; email login (no social OAuth for MVP)</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-311</span>
-          <span class="task-text"><strong>Saved charts</strong> &mdash; user can save their birth chart</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-312</span>
-          <span class="task-text"><strong>Purchase history</strong> &mdash; view past purchases and re-download</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-313</span>
-          <span class="task-text"><strong>Chart data persistence</strong> &mdash; save to DB (SQLite or Postgres)</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P2 — Email Funnel -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p2)"></span>P2 &mdash; Email Funnel</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-320</span>
-          <span class="task-text"><strong>5-email welcome sequence</strong> &mdash; Brevo automation</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-321</span>
-          <span class="task-text"><strong>Sade Sati awareness campaign</strong> &mdash; 3-email series &rarr; CTA to report</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-322</span>
-          <span class="task-text"><strong>Post-purchase follow-up</strong> &mdash; &ldquo;How to use your report&rdquo; + upsell</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P2 — Analytics -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p2)"></span>P2 &mdash; Analytics</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-330</span>
-          <span class="task-text"><strong>Funnel dashboard</strong> &mdash; visitor &rarr; chart &rarr; email &rarr; purchase</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-331</span>
-          <span class="task-text"><strong>UTM tracking</strong> &mdash; Instagram, SEO, direct traffic</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-332</span>
-          <span class="task-text"><strong>Revenue dashboard</strong> &mdash; monthly sales, conversion rates</span>
-        </div></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ======== PHASE 4 ======== -->
-<div class="section-label">Phase 4: Content + Scale (Month 3&ndash;6)</div>
-
-<div class="section collapsed">
-  <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <div><span class="section-title">Phase 4: Content + Scale</span> <span class="section-badge badge-planned">planned</span></div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:12px;color:var(--text-muted)">0/10</span>
-      <span class="collapse-icon">&#x25BC;</span>
-    </div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
-  <div class="section-body">
-
-    <!-- P2 — Extended Knowledge Base -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p2)"></span>P2 &mdash; Extended Knowledge Base</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-400</span>
-          <span class="task-text"><strong>27 Nakshatra pages</strong> &mdash; individual page per Nakshatra</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-401</span>
-          <span class="task-text"><strong>Graha-specific pages</strong> &mdash; Sun through Ketu, 9 pages</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-402</span>
-          <span class="task-text"><strong>Saturn guides</strong> &mdash; deep content, connects to Duygu&rsquo;s book</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-403</span>
-          <span class="task-text"><strong>Relationship timing content</strong> &mdash; SEO for compatibility searches</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-404</span>
-          <span class="task-text"><strong>Career timing content</strong> &mdash; SEO for career-related astrology</span>
-        </div></div>
-      </div>
-    </div>
-
-    <!-- P3 — Dr. Sugata Personal Site -->
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p3)"></span>P3 &mdash; Dr. Sugata Personal Site (separate project)</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">DS-001</span>
-          <span class="task-text"><strong>Create separate repo</strong> &mdash; dr-sugata or sugata-personal</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">DS-002</span>
-          <span class="task-text"><strong>One-page MVP</strong> &mdash; bio, book, publications, teaching, consultation</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">DS-003</span>
-          <span class="task-text"><strong>Link from Vedic Turkiye</strong> &mdash; &ldquo;Founder&rdquo; section links to personal site</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">DS-004</span>
-          <span class="task-text"><strong>Move consultation flow</strong> &mdash; /consultation page moves to personal site</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">DS-005</span>
-          <span class="task-text"><strong>Move course content</strong> &mdash; /course and Circle pages move to personal site</span>
-        </div></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ======== CODE QUALITY ======== -->
-<div class="section-label">Code Quality</div>
-
-<div class="section">
-  <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <div><span class="section-title">Code Quality &mdash; Technical Debt</span> <span class="section-badge badge-active">active</span></div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:12px;color:var(--text-muted)">4/8</span>
-      <span class="collapse-icon">&#x25BC;</span>
-    </div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
-  <div class="section-body">
-
-    <div class="group">
-      <div class="group-title"><span class="priority-dot" style="background:var(--p2)"></span>Technical Debt</div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-500</span>
-          <span class="task-text"><strong>Refactor AI interpret.ts</strong> &mdash; deduplicate 6 callX/callXPremium functions</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-501</span>
-          <span class="task-text"><strong>Add API route rate limiting</strong> &mdash; middleware for /api/chart, /api/interpret, /api/payment</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-502</span>
-          <span class="task-text"><strong>Add geocode caching</strong> &mdash; cache Nominatim + TimeAPI results</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-503</span>
-          <span class="task-text"><strong>Remove eslint-disable comments</strong> &mdash; type VedAstro API responses properly</span>
-        </div></div>
-      </div>
-
-      <div class="task">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-504</span>
-          <span class="task-text"><strong>Add integration tests</strong> &mdash; test full chart calculation flow</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-505</span>
-          <span class="task-text"><strong>Update CLAUDE.md</strong> &mdash; reflect new brand, stack, removed pages</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-506</span>
-          <span class="task-text"><strong>Fix Turkish characters in success message</strong> &mdash; &ldquo;Tesekkurler&rdquo; &rarr; &ldquo;Te&#x15F;ekk&uuml;rler&rdquo;</span>
-        </div></div>
-      </div>
-
-      <div class="task task-done">
-        <div class="task-check"></div>
-        <div class="task-content"><div class="task-row">
-          <span class="task-id">VT-507</span>
-          <span class="task-text"><strong>Remove hardcoded content from components</strong> &mdash; move to i18n/content.ts</span>
-        </div></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ======== COMPLETED LEGACY ======== -->
-<div class="section-label">Archive</div>
-
-<div class="section done-section collapsed">
-  <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <div><span class="section-title">Completed (Legacy &mdash; Sugata Jyotish era)</span> <span class="section-badge badge-done">11 groups</span></div>
-    <span class="collapse-icon">&#x25BC;</span>
-  </div>
-  <div class="section-body">
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">All SJ-xxx tasks archived. Last Sugata Jyotish release: v0.1.0 (16.03.2026)</p>
-    <div class="release-item">SJ-002&ndash;SJ-008: Foundation (brand, landing, fonts, SEO, payments stub, email, analytics)</div>
-    <div class="release-item">SJ-010&ndash;SJ-018: Birth chart calculator (form, geocoding, VedAstro, AI, share)</div>
-    <div class="release-item">SJ-020&ndash;SJ-025: Paid reports stubs (Saturn, Full Chart, Compatibility, PDF, payment)</div>
-    <div class="release-item">SJ-030&ndash;SJ-036: Blog + Glossary (5 articles, glossary page)</div>
-    <div class="release-item">SJ-040&ndash;SJ-042: Email templates (lead magnet, welcome, newsletter)</div>
-    <div class="release-item">SJ-050&ndash;SJ-060: Phase 2 stubs (Circle, Course landing pages)</div>
-    <div class="release-item">SJ-070&ndash;SJ-072: Extended reports in catalog</div>
-    <div class="release-item">SJ-080&ndash;SJ-083: Consultation booking</div>
-    <div class="release-item">SJ-090: Mobile strategy doc</div>
-    <div class="release-item">SJ-200&ndash;SJ-242: UX overhaul (chat form, hero, copy, art direction, i18n fixes)</div>
-    <div class="release-item">SJ-300&ndash;SJ-370: Monetization (iyzico&rarr;Shopier, reports, email funnel, analytics)</div>
-    <div class="release-item">SJ-410&ndash;SJ-418: Polish (nav, backlog dashboard, Shopier integration)</div>
-  </div>
-</div>
-
-<!-- Pricing -->
-<div class="card" style="margin-top:24px;">
-  <div class="card-title">Pricing (awaiting VT-004 approval)</div>
-  <div class="row"><span class="label">Sade Sati &ldquo;Strateji&rdquo; Raporu</span><span class="value"><b>1,950&ndash;2,750 &#x20BA;</b></span></div>
-  <div class="row"><span class="label">Vedik Do&#x11F;um Haritas&#x131; Analizi</span><span class="value"><b>2,450&ndash;3,250 &#x20BA;</b></span></div>
-  <div class="row"><span class="label">Premium Karma Paketi (bundle)</span><span class="value"><b>4,500&ndash;5,500 &#x20BA;</b></span></div>
-  <div class="row"><span class="label">Payments</span><span class="value"><span class="tag yellow">Shopier &mdash; awaiting account (VT-002)</span></span></div>
-</div>
-
-<!-- AI Interpretation -->
-<div class="card">
-  <div class="card-title">AI Interpretation</div>
-  <div class="row"><span class="label">Free tier</span><span class="value mono">Groq &rarr; Llama 3.3 70B</span></div>
-  <div class="row"><span class="label">Paid reports</span><span class="value mono">Claude Sonnet 4 <span class="tag gray">not configured</span></span></div>
-  <div class="row"><span class="label">System prompt</span><span class="value">Parashara tradition, TR + EN</span></div>
-</div>
-
-<!-- Quality Gates -->
-<details>
-  <summary>Quality Gates</summary>
-  <div class="inner">
-    <table>
-      <tr><th>Gate</th><th>Status</th></tr>
-      <tr><td>Pre-commit (tsc --noEmit)</td><td><span class="tag green">on</span></td></tr>
-      <tr><td>CI (typecheck + vitest)</td><td><span class="tag green">on</span></td></tr>
-      <tr><td>Coverage threshold</td><td><span class="tag green">20%</span></td></tr>
-      <tr><td>CodeRabbit AI review</td><td><span class="tag green">on</span></td></tr>
-      <tr><td>Backlog = single truth</td><td><span class="tag green">yes</span></td></tr>
-    </table>
-  </div>
-</details>
-
-<!-- Pages -->
-<details>
-  <summary>Pages (20 routes)</summary>
-  <div class="inner">
-    <table>
-      <tr><th>Route (TR)</th><th>Route (EN)</th><th>Type</th></tr>
-      <tr><td class="mono">/</td><td class="mono">/en</td><td>Landing</td></tr>
-      <tr><td class="mono">/chart</td><td class="mono">/en/chart</td><td>Calculator <span class="tag yellow">beta</span></td></tr>
-      <tr><td class="mono">/vedik-astroloji</td><td class="mono">/en/vedic-astrology</td><td>Education</td></tr>
-      <tr><td class="mono">/sade-sati</td><td class="mono">/en/sade-sati</td><td>Product landing</td></tr>
-      <tr><td class="mono">/reports</td><td class="mono">/en/reports</td><td>Report catalog</td></tr>
-      <tr><td class="mono">/blog</td><td class="mono">/en/blog</td><td>Blog index</td></tr>
-      <tr><td class="mono">/blog/[slug]</td><td class="mono">/en/blog/[slug]</td><td>Blog post (5)</td></tr>
-      <tr><td class="mono">/glossary</td><td class="mono">/en/glossary</td><td>Term glossary</td></tr>
-      <tr><td class="mono">/about</td><td class="mono">/en/about</td><td>About platform</td></tr>
-      <tr><td class="mono">/payment/success</td><td>&mdash;</td><td>Payment callback</td></tr>
-    </table>
-  </div>
-</details>
+<div class="stats" id="stats"></div>
+<div id="content"></div>
 
 <script>
-function toggleDetail(el) { el.classList.toggle('expanded'); var d = el.querySelector('.task-detail'); if (d) d.classList.toggle('open'); }
+const BACKLOG_URL = 'vedic-BACKLOG.md';
+const REFRESH_INTERVAL = 30000;
 
-// Health checks
-async function check(dotId, url, valueId, label) {
-  try {
-    var start = Date.now();
-    await fetch(url, { signal: AbortSignal.timeout(10000), mode: 'no-cors' });
-    var ms = Date.now() - start;
-    document.getElementById(dotId).className = 'dot ok';
-    document.getElementById(valueId).textContent = label + ' (' + ms + 'ms)';
-  } catch(e) {
-    document.getElementById(dotId).className = 'dot fail';
-    document.getElementById(valueId).textContent = 'down';
+function parseBacklogMd(md) {
+  const lines = md.split('\n');
+  const sections = [];
+  let current = null;
+  let group = null;
+
+  for (const line of lines) {
+    if (/^---\s*$/.test(line)) { group = null; continue; }
+
+    const secMatch = line.match(/^## (.+)/);
+    if (secMatch) {
+      const name = secMatch[1].trim();
+      current = { name, groups: [], tasks: [] };
+      sections.push(current);
+      group = null;
+      continue;
+    }
+
+    const grpMatch = line.match(/^### (.+)/);
+    if (grpMatch && current) {
+      group = { title: grpMatch[1].trim(), tasks: [] };
+      current.groups.push(group);
+      continue;
+    }
+
+    const taskMatch = line.match(/^- \[([ x])\]\s+(.+)/);
+    if (taskMatch) {
+      const done = taskMatch[1] === 'x';
+      const raw = taskMatch[2].trim();
+
+      let id = '';
+      let text = raw;
+      let detail = '';
+
+      // Extract VT-xxx or DS-xxx or SJ-xxx IDs
+      const idMatch = raw.match(/^((?:VT|DS|SJ)-\d+(?:[–\-](?:VT|DS|SJ)-?\d+)?):?\s*/);
+      if (idMatch) {
+        id = idMatch[1];
+        text = raw.slice(idMatch[0].length);
+      }
+
+      // Extract bold title and description
+      const boldSplit = text.match(/^\*\*(.+?)\*\*\s*[—\-]\s*(.*)/s);
+      if (boldSplit) {
+        text = boldSplit[1];
+        detail = boldSplit[2] || '';
+      } else {
+        const boldOnly = text.match(/^\*\*(.+?)\*\*/);
+        if (boldOnly) text = boldOnly[1];
+      }
+
+      // Strip trailing checkmark markers
+      text = text.replace(/\s*[✅⏳]\s*$/, '').trim();
+      detail = detail.replace(/\s*[✅⏳]\s*$/, '').trim();
+
+      const task = { text, done, id };
+      if (detail) task.detail = detail;
+
+      if (group) group.tasks.push(task);
+      else if (current) {
+        if (!current._ungrouped) {
+          current._ungrouped = { title: '', tasks: [] };
+          current.groups.push(current._ungrouped);
+        }
+        current._ungrouped.tasks.push(task);
+      }
+      continue;
+    }
   }
+
+  return { sections };
 }
 
-Promise.all([
-  check('s-site', 'https://sugata-jyotish.vercel.app/', 'v-site', 'ok'),
-  check('s-vedastro', 'https://api.vedastro.org/api/Calculate/LagnaSignName/Location/Istanbul/Time/12:00/01/01/2020/+03:00', 'v-vedastro', 'ok'),
-  check('s-nominatim', 'https://nominatim.openstreetmap.org/search?q=Istanbul&format=json&limit=1', 'v-nominatim', 'ok'),
-  check('s-timeapi', 'https://timeapi.io/api/timezone/coordinate?latitude=41&longitude=29', 'v-timeapi', 'ok'),
-]);
+function countAll(sections) {
+  let total = 0, done = 0, blockers = 0;
+  for (const s of sections) {
+    for (const g of s.groups) {
+      const isBlocker = /blocker/i.test(g.title);
+      for (const t of g.tasks) {
+        total++;
+        if (t.done) done++;
+        if (isBlocker && !t.done) blockers++;
+      }
+    }
+  }
+  const open = total - done;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  return { total, done, open, blockers, pct };
+}
+
+function renderStats(sections) {
+  const c = countAll(sections);
+  const items = [
+    { value: c.open, label: 'Open', color: 'var(--text)' },
+    { value: c.done, label: 'Done', color: 'var(--done)' },
+    { value: c.blockers, label: 'Blockers', color: 'var(--red)' },
+    { value: c.total, label: 'Total', color: 'var(--muted)' },
+    { value: c.pct + '%', label: 'Progress', color: 'var(--pink)' },
+  ];
+  document.getElementById('stats').innerHTML = items.map(s =>
+    `<div class="stat"><div class="stat-value" style="color:${s.color}">${s.value}</div><div class="stat-label">${s.label}</div></div>`
+  ).join('');
+}
+
+function classifySection(name) {
+  const lower = name.toLowerCase();
+  if (/completed|legacy|archive/.test(lower)) return { badge: 'done', collapse: true, doneSection: true };
+  if (/current sprint/.test(lower)) return { badge: 'active', collapse: false };
+  if (/phase\s*[01]/.test(lower)) return { badge: 'active', collapse: false };
+  if (/code quality/.test(lower)) return { badge: 'active', collapse: false };
+  if (/phase\s*[234]/.test(lower)) return { badge: 'planned', collapse: true };
+  return { badge: 'active', collapse: false };
+}
+
+function renderSection(section) {
+  const allTasks = section.groups.flatMap(g => g.tasks);
+  const doneCount = allTasks.filter(t => t.done).length;
+  const total = allTasks.length;
+  const pct = total ? Math.round(doneCount / total * 100) : 0;
+  const info = classifySection(section.name);
+  const badgeClass = pct === 100 ? 'badge-done' : 'badge-' + info.badge;
+  const badgeText = pct === 100 ? 'done' : info.badge;
+  const collapsed = info.collapse || pct === 100 ? ' collapsed' : '';
+  const doneClass = info.doneSection ? ' done-section' : '';
+
+  return `
+    <div class="section${doneClass}${collapsed}">
+      <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <div><span class="section-title">${esc(section.name)}</span> <span class="section-badge ${badgeClass}">${badgeText}</span></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:12px;color:var(--muted)">${doneCount}/${total}</span>
+          <span class="collapse-icon">&#x25BC;</span>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="section-body">${section.groups.map(renderGroup).join('')}</div>
+    </div>`;
+}
+
+function renderGroup(group) {
+  if (!group.title && !group.tasks.length) return '';
+  const isBlocker = /blocker/i.test(group.title);
+  const blockerClass = isBlocker ? ' blockers' : '';
+  let dotColor = 'var(--muted)';
+  if (isBlocker) dotColor = 'var(--amber)';
+  else if (/^P0/i.test(group.title)) dotColor = 'var(--red)';
+  else if (/^P1/i.test(group.title)) dotColor = 'var(--amber)';
+  else if (/^P2/i.test(group.title)) dotColor = 'var(--green)';
+  else if (/^P3/i.test(group.title)) dotColor = 'var(--dim)';
+  else if (/completed|done/i.test(group.title)) dotColor = 'var(--done)';
+  else if (/vercel|env/i.test(group.title)) dotColor = 'var(--blue)';
+
+  const titleHtml = group.title ? `<div class="group-title"><span class="priority-dot" style="background:${dotColor}"></span>${esc(group.title)}</div>` : '';
+
+  return `
+    <div class="group${blockerClass}">
+      ${titleHtml}
+      ${group.tasks.map(renderTask).join('')}
+    </div>`;
+}
+
+function renderTask(task) {
+  const doneClass = task.done ? 'task-done' : '';
+  const hasDetail = task.detail ? 'has-detail' : '';
+  const clickHandler = task.detail ? 'onclick="toggleDetail(this)"' : '';
+  const idHtml = task.id ? `<span class="task-id">${esc(task.id)}</span>` : '';
+
+  return `
+    <div class="task ${doneClass} ${hasDetail}" ${clickHandler}>
+      <div class="task-check"></div>
+      <div class="task-content">
+        <div class="task-row">
+          ${idHtml}
+          <span class="task-text"><strong>${esc(task.text)}</strong></span>
+          ${task.detail ? '<span class="expand-icon">&#x25B6;</span>' : ''}
+        </div>
+        ${task.detail ? `<div class="task-detail">${esc(task.detail)}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function esc(str) { const el = document.createElement('span'); el.textContent = str; return el.innerHTML; }
+function toggleDetail(el) { el.classList.toggle('expanded'); const d = el.querySelector('.task-detail'); if (d) d.classList.toggle('open'); }
+
+async function loadAndRender() {
+  let md;
+  try {
+    const res = await fetch(BACKLOG_URL + '?' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    md = await res.text();
+  } catch (err) {
+    document.getElementById('content').innerHTML = '<p class="error-msg">Failed to load ' + BACKLOG_URL + '</p>';
+    return;
+  }
+
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  const data = parseBacklogMd(md);
+
+  renderStats(data.sections);
+
+  let html = '';
+  for (const section of data.sections) {
+    html += renderSection(section);
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+loadAndRender();
+setInterval(loadAndRender, REFRESH_INTERVAL);
 </script>
 </body>
 </html>

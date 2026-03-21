@@ -3,222 +3,408 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Architect Dashboard</title>
+<title>Architect</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 24px; max-width: 800px; margin: 0 auto; }
-  h1 { font-size: 20px; font-weight: 600; color: #f0f6fc; margin-bottom: 20px; }
-  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-  .dot.ok { background: #3fb950; }
-  .dot.fail { background: #f85149; }
-  .dot.unknown { background: #484f58; }
-  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #21262d; }
-  .row:last-child { border: none; }
-  .label { font-size: 14px; }
-  .value { font-size: 14px; color: #8b949e; }
-  .value b { color: #f0f6fc; }
-  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
-  .card-title { font-size: 13px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
-  .tag.green { background: #238636; color: #fff; }
-  .tag.red { background: #da3633; color: #fff; }
-  .tag.gray { background: #30363d; color: #8b949e; }
-  .mono { font-family: 'SF Mono', monospace; font-size: 12px; color: #79c0ff; }
-  details { margin-bottom: 12px; }
-  details summary { cursor: pointer; font-size: 13px; color: #58a6ff; padding: 8px 0; }
-  details summary:hover { color: #79c0ff; }
-  details .inner { padding: 12px 0; font-size: 13px; color: #8b949e; line-height: 1.8; }
-  details table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  details th { text-align: left; color: #8b949e; font-weight: 500; padding: 4px 8px; }
-  details td { padding: 4px 8px; border-bottom: 1px solid #21262d; }
-  .stats { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
-  .stat { text-align: center; }
-  .stat-number { font-size: 28px; font-weight: 700; color: #f0f6fc; }
-  .stat-label { font-size: 11px; color: #484f58; text-transform: uppercase; }
-  #backlog-list { font-size: 13px; line-height: 1.8; }
-  #backlog-list .task { padding: 4px 0; border-bottom: 1px solid #21262d; }
-  #last-check { font-size: 11px; color: #484f58; }
+  :root {
+    --bg: #0F172A; --surface: #1E293B; --surface-2: #273549; --border: #334155;
+    --text: #F8FAFC; --text-2: #CBD5E1; --muted: #94A3B8; --dim: #64748B;
+    --green: #22C55E; --red: #EF4444; --amber: #F59E0B; --blue: #3B82F6;
+    --purple: #A78BFA; --pink: #F472B6;
+    --mono: 'SF Mono','Fira Code','JetBrains Mono',monospace;
+    --sans: -apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text-2);padding:24px;max-width:960px;margin:0 auto;line-height:1.5}
+
+  .hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+  .hdr h1{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px}
+  .hdr-st{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}
+  .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .sub{font-size:13px;color:var(--dim);margin-bottom:20px}
+
+  .nav{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:0;overflow-x:auto}
+  .nav a{font-size:13px;padding:8px 14px;color:var(--muted);text-decoration:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-weight:500;white-space:nowrap}
+  .nav a:hover{color:var(--text-2)}
+  .nav a.active{color:var(--text);border-bottom-color:var(--blue)}
+
+  .stitle{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:24px 0 10px}
+
+  /* Agent Pulse */
+  .agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+  .ag{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;transition:all .15s;cursor:pointer}
+  .ag:hover{border-color:var(--dim);background:var(--surface-2)}
+  .adot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .adot.ok{background:var(--green)}.adot.warning{background:var(--amber)}.adot.error{background:var(--red);animation:pulse 1.5s infinite}.adot.unknown{background:var(--dim)}.adot.never{background:var(--red);animation:pulse 1.5s infinite}
+  .ag-info{flex:1;min-width:0}
+  .ag-name{font-weight:600;color:var(--text);font-size:13px}
+  .ag-sched{font-size:11px;color:var(--dim)}
+  .ag-last{font-family:var(--mono);font-size:11px;text-align:right;white-space:nowrap}
+  .ag-last.ok{color:var(--green)}.ag-last.warning{color:var(--amber)}.ag-last.error{color:var(--red)}.ag-last.unknown{color:var(--dim)}.ag-last.never{color:var(--red)}
+
+  /* Projects */
+  .projs{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .proj{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-decoration:none;color:inherit;transition:all .15s;display:block;border-left:3px solid var(--border)}
+  .proj:hover{border-color:var(--dim);background:var(--surface-2)}
+  .proj-name{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .proj-health{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .proj-stats{display:flex;gap:12px}
+  .proj-stat{text-align:center}
+  .proj-n{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+  .proj-l{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+
+  /* Alerts */
+  .alerts{display:flex;flex-direction:column;gap:6px}
+  .alert{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px}
+  .alert.red{border-left:3px solid var(--red)}
+  .alert.amber{border-left:3px solid var(--amber)}
+  .alert-icon{font-size:11px;flex-shrink:0}
+  .alert-none{color:var(--green);font-size:13px;padding:8px 0}
+
+  /* Insights */
+  .insights{display:flex;flex-direction:column;gap:6px}
+  .insight{display:flex;align-items:baseline;gap:10px;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px}
+  .insight-proj{font-weight:600;flex-shrink:0;font-size:12px}
+  .insight-txt{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* Collapsible */
+  .coll{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+  .coll-h{padding:12px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
+  .coll-h:hover{color:var(--text);background:rgba(255,255,255,.02)}
+  .coll-arr{font-size:10px;transition:transform .2s;color:var(--dim)}
+  .coll.open .coll-arr{transform:rotate(90deg)}
+  .coll-b{display:none;padding:0 16px 14px;font-size:13px;color:var(--muted);line-height:1.7}
+  .coll.open .coll-b{display:block}
+  .coll-b table{width:100%;border-collapse:collapse}
+  .coll-b th{text-align:left;font-size:11px;font-weight:600;color:var(--dim);padding:4px 8px;text-transform:uppercase;letter-spacing:.3px}
+  .coll-b td{padding:5px 8px;border-top:1px solid rgba(51,65,85,.5);font-size:12px}
+  .tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
+  .tag-on{background:rgba(34,197,94,.2);color:var(--green)}.tag-off{background:rgba(100,116,139,.15);color:var(--dim)}
+  .arch{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre;line-height:1.8;overflow-x:auto}
+  .arch b{color:var(--text);font-weight:600}
+
+  /* Architect backlog */
+  .bl-item{padding:5px 0;border-bottom:1px solid rgba(51,65,85,.4);font-size:13px}
+  .bl-item:last-child{border:none}
+
+  /* File viewer modal */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:90%;max-width:800px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+  .modal-h{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .modal-title{font-size:13px;font-weight:600;color:var(--text);font-family:var(--mono)}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:4px}
+  .modal-close:hover{background:var(--surface-2);color:var(--text)}
+  .modal-body{padding:18px;overflow-y:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text-2);white-space:pre-wrap;word-break:break-word}
+
+  .footer{margin-top:32px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--dim);display:flex;justify-content:space-between}
+  @media(max-width:640px){body{padding:16px}.projs{grid-template-columns:repeat(2,1fr)}.agents{grid-template-columns:1fr}}
+  @media(max-width:400px){.projs{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<h1>Architect Dashboard <span id="last-check"></span></h1>
-
-<!-- At a glance -->
-<div class="stats">
-  <div class="stat"><div class="stat-number" id="n-services">—</div><div class="stat-label">Services</div></div>
-  <div class="stat"><div class="stat-number" id="n-tests">—</div><div class="stat-label">Tests</div></div>
-  <div class="stat"><div class="stat-number" id="n-tasks">—</div><div class="stat-label">Open Tasks</div></div>
-  <div class="stat"><div class="stat-number">$210</div><div class="stat-label">/month</div></div>
+<div class="nav">
+  <a class="active" href="index.html">Architect</a>
+  <a href="mega-review.html">Health</a>
+  <a href="hunter-backlog.html">Hunter</a>
+  <a href="sami-backlog.html">SAMI</a>
+  <a href="vedic-backlog.html">Vedic</a>
+  <a href="portfolio-backlog.html">Portfolio</a>
 </div>
 
-<!-- Services -->
-<div class="card">
-  <div class="card-title">Services</div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-sami"></span>SAMI Bot</span><span class="value" id="v-sami">checking...</span></div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-hunter"></span>Hunter Bot</span><span class="value" id="v-hunter">checking...</span></div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-jyotish"></span>Vedik Astroloji</span><span class="value" id="v-jyotish">checking...</span></div>
-  <div class="row"><span class="label"><span class="dot unknown" id="s-portfolio"></span>Portfolio</span><span class="value">diyor.design</span></div>
-</div>
+<div class="hdr"><h1>Command Center</h1><div class="hdr-st"><span class="pulse"></span><span id="clock">--:--</span></div></div>
+<div class="sub">Agents, projects, alerts</div>
 
-<!-- Agents -->
-<div class="card">
-  <div class="card-title">Agents</div>
-  <div class="row"><span class="label">SAMI Strategist</span><span class="value mono">09:30 MSK daily</span></div>
-  <div class="row"><span class="label">Hunter Strategist</span><span class="value mono">09:30 MSK daily</span></div>
-  <div class="row"><span class="label">Portfolio Strategist</span><span class="value mono">Sun 11:00 MSK weekly</span></div>
-  <div class="row"><span class="label">Mega Reviewer</span><span class="value mono">Sat 10:00 MSK</span></div>
-  <div class="row"><span class="label">Architect</span><span class="value mono">Sun 10:00 MSK</span></div>
-  <div class="row"><span class="label">Backups</span><span class="value mono">03:00 MSK daily</span></div>
-  <div class="row"><span class="label">Hard Stop</span><span class="value mono">22:30 daily</span></div>
-</div>
+<div class="stitle">Agent Pulse</div>
+<div class="agents" id="agents"><div style="color:var(--dim)">Loading...</div></div>
 
-<!-- Open Tasks -->
-<div class="card">
-  <div class="card-title">Backlog</div>
-  <div id="backlog-list">Loading...</div>
-  <div style="margin-top:12px; display:flex; gap:12px; font-size:12px;">
-    <a href="hunter-backlog.html" style="color:#58a6ff;">Hunter</a>
-    <a href="sami-backlog.html" style="color:#58a6ff;">SAMI</a>
-    <a href="vedic-backlog.html" style="color:#d4a0b9;">Vedic Turkiye</a>
-    <a href="portfolio-backlog.html" style="color:#F8401C;">Portfolio</a>
-    <span style="color:#30363d;">|</span>
-    <a href="mega-review.html" style="color:#d29922;">Mega Review</a>
-    <a href="architect-review.html" style="color:#8b949e;">Architect Review</a>
-  </div>
-</div>
+<div class="stitle">Projects</div>
+<div class="projs" id="projects"></div>
 
-<!-- Expandable Details -->
-<details>
-  <summary>Quality Gates</summary>
-  <div class="inner">
-    <table>
-      <tr><th></th><th>SAMI</th><th>Hunter</th><th>Vedik</th><th>Portfolio</th></tr>
-      <tr><td>Pre-commit</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag gray">—</span></td></tr>
-      <tr><td>CI</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag gray">—</span></td></tr>
-      <tr><td>Coverage</td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td><td><span class="tag green">20%</span></td><td><span class="tag gray">—</span></td></tr>
-      <tr><td>CodeRabbit</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag gray">—</span></td></tr>
-      <tr><td>PR → Backlog</td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag green">on</span></td><td><span class="tag gray">—</span></td></tr>
-    </table>
-  </div>
-</details>
+<div class="stitle">Needs Attention</div>
+<div class="alerts" id="alerts"><div style="color:var(--dim)">Loading...</div></div>
 
-<details>
-  <summary>Billing</summary>
-  <div class="inner">
-    <table>
-      <tr><th>Service</th><th>Cost</th><th>Auth</th></tr>
-      <tr><td>Claude Max</td><td><b>$200/mo</b></td><td>OAuth (CLI + стратеги + архитектор)</td></tr>
-      <tr><td>Anthropic API</td><td><b>$5 balance</b></td><td>API key (GH Actions + cover letters)</td></tr>
-      <tr><td>Railway x2</td><td><b>~$10/mo</b></td><td>Auto-deploy</td></tr>
-      <tr><td>Vercel, GitHub, CodeRabbit, YouTube API</td><td>$0</td><td>Free tier</td></tr>
-    </table>
-    <p style="margin-top:8px; color:#3fb950;">Стратеги на Mac = $0 (Max). Переезд в GH Actions = +$3-5/mo.</p>
-  </div>
-</details>
+<div class="stitle">Latest Insights</div>
+<div class="insights" id="insights"><div style="color:var(--dim)">Loading...</div></div>
 
-<details>
-  <summary>Skills & Tools</summary>
-  <div class="inner">
-    <table>
-      <tr><th>Project</th><th>Skills</th></tr>
-      <tr><td>SAMI</td><td class="mono">/deploy /backlog /status /catchup /save</td></tr>
-      <tr><td>Hunter</td><td class="mono">/deploy /backlog /status /catchup /save</td></tr>
-      <tr><td>Vedik Astroloji</td><td class="mono">/deploy /backlog /status /catchup</td></tr>
-      <tr><td>Portfolio</td><td class="mono">/deploy /save /audit-seo /copy-review</td></tr>
-    </table>
-    <table style="margin-top:12px;">
-      <tr><th>Tool</th><th>Status</th></tr>
-      <tr><td>MCP Figma</td><td><span class="tag green">active</span></td></tr>
-      <tr><td>Plugin: code-review</td><td><span class="tag green">installed</span></td></tr>
-    </table>
-  </div>
-</details>
+<div class="stitle">Architect Backlog</div>
+<div class="coll open" id="c-archbl"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Tasks</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b" id="arch-bl">Loading...</div></div>
 
-<details>
-  <summary>Architecture</summary>
-  <div class="inner" style="font-family:'SF Mono',monospace; font-size:11px; white-space:pre; line-height:1.7;">
-Mac launchd ─── Strategists (09:30) ── claude --print ── Report + Telegram
-            ─── Architect  (Sun 10) ── Report + Calendar + Dashboard
-            ─── Hard Stop  (22:30)  ── Notification
+<div class="stitle">Details</div>
+<div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Tools & Setup</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b">
+<div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Global Tools</div>
+<table>
+<tr><th style="width:180px">Tool</th><th>What it does</th><th style="width:70px">Status</th></tr>
+<tr><td style="color:var(--text)">/ui-ux-pro-max</td><td style="font-size:12px;color:var(--muted)">Дизайн-система: 67 стилей, 96 палитр, 57 шрифтов. Генерит палитру/типографику/стиль под проект. Дефолт: HTML + Tailwind</td><td><span class="tag tag-on">skill</span></td></tr>
+<tr><td style="color:var(--text)">MCP Figma</td><td style="font-size:12px;color:var(--muted)">Читает дизайн из Figma по URL, генерит код. get_design_context, get_screenshot</td><td><span class="tag tag-on">MCP</span></td></tr>
+<tr><td style="color:var(--text)">/claude-api</td><td style="font-size:12px;color:var(--muted)">Помощь в интеграции Claude API / Anthropic SDK в проекты</td><td><span class="tag tag-on">skill</span></td></tr>
+<tr><td style="color:var(--text)">/simplify</td><td style="font-size:12px;color:var(--muted)">Ревью изменённого кода: reuse, качество, эффективность — автофикс</td><td><span class="tag tag-on">skill</span></td></tr>
+<tr><td style="color:var(--text)">/commit</td><td style="font-size:12px;color:var(--muted)">Коммит с осмысленным сообщением по diff</td><td><span class="tag tag-on">built-in</span></td></tr>
+</table>
 
-GitHub ──────── CI (push/PR) ── tsc + vitest
-            ─── CodeRabbit (PR) ── review → backlog
-            ─── Backup (03:00) ── SQLite → artifacts
+<div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px">Plugins</div>
+<table>
+<tr><th style="width:180px">Plugin</th><th>What it does</th></tr>
+<tr><td style="color:var(--text)">claude-md</td><td style="font-size:12px;color:var(--muted)">Управление CLAUDE.md файлами проектов</td></tr>
+<tr><td style="color:var(--text)">hookify</td><td style="font-size:12px;color:var(--muted)">Создание правил для хуков (автоматизация на события)</td></tr>
+<tr><td style="color:var(--text)">skill-creator</td><td style="font-size:12px;color:var(--muted)">Создание новых скиллов для Claude Code</td></tr>
+<tr><td style="color:var(--text)">frontend-design</td><td style="font-size:12px;color:var(--muted)">Помощь с фронтенд-дизайном</td></tr>
+<tr><td style="color:var(--text)">stripe</td><td style="font-size:12px;color:var(--muted)">Best practices для Stripe интеграции</td></tr>
+</table>
 
-Railway ─────── SAMI Bot (:3000) ── /health /report /backup
-            ─── Hunter Bot (:3000) ── / /backup
+<div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px">Per-Project Commands <span style="font-weight:400;text-transform:none;letter-spacing:0">(CLAUDE.md — пиши как текст, без автокомплита)</span></div>
+<table>
+<tr><th style="width:180px">Project</th><th>Commands</th></tr>
+<tr><td>SAMI / Hunter</td><td style="font-size:12px;color:var(--muted)"><span style="font-family:var(--mono)">/deploy</span> push+verify, <span style="font-family:var(--mono)">/backlog</span> показать/обновить, <span style="font-family:var(--mono)">/status</span> здоровье, <span style="font-family:var(--mono)">/catchup</span> брифинг, <span style="font-family:var(--mono)">/save</span> сохранить сессию</td></tr>
+<tr><td>Vedic</td><td style="font-size:12px;color:var(--muted)"><span style="font-family:var(--mono)">/deploy</span> push+verify, <span style="font-family:var(--mono)">/backlog</span> показать/обновить, <span style="font-family:var(--mono)">/status</span> здоровье, <span style="font-family:var(--mono)">/catchup</span> брифинг</td></tr>
+<tr><td>Portfolio</td><td style="font-size:12px;color:var(--muted)"><span style="font-family:var(--mono)">/deploy</span> push GH Pages, <span style="font-family:var(--mono)">/save</span> сохранить, <span style="font-family:var(--mono)">/audit-seo</span> SEO аудит, <span style="font-family:var(--mono)">/copy-review</span> ревью текстов</td></tr>
+</table>
+</div></div>
 
-Vercel ──────── Vedik Astroloji ── auto-deploy from main
-  </div>
-</details>
+<div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Billing</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b"><table><tr><th>Service</th><th>Cost</th><th>Auth</th></tr><tr><td style="color:var(--text)">Claude Max</td><td style="color:var(--amber)">$200/mo</td><td>OAuth (CLI, strategists, architect)</td></tr><tr><td style="color:var(--text)">Anthropic API</td><td style="color:var(--amber)">$5 balance</td><td>API key (GH Actions, cover letters)</td></tr><tr><td style="color:var(--text)">Railway x2</td><td style="color:var(--amber)">~$10/mo</td><td>Auto-deploy from main</td></tr><tr><td>Vercel, GitHub, CodeRabbit, YouTube API</td><td style="color:var(--green)">$0</td><td>Free tier</td></tr></table></div></div>
 
-<div class="card" style="border-left: 3px solid #58a6ff; margin-top: 16px;">
-  <div class="card-title">How it works</div>
-  <div style="font-size:13px; color:#8b949e; line-height:2;">
-    <p><b style="color:#f0f6fc;">4 проекта:</b> SAMI (fitness community bot), Hunter (job aggregator bot) — Railway 24/7, автодеплой из main. Vedik Astroloji Türkiye (vedic astrology) — Vercel. Portfolio (diyor.design) — GitHub Pages.</p>
+<div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Quality Gates</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b"><table><tr><th></th><th>SAMI</th><th>Hunter</th><th>Vedic</th><th>Portfolio</th></tr><tr><td>Pre-commit</td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>CI</td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>Coverage</td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>CodeRabbit</td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-off">--</span></td></tr></table></div></div>
 
-    <p style="margin-top:10px;"><b style="color:#f0f6fc;">Ежедневно 09:30 МСК</b> — на Mac запускаются 2 стратега (SAMI + Hunter). Каждый через Claude анализирует свой проект: бэклог, метрики, код — и шлёт отчёт с рекомендациями в Telegram. Предложения стратега попадают в бэклог проекта.</p>
+<div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Architecture</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b"><div class="arch"><b>Mac launchd</b> ─── Strategists (09:30) ─── claude --print ─── Report + Telegram
+            ─── Mega Reviewer (Sat 10) ── Code review + Calendar
+            ─── Architect  (Sun 10) ───── Process review + Calendar
+            ─── Hard Stop  (22:30) ────── Notification
 
-    <p style="margin-top:10px;"><b style="color:#f0f6fc;">По воскресеньям 10:00 МСК</b> — Architect делает глубокий кросс-проектный ревью: health check всех сервисов, coverage, dependencies, code churn, паттерны работы (burnout risk, context switching, commit hours). Пишет задачи в свой бэклог, обновляет этот дашборд, создаёт Google Calendar event.</p>
+<b>GitHub</b> ──────── CI (push/PR) ── tsc + vitest
+            ─── CodeRabbit (PR) ── review ─── backlog
+            ─── Backup (03:00) ── SQLite ─── artifacts
 
-    <p style="margin-top:10px;"><b style="color:#f0f6fc;">При каждом коммите</b> — pre-commit hook проверяет TypeScript типы (tsc --noEmit). Если ошибки — коммит блокируется.</p>
+<b>Railway</b> ─────── SAMI Bot (:3000) ── /health /report /backup
+            ─── Hunter Bot (:3000) ─ / /backup
 
-    <p style="margin-top:10px;"><b style="color:#f0f6fc;">При каждом push/PR</b> — GitHub Actions CI запускает typecheck + все тесты (vitest). Coverage не должен падать ниже 20%. При PR — CodeRabbit (AI) делает code review и пишет замечания в бэклог проекта.</p>
+<b>Vercel</b> ──────── Vedic Turkiye ── auto-deploy from main
 
-    <p style="margin-top:10px;"><b style="color:#f0f6fc;">Каждую ночь 03:00 МСК</b> — GitHub Actions бэкапит SQLite базы обоих ботов из Railway в GitHub Artifacts (30 дней хранения).</p>
+<b>Dashboard</b> ──── localhost:3333 ── launchd KeepAlive</div></div></div>
 
-    <p style="margin-top:10px;"><b style="color:#f0f6fc;">22:30 МСК</b> — Mac notification: «Пора заканчивать. Сохрани сессию (/save) и закрывай.»</p>
+<div class="footer"><span id="ft-upd"></span><span>auto-refresh 30s</span></div>
 
-    <p style="margin-top:10px;"><b style="color:#f0f6fc;">Claude Max ($200/mo)</b> покрывает всю интерактивную работу + стратегов + архитектора (через Mac launchd, бесплатно). API key ($5 balance) тратится только на GitHub Actions и Hunter cover letters.</p>
+<!-- File viewer modal -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-h">
+      <span class="modal-title" id="modal-title"></span>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
   </div>
 </div>
 
 <script>
-let okCount = 0;
+const PROJECTS = [
+  {id:'hunter',name:'Hunter',color:'var(--green)',file:'hunter-BACKLOG.md',page:'hunter-backlog.html',health:'https://hunter-production-0b65.up.railway.app/'},
+  {id:'sami',name:'SAMI',color:'var(--blue)',file:'sami-BACKLOG.md',page:'sami-backlog.html',health:'https://courageous-happiness-production.up.railway.app/health'},
+  {id:'vedic',name:'Vedic',color:'var(--pink)',file:'vedic-BACKLOG.md',page:'vedic-backlog.html',health:'https://vedic-turkiye.vercel.app/'},
+  {id:'portfolio',name:'Portfolio',color:'var(--red)',file:'portfolio-BACKLOG.md',page:'portfolio-backlog.html',health:'https://diyor.design/'},
+  {id:'architect',name:'Architect',color:'var(--purple)',file:'architect-BACKLOG.md',page:null,health:null},
+];
 
-async function check(id, url, verId, parse) {
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(10000), mode: parse ? 'cors' : 'no-cors' });
-    document.getElementById(id).className = 'dot ok';
-    okCount++;
-    if (parse && verId) { const d = await r.json(); document.getElementById(verId).textContent = 'v' + (d.version || '?'); }
-    else if (verId) { document.getElementById(verId).textContent = 'ok'; }
-  } catch { document.getElementById(id).className = 'dot fail'; if (verId) document.getElementById(verId).textContent = 'down'; }
+function esc(s){const e=document.createElement('span');e.textContent=s;return e.innerHTML}
+function $(id){return document.getElementById(id)}
+function shortPath(p){return p?p.replace(/\/Users\/diyoriko/g,'~'):''}
+function ago(ds){
+  if(!ds)return'never';
+  const d=new Date(ds.replace(' ','T')),h=Math.floor((Date.now()-d)/36e5);
+  if(h<1)return'just now';if(h<24)return h+'h ago';
+  const dd=Math.floor(h/24);return dd===1?'yesterday':dd+'d ago';
 }
 
-Promise.all([
-  check('s-sami', 'https://courageous-happiness-production.up.railway.app/health', 'v-sami', true),
-  check('s-hunter', 'https://hunter-production-0b65.up.railway.app/', 'v-hunter', true),
-  check('s-jyotish', 'https://sugata-jyotish.vercel.app/', 'v-jyotish', false),
-  check('s-portfolio', 'https://diyor.design/', null, false),
-]).then(() => {
-  document.getElementById('n-services').textContent = okCount + '/4';
-  document.getElementById('n-services').style.color = okCount === 4 ? '#3fb950' : '#f85149';
-  document.getElementById('last-check').textContent = new Date().toLocaleTimeString('ru');
-});
+// File viewer
+function viewFile(path){
+  const short=shortPath(path);
+  $('modal-title').textContent=short;
+  $('modal-body').textContent='Loading...';
+  $('modal-bg').classList.add('open');
+  fetch('view/'+short+'?'+Date.now()).then(r=>r.text()).then(t=>{$('modal-body').textContent=t}).catch(()=>{$('modal-body').textContent='Failed to load file'});
+}
+function closeModal(){$('modal-bg').classList.remove('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
-fetch('status.json?' + Date.now()).then(r => r.json()).then(s => {
-  const sami = parseInt(s.tests.sami) || 0;
-  const hunter = parseInt(s.tests.hunter) || 0;
-  document.getElementById('n-tests').textContent = sami + hunter;
-}).catch(() => {});
-
-fetch('BACKLOG.md?' + Date.now()).then(r => r.text()).then(md => {
-  const open = md.split('\n').filter(l => l.match(/^- \[ \] /));
-  document.getElementById('n-tasks').textContent = open.length;
-  document.getElementById('n-tasks').style.color = open.length === 0 ? '#3fb950' : '#d29922';
-  if (open.length === 0) {
-    document.getElementById('backlog-list').innerHTML = '<span style="color:#3fb950;">All clear</span>';
-  } else {
-    document.getElementById('backlog-list').innerHTML = open.map(l => {
-      const text = l.replace('- [ ] ', '').replace(/\*\*/g, '');
-      const x = text.match(/перенос x(\d+)/);
-      const tag = x ? ' <span class="tag red">x' + x[1] + '</span>' : '';
-      return '<div class="task">' + text.replace(/\(перенос x\d+\)/, '').trim() + tag + '</div>';
-    }).join('');
+// Backlog stats parser
+function countStats(md){
+  const lines=md.split('\n');
+  let open=0,done=0,p0=0,inP0=false,inMeta=false;
+  for(const l of lines){
+    if(/^## Метаданные/.test(l)){inMeta=true;continue}
+    if(/^## /.test(l)){inMeta=false;inP0=/P0/i.test(l)}
+    if(/^### /.test(l)){inP0=/P0|blocker|critical/i.test(l)}
+    if(inMeta)continue;
+    if(/^- \[ \]/.test(l)){open++;if(inP0)p0++}
+    if(/^- \[x\]/.test(l))done++;
   }
-}).catch(() => {});
+  return{open,done,p0};
+}
+
+// Mega Review parser
+function parseMR(md){
+  const tasks=[];let review='',sev='';
+  md.split('\n').forEach(l=>{
+    const rm=l.match(/^## Review (\d{4}-\d{2}-\d{2})/);if(rm){review=rm[1];return}
+    const sm=l.match(/^### (Critical|High|Medium|Low)/i);if(sm){sev=sm[1].toLowerCase();return}
+    if(/^- \[[ x]\]/.test(l)){
+      const done=l.includes('[x]');let text=l.replace(/^- \[[ x]\]\s*/,'').replace(/\*\*/g,'');
+      const pm=text.match(/^\[([^\]]+?)(?:\s*→\s*([^\]]+))?\]/);
+      const proj=pm?pm[1].trim():'Other',clean=pm?text.substring(pm[0].length).trim():text;
+      const title=(clean.split(' — ')[0]||clean).replace(/`[^`]+`/g,'').trim();
+      tasks.push({review,sev,done,proj,title});
+    }
+  });return tasks;
+}
+
+// Extract insight from strategist report
+function extractInsight(md){
+  const lines=md.split('\n');
+  let past=false;
+  for(const l of lines){
+    if(/^#{1,3}\s/.test(l)){past=true;continue}
+    if(!past||/^---/.test(l)||!l.trim())continue;
+    const clean=l.replace(/^[-*]\s*/,'').replace(/\*\*/g,'').trim();
+    if(clean.length>10)return clean.length>140?clean.slice(0,137)+'...':clean;
+  }
+  return null;
+}
+
+// === Render functions ===
+
+function renderAgents(agents){
+  const el=$('agents');
+  if(!agents.length){el.innerHTML='<div style="color:var(--dim)">No data</div>';return}
+  el.innerHTML=agents.map(a=>{
+    const st=a.status||'unknown';
+    const lastTxt=st==='never'?'never ran':ago(a.last_run);
+    const click=a.last_report?` onclick="viewFile('${esc(a.last_report)}')"`:' style="cursor:default"';
+    return`<div class="ag"${click}><span class="adot ${st}"></span><div class="ag-info"><div class="ag-name">${esc(a.name)}</div><div class="ag-sched">${esc(a.schedule)}</div></div><span class="ag-last ${st}">${esc(lastTxt)}</span></div>`;
+  }).join('');
+}
+
+function renderProjects(backlogs){
+  const el=$('projects');
+  el.innerHTML=PROJECTS.map(p=>{
+    const s=backlogs[p.id]?countStats(backlogs[p.id]):{open:0,done:0,p0:0};
+    const href=p.page?` onclick="location.href='${p.page}'"`:' style="cursor:default"';
+    const healthId='ph-'+p.id;
+    return`<div class="proj"${href} style="border-left-color:${p.color}"><div class="proj-name" style="color:${p.color}">${p.health?`<span class="proj-health" id="${healthId}" style="background:var(--dim)"></span>`:''}${esc(p.name)}</div><div class="proj-stats"><div class="proj-stat"><div class="proj-n" style="color:var(--text)">${s.open}</div><div class="proj-l">Open</div></div>${s.p0?`<div class="proj-stat"><div class="proj-n" style="color:var(--red)">${s.p0}</div><div class="proj-l">P0</div></div>`:`<div class="proj-stat"><div class="proj-n" style="color:var(--green)">${s.done}</div><div class="proj-l">Done</div></div>`}</div></div>`;
+  }).join('');
+  // Health checks
+  PROJECTS.forEach(p=>{
+    if(!p.health)return;
+    fetch(p.health,{signal:AbortSignal.timeout(8000),mode:'no-cors'})
+      .then(()=>{const d=$(('ph-'+p.id));if(d)d.style.background='var(--green)'})
+      .catch(()=>{const d=$(('ph-'+p.id));if(d)d.style.background='var(--red)'});
+  });
+}
+
+function renderAlerts(agents,backlogs,mrMd){
+  const el=$('alerts');
+  const items=[];
+
+  // Agent alerts
+  agents.forEach(a=>{
+    if(a.status==='error')items.push({level:'red',text:a.name+' not running — last: '+(a.last_run||'never')});
+    if(a.status==='never')items.push({level:'red',text:a.name+' has never run'});
+    if(a.status==='warning')items.push({level:'amber',text:a.name+' missed last run — '+ago(a.last_run)});
+  });
+
+  // P0 alerts from backlogs
+  PROJECTS.forEach(p=>{
+    if(!backlogs[p.id])return;
+    const s=countStats(backlogs[p.id]);
+    if(s.p0>0)items.push({level:'red',text:p.name+': '+s.p0+' P0 task'+(s.p0>1?'s':'')});
+  });
+
+  // Critical mega-review findings
+  if(mrMd){
+    const tasks=parseMR(mrMd);
+    const crit=tasks.filter(t=>!t.done&&t.sev==='critical');
+    if(crit.length)items.push({level:'red',text:crit.length+' critical finding'+(crit.length>1?'s':'')+' in mega review'});
+  }
+
+  if(!items.length){el.innerHTML='<div class="alert-none">All clear</div>';return}
+  el.innerHTML=items.map(i=>`<div class="alert ${i.level}"><span class="alert-icon">${i.level==='red'?'&#x26A0;':'&#x25CF;'}</span>${esc(i.text)}</div>`).join('');
+}
+
+function renderInsights(agents){
+  const el=$('insights');
+  const strategists=agents.filter(a=>a.id&&a.id.includes('strategist')&&a.last_report);
+  if(!strategists.length){el.innerHTML='<div style="color:var(--dim)">No recent strategist reports</div>';return}
+
+  const promises=strategists.map(a=>{
+    const short=shortPath(a.last_report);
+    return fetch('view/'+short+'?'+Date.now()).then(r=>r.ok?r.text():null).then(md=>{
+      const txt=md?extractInsight(md):null;
+      return{name:a.name.replace(' Strategist',''),color:a.id.includes('sami')?'var(--blue)':a.id.includes('hunter')?'var(--green)':a.id.includes('portfolio')?'var(--red)':'var(--muted)',txt,ago:ago(a.last_run)};
+    }).catch(()=>({name:a.name.replace(' Strategist',''),color:'var(--muted)',txt:null,ago:ago(a.last_run)}));
+  });
+
+  Promise.all(promises).then(results=>{
+    el.innerHTML=results.map(r=>`<div class="insight"><span class="insight-proj" style="color:${r.color}">${esc(r.name)}</span><span class="insight-txt">${r.txt?esc(r.txt):'<span style="color:var(--dim)">No summary</span>'}</span><span style="font-size:11px;color:var(--dim);flex-shrink:0;margin-left:auto">${esc(r.ago)}</span></div>`).join('');
+  });
+}
+
+function renderArchBacklog(md){
+  const el=$('arch-bl');
+  const lines=md.split('\n');
+  const open=lines.filter(l=>/^- \[ \]/.test(l));
+  // Find recently completed (under "Completed (DATE)" sections matching today-ish)
+  const today=new Date().toISOString().slice(0,10).replace(/-/g,'.');
+  const todayAlt=new Date().toISOString().slice(0,10);
+  const done=lines.filter(l=>/^- \[x\]/.test(l));
+  // Get done items from the most recent "Completed" section (not archived)
+  let recentDone=[];
+  let inRecentCompleted=false;
+  for(const l of lines){
+    if(/^## Completed/.test(l)&&!/<details>/.test(lines[lines.indexOf(l)+1]||'')){inRecentCompleted=true;continue}
+    if(/^## /.test(l)&&inRecentCompleted){inRecentCompleted=false;continue}
+    if(/^<details>/.test(l)){inRecentCompleted=false;continue}
+    if(inRecentCompleted&&/^- \[x\]/.test(l))recentDone.push(l);
+  }
+  let html='';
+  if(open.length){
+    html+=open.map(l=>`<div class="bl-item">${esc(l.replace(/^- \[ \]\s*/,'').replace(/\*\*/g,''))}</div>`).join('');
+  } else {
+    html+='<div style="color:var(--green);margin-bottom:8px">No open tasks</div>';
+  }
+  if(recentDone.length){
+    html+=`<div style="margin-top:12px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;cursor:pointer" onclick="var d=$('arch-done');d.style.display=d.style.display==='none'?'block':'none'">Done today (${recentDone.length}) ▸</div>`;
+    html+=`<div id="arch-done" style="display:none;opacity:.5">`;
+    html+=recentDone.map(l=>`<div class="bl-item" style="text-decoration:line-through;color:var(--dim)">${esc(l.replace(/^- \[x\]\s*/,'').replace(/\*\*/g,''))}</div>`).join('');
+    html+=`</div>`;
+  }
+  el.innerHTML=html;
+}
+
+// === Main refresh ===
+async function refresh(){
+  const results=await Promise.allSettled([
+    fetch('agents-status.json?'+Date.now()).then(r=>r.json()),
+    fetch('mega-review-BACKLOG.md?'+Date.now()).then(r=>r.text()),
+    fetch('architect-BACKLOG.md?'+Date.now()).then(r=>r.text()),
+    ...PROJECTS.map(p=>fetch(p.file+'?'+Date.now()).then(r=>r.text()))
+  ]);
+
+  const agents=results[0].status==='fulfilled'?results[0].value:[];
+  const mrMd=results[1].status==='fulfilled'?results[1].value:'';
+  const archMd=results[2].status==='fulfilled'?results[2].value:'';
+  const backlogs={};
+  PROJECTS.forEach((p,i)=>{backlogs[p.id]=results[3+i].status==='fulfilled'?results[3+i].value:''});
+
+  renderAgents(agents);
+  renderProjects(backlogs);
+  renderAlerts(agents,backlogs,mrMd);
+  renderInsights(agents);
+  renderArchBacklog(archMd);
+
+  const now=new Date();
+  $('ft-upd').textContent='Updated '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  $('clock').textContent=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+}
+
+refresh();
+setInterval(refresh,30000);
 </script>
 </body>
 </html>
