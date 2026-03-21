@@ -51,36 +51,50 @@
 - [ ] **[Hunter → Sprint 9] Version из package.json** — `config.ts:16`
 - [ ] **[Cross] Auth fallback вынести** — `API_KEY ?? BOT_TOKEN` повторяется в каждом index.ts
 
-## From Review 2026-03-20
+## Review 2026-03-20
 
-- [ ] **Vedic** — critical — исправить ESLint ошибки (no-html-link-for-pages, prefer-const, no-explicit-any, no-unused-vars) → разблокировать Vercel build и вернуть сайт — `src/app/reports/page.tsx:289`, `src/lib/pdf/generateReport.ts:84`, `tests/chart-verification.ts:99,142,143,148`, `src/app/api/sade-sati/route.ts:177`
-- [ ] **Vedic** — critical — убрать fallback `"1406"` в admin key, требовать только env var — `app/api/reports/generate/route.ts:25`
-- [ ] **Vedic** — high — запустить `npm audit`, идентифицировать уязвимые пакеты, пропатчить — `package.json`
-- [ ] **Vedic** — high — оплатить VedicAstroAPI $18/мес до Mar 31 (498 вызовов осталось, истекает) — VT-703
-- [ ] **SAMI** — critical — исправить `JSON.parse(payload.packet)` в `/packet` handler (3-я неделя открыт) — `index.ts:~530`
-- [ ] **SAMI** — high — сохранить `challengeContext` в DB вместо in-memory Map — `approval.ts:26`
-- [ ] **Hunter** — high — обновить CLAUDE.md: секция AI (Gemini/Groq), удалить упоминание Anthropic SDK — `CLAUDE.md`
-- [ ] **Hunter** — high — запустить `/adminstats`, добавить метрики onboarding completion rate и trial→paid conversion — `handlers/admin.ts`
-- [ ] **Portfolio** — high — зарегистрировать `diyordesign.goatcounter.com` на goatcounter.com — `index.html:32`
-- [ ] **Hunter** — medium — удалить `@anthropic-ai/sdk` из зависимостей (не используется) — `package.json`
-- [ ] **Hunter** — medium — убрать `ANTHROPIC_API_KEY` из zod config schema — `config.ts:8`
-- [ ] **Vedic** — medium — обновить Claude model ID: `claude-sonnet-4-20250514` → `claude-sonnet-4-6` — `lib/ai/interpret.ts:52,77`
-- [ ] **SAMI** — medium — заменить `body += chunk` на `Buffer.concat(chunks)` — `index.ts:382-383`
-- [ ] **Portfolio** — medium — обновить Hunter case (SYNC-01): 6 строк про AI provider (RU + EN) — `projects/hunter.html:~74,96,128`
-- [ ] **Portfolio** — medium — обновить Vedic case (SYNC-02): секция визуального языка → Flora pink тема — `projects/vedic.html`
-- [ ] **Portfolio** — medium — обновить SAMI case (SYNC-03): Seasons→Challenges, LOC 14K+ — `projects/sami.html`
-- [ ] **SAMI** — low — удалить `CATEGORY_EMOJI_MAP`, везде использовать `CATEGORY_EMOJI` — `shared.ts:~213`
+### Critical
+- [ ] **[Vedic → CI] Сайт не работает — Vercel не может собрать проект** — 6 ошибок ESLint блокируют билд. Сайт отдаёт 404 уже 2 недели — `src/app/reports/page.tsx`, `src/lib/pdf/generateReport.ts`, `src/app/api/sade-sati/route.ts`
+- [ ] **[Vedic → Security] Захардкоженный admin-ключ "1406" в коде** — любой может сгенерировать отчёт бесплатно, зная этот ключ. Нужно требовать env var — `app/api/reports/generate/route.ts:25`
+- [ ] **[SAMI → Bug] Стратег не может отправить пакет боту** — JSON.parse падает если payload не строка. Открыт 3 недели — `index.ts:~530`
+
+### High
+- [ ] **[Vedic → Deadline] API для платных отчётов скоро отключится** — VedicAstroAPI trial: 498 вызовов, истекает ~28 марта. Без оплаты ($18/мес) premium отчёты перестанут работать
+- [ ] **[Vedic → Security] Уязвимости в npm-пакетах** — запустить `npm audit`, пропатчить критические
+- [ ] **[SAMI → Reliability] Данные челленджей теряются при перезагрузке** — challengeContext хранится в памяти (Map), при Railway restart всё обнуляется. Перенести в SQLite — `approval.ts:26`
+- [ ] **[Hunter → Docs] CLAUDE.md врёт про AI-стек** — написано Anthropic SDK, реально Gemini + Groq. Обновить
+- [ ] **[Hunter → Analytics] Нет метрик по воронке** — добавить в /adminstats: % завершения онбординга, trial→paid конверсия
+- [ ] **[Portfolio → Analytics] Аналитика не работает** — GoatCounter аккаунт diyordesign не зарегистрирован. Данные не собираются уже месяц
+
+### Medium
+- [ ] **[Hunter → Cleanup] Мёртвая зависимость @anthropic-ai/sdk** — Anthropic SDK удалён из кода, но остаётся в package.json. Удалить
+- [ ] **[Hunter → Cleanup] ANTHROPIC_API_KEY в zod-схеме** — ключ больше не нужен, но конфиг его требует — `config.ts:8`
+- [ ] **[Vedic → Bug] Неправильный model ID для Claude** — `claude-sonnet-4-20250514` не существует, нужно `claude-sonnet-4-6` — `lib/ai/interpret.ts:52,77`
+- [ ] **[SAMI → Performance] Сборка HTTP body строкой вместо буфера** — `body += chunk` создаёт лишние копии, использовать Buffer.concat — `index.ts:382`
+- [ ] **[Portfolio → Sync] Кейс Hunter врёт про AI-стек** — в тексте "Claude/Haiku", реально Gemini 2.5 Pro + Groq. Обновить RU и EN — `projects/hunter.html`
+- [ ] **[Portfolio → Sync] Кейс Vedic — устаревшая визуальная тема** — описывает тёмную тему, реально Flora pink — `projects/vedic.html`
+- [ ] **[Portfolio → Sync] Кейс SAMI — устаревшие данные** — LOC показывает ~9K вместо 14K+, "Сезоны" переименованы в "Челленджи" — `projects/sami.html`
+
+### Low
+- [ ] **[SAMI → Cleanup] Дубль emoji-маппинга** — CATEGORY_EMOJI_MAP дублирует CATEGORY_EMOJI. Удалить один — `shared.ts:~213`
 
 ## Review 2026-03-21
 
-- [ ] **[VT][BUG][CRITICAL] Vercel 404 — 3-я неделя**
-- [ ] **[VT][BUG][CRITICAL] VT-703: Upgrade VedicAstroAPI до 28 марта**
-- [ ] **[SAMI][BUG][HIGH] CI красный 5 подряд — GitHub Actions environmental**
-- [ ] **[HUNTER][BUG][HIGH] Strategist Agent workflow — ANTHROPIC_API_KEY**
-- [ ] **[VEDIC][ARCH][MED] VT-806: Rate limit → Redis**
-- [ ] **[PORTFOLIO][BUG][MED] GoatCounter мёртв — нет аналитики 1+ мес**
-- [ ] **[PORTFOLIO][BUG][MED] QA-скрипт 404 в production (BUG-15)**
-- [ ] **[SAMI][ARCH][LOW] Разбить db.ts (2399 ln, 184 exports)**
-- [ ] **[HUNTER][ARCH][LOW] Разбить src/db.ts (1291 ln), bot.ts (940 ln), onboarding.ts (955 ln)**
-- [ ] **[VEDIC][CLEANUP][LOW] Удалить src/app/test-admin/page.tsx**
-- [ ] **[VEDIC][BUG][LOW] VT-613: перевести admin page на турецкий**
+### Critical
+- [ ] **[Vedic → Deploy] Сайт лежит 3-ю неделю** — Vercel отдаёт 404. CI не проходит → билд не собирается → деплой не происходит. Нужно починить CI (см. выше)
+- [ ] **[Vedic → Deadline] VedicAstroAPI trial истекает ~28 марта** — без оплаты $18/мес premium-отчёты перестанут генерироваться. Осталось 498 вызовов
+
+### High
+- [ ] **[SAMI → CI] GitHub Actions красный 5 запусков подряд** — тесты проходят локально (334), проблема в CI-окружении (env vars или Node version)
+- [ ] **[Hunter → Infra] Стратег-агент сломан в GitHub Actions** — ANTHROPIC_API_KEY протух или не настроен в GitHub Secrets
+
+### Medium
+- [ ] **[Vedic → Architecture] Rate limiter сбрасывается при холодном старте** — in-memory Map обнуляется на каждом Vercel cold start. Для прода нужен Redis/KV — `rateLimit.ts`
+- [ ] **[Portfolio → Analytics] GoatCounter не собирает данные** — аккаунт создан, но код пишет на несуществующий домен. Проверить настройки
+- [ ] **[Portfolio → Bug] 4 страницы грузят несуществующий qa.js** — kombo, prosto, skysmart, teletype содержат `<script src="/qa.js">` → 404 в проде
+
+### Low
+- [ ] **[SAMI → Refactor] db.ts — монолит 2399 строк, 184 экспорта** — нечитаемо, невозможно тестировать. Выделить db-approval.ts, db-analytics.ts
+- [ ] **[Hunter → Refactor] 3 файла-монолита** — db.ts (1291), bot.ts (940), onboarding.ts (955). Разбить на модули
+- [ ] **[Vedic → Cleanup] Тестовая admin-страница видна в проде** — `test-admin/page.tsx` показывает "Not available" вместо 404. Заменить на `notFound()`
+- [ ] **[Vedic → i18n] Admin-панель на английском** — остальной сайт на турецком, admin забыли перевести

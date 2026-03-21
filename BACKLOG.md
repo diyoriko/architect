@@ -1,65 +1,76 @@
 # Architect — Backlog
 
 Задачи создаются автоматически после каждого weekly review + ad-hoc из сессий.
-Стратег и Architect приоритизируют. Диёр решает.
+Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-016**.
 
 ---
 
-## Open
+## Sprint 2 (21.03.2026)
 
-### P0: Strategist Improvements
-- [ ] **Hunter: починить обрезанный отчёт** — последний отчёт ~400 слов, пропущены секции. Проверить run.sh: timeout, output size, claude --print обрезает?
-- [ ] **Фидбек-луп для всех стратегов** — перед генерацией отчёта собрать: какие задачи из прошлого отчёта были выполнены (`[x]` в бэклоге). Добавить секцию "Выполнено с прошлого раза" в промпт
+### Epic: STRAT — Strategist Improvements
 
-### P1: Единый процесс Sprint → Release → Backlog
-- [ ] **Унифицировать бэклоги** — во всех проектах вести таски с номерами (SAMI-xxx, HUNT-xxx, VT-xxx, PORT-xxx). Единый формат: `- [ ] **PROJ-NNN** Title — description`
-- [ ] **Процесс спринт-релиз-тесты** — чёткий пайплайн: спринт (набор задач) → реализация → тесты → деплой → релиз (vX.Y.Z). После деплоя спринт архивируется под номером релиза
-- [ ] **Автоархивация спринтов** — при деплое (git tag / version bump) текущий спринт сворачивается в `<details>` с номером версии и датой. Открытые задачи переносятся в следующий спринт с причиной
-- [ ] **Шаблон бэклога** — единый BACKLOG.md template для всех проектов: Current Sprint, Open (P0-P3), Completed (по релизам), CodeRabbit Suggestions
+- [x] **ARCH-001** Hunter: фидбек-луп — добавлен блок "Прогресс с прошлого отчёта" (коммиты + закрытые задачи) в run.sh
+- [x] **ARCH-002** Portfolio: фидбек-луп — аналогично, + оптимизация токенов (case pages → summary, script.js → structure only)
+- [x] **ARCH-003** Vedic: создать стратега — run.sh + prompt.md + launchd (вс 12:00 МСК)
+- [ ] **ARCH-004** Hunter: починить обрезанный отчёт — 21.03 запуск занял 11ч26м, нет таймаута в run.sh. Добавить проверку размера промпта и логирование
 
-### P1: Strategist Data Quality
-- [ ] **Hunter: метрики через /report endpoint** — добавить в бота эндпоинт с DAU/WAU, trial→paid, scraper success rate. Стратег будет фетчить как SAMI
-- [ ] **Portfolio: GoatCounter парсинг** — агрегировать данные (top pages, total views, trends) вместо raw JSON
-- [ ] **Portfolio: оптимизировать токены** — вместо FULL HTML кейсов отправлять summary (title + h1 + meta + первый параграф). Экономия ~60% токенов
-- [ ] **SAMI: автосинхронизация proposal-status** — читать COMMUNITY_TASKS.md и автоотмечать выполненные предложения вместо ручного обновления
+### Epic: PROC — Sprint/Release/Backlog Process
 
-### P2: Strategist Polish
-- [ ] **Architect: Telegram alert** — при critical findings (coverage crash, high vulns) отправлять DM
-- [ ] **Vedic: создать стратега** — пока нет стратега, Vedic не анализируется ежедневно
+- [x] **ARCH-005** Система нумерации задач — формат `PROJ-NNN` (ARCH, SAMI, HUNT, VT, PORT). Внедрено в Architect
+- [x] **ARCH-006** Шаблон бэклога — BACKLOG_TEMPLATE.md для всех проектов
+- [ ] **ARCH-007** Унифицировать бэклоги Hunter/SAMI/Vedic/Portfolio — перевести на PROJ-NNN формат
+- [ ] **ARCH-008** Автоархивация спринтов — при деплое (git tag) текущий спринт сворачивается в `<details>`, открытые переносятся с причиной
+- [ ] **ARCH-009** Процесс спринт-релиз-тесты — задокументировать пайплайн в CLAUDE.md всех проектов
+
+### Epic: STRAT — Data Quality
+
+- [ ] **ARCH-010** Hunter: метрики через /report endpoint — DAU/WAU, trial→paid, scraper success rate
+- [ ] **ARCH-011** Portfolio: GoatCounter парсинг — top pages, total views, trends вместо raw JSON
+- [ ] **ARCH-012** SAMI: автосинхронизация proposal-status — читать COMMUNITY_TASKS.md и автоотмечать выполненные
+
+### Epic: INFRA — Infrastructure
+
+- [ ] **ARCH-013** Architect: Telegram alert — при critical findings (coverage crash, vulns) DM admin
+- [x] **ARCH-014** Mega Reviewer: человекопонятные findings — каждая строка отвечает на "что сломано?" и "что делать?", а не сухие теги типа `[VT][BUG][CRITICAL]`
+- [ ] **ARCH-015** Dashboard: агент-статусы — показывать время последнего запуска каждого стратега на index.html
 
 ---
 
-## Completed (21.03.2026)
+## Completed — Sprint 1 (21.03.2026, commit 6145808)
 
-- [x] **Mega Reviewer починен** — tac→tail -r (macOS), prompt 621KB→446KB (тесты заменены на CI status), set +e в пост-обработке, дубль секции GH Actions убран. Время сборки: 2ч → 17с
-- [x] **Health дашборд: парсер обновлён** — mega-review.html теперь понимает 3 формата findings: `[Project → Dest]`, `[VT][BUG][CRITICAL]`, `Project — severity — title`. Scorecard и findings отображаются корректно
-- [x] **Mega Review 21.03 запущен** — полный цикл 4 мин, отчёт сохранён, бэклоги проектов обновлены, Google Calendar создан
-- [x] **Бэклог очищен** — закрытые задачи архивированы, структура упорядочена
+<details><summary>4 задачи — развернуть</summary>
+
+- [x] **Mega Reviewer починен** — tac→tail -r, prompt 621→446KB, set +e, dedup GH Actions
+- [x] **Health дашборд** — парсер 3 форматов findings, scorecard работает
+- [x] **Mega Review 21.03** — полный цикл 4 мин, бэклоги обновлены
+- [x] **Бэклог очищен** — закрытые архивированы
+
+</details>
 
 ## Completed (20.03.2026)
 
 <details><summary>19 задач закрыто — развернуть</summary>
 
-- [x] **Dashboard redesign** — index.html → Command Center (Agent Pulse, Projects, Needs Attention, Insights)
-- [x] **Health page** — mega-review.html → Scorecard матрица 4x5 + findings с категориями
-- [x] **Единая навигация** — nav bar на всех 6 страницах (Home, Health, Hunter, SAMI, Vedic, Portfolio)
-- [x] **Единый header** — nav сверху, затем title + live dot + timestamp, desc, links на всех backlog-страницах
-- [x] **Cache-Control** — serve-dashboard.sh отдаёт no-cache для HTML (Arc browser fix)
-- [x] **Backlog discipline** — добавлено правило обновления бэклогов в CLAUDE.md всех 4 проектов
-- [x] **GoatCounter** — аккаунт создан, аналитика работает
-- [x] **Авто-закрытие findings** — closure check добавлен в `code-reviewer/run.sh`
-- [x] **Дедупликация по контенту** — fingerprint dedup добавлен в `code-reviewer/run.sh`
-- [x] **Стратег-рекомендации в mega-review** — добавлен extract в code-reviewer/run.sh
-- [x] **Обратная ссылка на report** — sync_items теперь добавляет `<!-- Source: -->` комментарий
-- [x] **Архивация старых reviews** — archive_old_reviews добавлен в `code-reviewer/run.sh`
-- [x] **`/backlog` skill** — читает BACKLOG.md / COMMUNITY_TASKS.md, stats, фильтры
-- [x] **`/catchup` skill** — последний отчёт стратега + P0 задачи
-- [x] **`/status` skill** — health check: curl endpoints + gh run list + npm audit
-- [x] **`/deploy` skill** — typecheck → test → push → verify → report
-- [x] **`/copy-review` skill** — Portfolio: ревью текстов по TONE_GUIDE.md
-- [x] **`/audit-seo` skill** — Portfolio: meta/OG/canonical/hreflang/sitemap/alt
-- [x] **Единый формат timestamp** — SAMI и Vedic приведены к `HH:MM`
-- [x] **Починить gh cli** — работает, авторизован (diyoriko). Проблема была в PATH для launchd агентов
+- [x] Dashboard redesign — Command Center
+- [x] Health page — Scorecard 4x5 + findings
+- [x] Единая навигация — nav bar 6 страниц
+- [x] Единый header — live dot + timestamp
+- [x] Cache-Control — no-cache для HTML
+- [x] Backlog discipline — CLAUDE.md всех проектов
+- [x] GoatCounter — аккаунт создан
+- [x] Авто-закрытие findings
+- [x] Дедупликация по контенту
+- [x] Стратег-рекомендации в mega-review
+- [x] Обратная ссылка на report
+- [x] Архивация старых reviews
+- [x] `/backlog` skill
+- [x] `/catchup` skill
+- [x] `/status` skill
+- [x] `/deploy` skill
+- [x] `/copy-review` skill
+- [x] `/audit-seo` skill
+- [x] Единый формат timestamp
+- [x] Починить gh cli
 
 </details>
 
@@ -87,14 +98,14 @@
 - [x] Глубокий анализ процесса
 - [x] Architect launchd fix (API key в plist)
 - [x] Hunter backlog audit (P3 свёрнуты)
-- [x] Major deps (better-sqlite3 12, dotenv 17, node-cron 4) — оба проекта
-- [x] SAMI version velocity guardrail (max 3/нед в CLAUDE.md)
-- [x] SAMI db.ts split plan (DB_SPLIT_PLAN.md)
-- [x] Верифицировать dev.hardstop (notification работает)
-- [x] Fix run.sh дубль (проверка на дату)
-- [x] Self-improving prompt + AI Tooling + Evolution секции
-- [x] Hunter cover-letter.ts тесты — 35 тестов
-- [x] SAMI scheduler.ts тесты — 16 тестов
+- [x] Major deps — оба проекта
+- [x] SAMI version velocity guardrail
+- [x] SAMI db.ts split plan
+- [x] Верифицировать dev.hardstop
+- [x] Fix run.sh дубль
+- [x] Self-improving prompt + AI Tooling
+- [x] Hunter cover-letter.ts тесты — 35
+- [x] SAMI scheduler.ts тесты — 16
 - [x] Диагностировать SAMI lastPost=null
 - [x] Memory session cleanup
 - [x] zod v3→v4
