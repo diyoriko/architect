@@ -381,11 +381,17 @@ function renderArchBacklog(md){
   }
   // Extract sprint info
   let currentSprint='',sprintsDone=[];
-  for(const l of lines){
+  let curDoneSprint=null;
+  for(let i=0;i<lines.length;i++){
+    const l=lines[i];
     const sm=l.match(/^## Sprint (\d+)\s*(?:\(([^)]+)\))?/);
     if(sm){currentSprint='Sprint '+sm[1]+(sm[2]?' — '+sm[2]:'');continue}
     const cm=l.match(/^## Completed.*Sprint (\d+)\s*\(([^)]+)\)/);
-    if(cm)sprintsDone.push({n:cm[1],info:cm[2]});
+    if(cm){curDoneSprint={n:cm[1],info:cm[2],tasks:[]};sprintsDone.push(curDoneSprint);continue}
+    if(/^## /.test(l)&&!cm)curDoneSprint=null;
+    if(curDoneSprint&&/^- \[x\]/.test(l)){
+      curDoneSprint.tasks.push(l.replace(/^- \[x\]\s*/,'').replace(/\*\*/g,''));
+    }
   }
 
   let html='';
@@ -405,7 +411,14 @@ function renderArchBacklog(md){
     const totalDone=done.length;
     html+=`<div style="margin-top:12px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;cursor:pointer" onclick="var d=$('arch-sprints');d.style.display=d.style.display==='none'?'block':'none'">Closed sprints (${sprintsDone.length}) — ${totalDone} tasks total ▸</div>`;
     html+=`<div id="arch-sprints" style="display:none;margin-top:6px">`;
-    html+=sprintsDone.map(s=>`<div style="font-size:12px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border)">✅ Sprint ${esc(s.n)} <span style="color:var(--dim);font-size:11px">${esc(s.info)}</span></div>`).join('');
+    html+=sprintsDone.map(s=>{
+      const id='sp-'+s.n;
+      let h=`<div style="font-size:12px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="var d=$('${id}');d.style.display=d.style.display==='none'?'block':'none'">✅ Sprint ${esc(s.n)} <span style="color:var(--dim);font-size:11px">${esc(s.info)}</span> <span style="font-size:10px;color:var(--dim)">(${s.tasks.length}) ▸</span></div>`;
+      h+=`<div id="${id}" style="display:none;padding:4px 0 8px 12px">`;
+      h+=s.tasks.map(t=>`<div style="font-size:11px;color:var(--dim);padding:2px 0;text-decoration:line-through">${esc(t)}</div>`).join('');
+      h+=`</div>`;
+      return h;
+    }).join('');
     html+=`</div>`;
   }
   el.innerHTML=html;
