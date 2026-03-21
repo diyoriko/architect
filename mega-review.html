@@ -157,17 +157,22 @@ function parseBacklog(md) {
     let raw = l.replace(/^- \[[ x]\]\s*/, '').replace(/\*\*/g, '');
     let project = 'Other', dest = '', clean = raw, taskSev = severity;
 
-    // Format 1: [Project → Dest] Title — desc
-    const pm = raw.match(/^\[([^\]]+?)(?:\s*→\s*([^\]]+))?\]\s*/);
-    // Format 2: [VT][BUG][CRITICAL] Title — multiple bracket tags
-    const tagM = raw.match(/^(\[[^\]]+\])+\s*/);
+    // Format 1: [Project → Dest] Title — desc (arrow inside brackets)
+    const pm = raw.match(/^\[([^\]]+?)\s*→\s*([^\]]+)\]\s*/);
+    // Format 1b: [Project] Title (no arrow, single bracket)
+    const pm1b = !pm ? raw.match(/^\[([^\]]+)\]\s*/) : null;
+    // Format 2: [VT][BUG][CRITICAL] Title — multiple bracket tags (no arrows)
+    const tagM = raw.match(/^(\[[^\]→]+\]){2,}\s*/);
     // Format 3: **Project** — severity — title (from "From Review" sections)
     const flatM = raw.match(/^(\w+)\s*\u2014\s*(critical|high|medium|low)\s*\u2014\s*/i);
 
-    if (pm && !tagM) {
+    if (pm) {
       project = PROJ_ALIAS[pm[1].trim().toUpperCase()] || pm[1].trim();
-      dest = (pm[2] || '').trim();
+      dest = pm[2].trim();
       clean = raw.substring(pm[0].length);
+    } else if (pm1b && !tagM) {
+      project = PROJ_ALIAS[pm1b[1].trim().toUpperCase()] || pm1b[1].trim();
+      clean = raw.substring(pm1b[0].length);
     } else if (tagM) {
       const tags = raw.match(/\[([^\]]+)\]/g).map(t => t.slice(1, -1));
       for (const t of tags) {
