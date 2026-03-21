@@ -239,6 +239,19 @@ function countStats(md){
   return{open,done,p0};
 }
 
+function extractP0(md){
+  const lines=md.split('\n');let inP0=false,items=[];
+  for(const l of lines){
+    if(/^## /.test(l)){inP0=/P0/i.test(l)}
+    if(/^### /.test(l)){inP0=/P0|blocker|critical/i.test(l)}
+    if(inP0&&/^- \[ \]/.test(l)){
+      const txt=l.replace(/^- \[ \]\s*/,'').replace(/\*\*/g,'').trim();
+      items.push(txt.length>80?txt.substring(0,80)+'…':txt);
+    }
+  }
+  return items.join('\n')||'';
+}
+
 // Mega Review parser
 function parseMR(md){
   const tasks=[];let review='',sev='';
@@ -310,21 +323,25 @@ function renderAlerts(agents,backlogs,mrMd){
   });
 
   // P0 alerts from backlogs
+  const BL_PAGES={sami:'sami-backlog.html',hunter:'hunter-backlog.html',vedic:'vedic-backlog.html',portfolio:'portfolio-backlog.html'};
   PROJECTS.forEach(p=>{
     if(!backlogs[p.id])return;
     const s=countStats(backlogs[p.id]);
-    if(s.p0>0)items.push({level:'red',text:p.name+': '+s.p0+' P0 task'+(s.p0>1?'s':'')});
+    if(s.p0>0)items.push({level:'red',text:p.name+': '+s.p0+' P0 task'+(s.p0>1?'s':''),link:BL_PAGES[p.id]||'#',detail:extractP0(backlogs[p.id])});
   });
 
   // Critical mega-review findings
   if(mrMd){
     const tasks=parseMR(mrMd);
     const crit=tasks.filter(t=>!t.done&&t.sev==='critical');
-    if(crit.length)items.push({level:'red',text:crit.length+' critical finding'+(crit.length>1?'s':'')+' in mega review'});
+    if(crit.length)items.push({level:'red',text:crit.length+' critical finding'+(crit.length>1?'s':'')+' in mega review',link:'mega-review.html',detail:crit.map(t=>t.title).join('\n')});
   }
 
   if(!items.length){el.innerHTML='<div class="alert-none">All clear</div>';return}
-  el.innerHTML=items.map(i=>`<div class="alert ${i.level}"><span class="alert-icon">${i.level==='red'?'&#x26A0;':'&#x25CF;'}</span>${esc(i.text)}</div>`).join('');
+  el.innerHTML=items.map(i=>{
+    const detailHtml=i.detail?`<div class="alert-detail" style="display:none;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;white-space:pre-line">${esc(i.detail)}</div>`:'';
+    return`<a href="${i.link||'#'}" class="alert ${i.level}" style="text-decoration:none;cursor:pointer" onclick="event.preventDefault();const d=this.querySelector('.alert-detail');if(d){d.style.display=d.style.display==='none'?'block':'none'}else{location.href='${i.link}'}"><span class="alert-icon">${i.level==='red'?'&#x26A0;':'&#x25CF;'}</span><span>${esc(i.text)}<span style="font-size:10px;color:var(--dim);margin-left:8px">▸ подробнее</span></span>${detailHtml}</a>`;
+  }).join('');
 }
 
 function renderInsights(agents){
