@@ -379,16 +379,33 @@ function renderArchBacklog(md){
     if(/^<details>/.test(l)){inRecentCompleted=false;continue}
     if(inRecentCompleted&&/^- \[x\]/.test(l))recentDone.push(l);
   }
+  // Extract sprint info
+  let currentSprint='',sprintsDone=[];
+  for(const l of lines){
+    const sm=l.match(/^## Sprint (\d+)\s*(?:\(([^)]+)\))?/);
+    if(sm){currentSprint='Sprint '+sm[1]+(sm[2]?' — '+sm[2]:'');continue}
+    const cm=l.match(/^## Completed.*Sprint (\d+)\s*\(([^)]+)\)/);
+    if(cm)sprintsDone.push({n:cm[1],info:cm[2]});
+  }
+
   let html='';
+  if(currentSprint)html+=`<div style="font-size:12px;color:var(--blue);font-weight:600;margin-bottom:8px">${esc(currentSprint)}</div>`;
   if(open.length){
     html+=open.map(l=>`<div class="bl-item">${esc(l.replace(/^- \[ \]\s*/,'').replace(/\*\*/g,''))}</div>`).join('');
   } else {
     html+='<div style="color:var(--green);margin-bottom:8px">No open tasks</div>';
   }
   if(recentDone.length){
-    html+=`<div style="margin-top:12px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;cursor:pointer" onclick="var d=$('arch-done');d.style.display=d.style.display==='none'?'block':'none'">Done today (${recentDone.length}) ▸</div>`;
+    html+=`<div style="margin-top:12px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;cursor:pointer" onclick="var d=$('arch-done');d.style.display=d.style.display==='none'?'block':'none'">Done recently (${recentDone.length}) ▸</div>`;
     html+=`<div id="arch-done" style="display:none;opacity:.5">`;
     html+=recentDone.map(l=>`<div class="bl-item" style="text-decoration:line-through;color:var(--dim)">${esc(l.replace(/^- \[x\]\s*/,'').replace(/\*\*/g,''))}</div>`).join('');
+    html+=`</div>`;
+  }
+  if(sprintsDone.length){
+    const totalDone=done.length;
+    html+=`<div style="margin-top:12px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;cursor:pointer" onclick="var d=$('arch-sprints');d.style.display=d.style.display==='none'?'block':'none'">Closed sprints (${sprintsDone.length}) — ${totalDone} tasks total ▸</div>`;
+    html+=`<div id="arch-sprints" style="display:none;margin-top:6px">`;
+    html+=sprintsDone.map(s=>`<div style="font-size:12px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border)">✅ Sprint ${esc(s.n)} <span style="color:var(--dim);font-size:11px">${esc(s.info)}</span></div>`).join('');
     html+=`</div>`;
   }
   el.innerHTML=html;
