@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hunter — AI-поиск вакансий в Telegram</title>
-<meta name="description" content="Telegram-бот для поиска IT-вакансий. Скорит вакансии под твой профиль, генерирует сопроводительные письма через AI.">
-<meta property="og:title" content="Hunter — AI-поиск вакансий в Telegram">
-<meta property="og:description" content="Бот находит вакансии на hh.ru и Habr, оценивает совпадение с твоим профилем и пишет сопроводительные письма.">
+<title>Ловец — AI-поиск вакансий в Telegram</title>
+<meta name="description" content="Telegram-бот для поиска IT-вакансий. 5 источников, персональный скоринг, AI-письма через Gemini 2.5 Pro. Всё бесплатно.">
+<meta property="og:title" content="Ловец — AI-поиск вакансий в Telegram">
+<meta property="og:description" content="Бот находит вакансии на 5 площадках, оценивает совпадение с профилем и пишет сопроводительные. Бесплатно.">
 <meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -25,7 +27,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
@@ -88,7 +90,7 @@
   .hero-sub {
     font-size: 18px;
     color: var(--text-secondary);
-    max-width: 480px;
+    max-width: 520px;
     margin: 0 auto 40px;
   }
 
@@ -109,6 +111,7 @@
     font-weight: 600;
     text-decoration: none;
     transition: all 0.2s;
+    cursor: pointer;
   }
 
   .btn-primary {
@@ -123,19 +126,41 @@
     box-shadow: 0 6px 32px rgba(99, 102, 241, 0.4);
   }
 
-  .btn-secondary {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 24px 0 0;
+    flex-wrap: wrap;
   }
 
-  .btn-secondary:hover {
-    background: var(--border);
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent-light);
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
   }
 
   /* Features */
   .features {
     padding: 40px 0 60px;
+  }
+
+  .section-title {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
   }
 
   .features-grid {
@@ -157,8 +182,16 @@
   }
 
   .feature-icon {
-    font-size: 28px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 12px;
+    color: var(--accent-light);
   }
 
   .feature-title {
@@ -173,17 +206,46 @@
     line-height: 1.5;
   }
 
+  /* Sources */
+  .sources {
+    padding: 40px 0;
+  }
+
+  .sources-grid {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .source-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    transition: border-color 0.2s;
+  }
+
+  .source-tag:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  .source-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
   /* How it works */
   .how {
     padding: 40px 0 60px;
-  }
-
-  .section-title {
-    font-size: 24px;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 32px;
-    letter-spacing: -0.5px;
   }
 
   .steps {
@@ -200,6 +262,11 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 20px 24px;
+    transition: border-color 0.2s;
+  }
+
+  .step:hover {
+    border-color: rgba(99, 102, 241, 0.3);
   }
 
   .step-num {
@@ -217,9 +284,7 @@
     flex-shrink: 0;
   }
 
-  .step-content {
-    flex: 1;
-  }
+  .step-content { flex: 1; }
 
   .step-title {
     font-weight: 600;
@@ -231,77 +296,87 @@
     color: var(--text-secondary);
   }
 
-  /* Pricing */
-  .pricing {
+  /* Scoring */
+  .scoring {
     padding: 40px 0 60px;
   }
 
-  .plans {
+  .score-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 12px;
   }
 
-  .plan {
+  .score-item {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px 24px;
-  }
-
-  .plan-pro {
-    border-color: rgba(99, 102, 241, 0.4);
-    background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, var(--surface) 100%);
-  }
-
-  .plan-name {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-
-  .plan-price {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 16px;
-  }
-
-  .plan-price strong {
-    font-size: 24px;
-    color: var(--text);
-  }
-
-  .plan-features {
-    list-style: none;
+    border-radius: 12px;
+    padding: 16px 20px;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  .plan-features li {
+  .score-label {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .score-weight {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent-light);
+  }
+
+  /* Free banner */
+  .free-banner {
+    padding: 40px 0;
+  }
+
+  .free-card {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, var(--surface) 100%);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+  }
+
+  .free-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .free-card p {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 440px;
+    margin: 0 auto 20px;
+  }
+
+  .free-features {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
     font-size: 14px;
     color: var(--text-secondary);
+  }
+
+  .free-features span {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
-  .plan-features li::before {
-    content: '\2713';
+  .free-features .check {
     color: var(--green);
     font-weight: 700;
-    font-size: 12px;
-    flex-shrink: 0;
-  }
-
-  .plan-features li.limited::before {
-    content: '\2013';
-    color: var(--text-secondary);
   }
 
   /* Footer CTA */
   .footer-cta {
-    padding: 40px 0;
+    padding: 48px 0;
     text-align: center;
     border-top: 1px solid var(--border);
   }
@@ -316,8 +391,14 @@
   @media (max-width: 540px) {
     .hero { padding: 48px 0 40px; }
     .features-grid { grid-template-columns: 1fr; }
-    .plans { grid-template-columns: 1fr; }
+    .score-grid { grid-template-columns: 1fr; }
     .cta-group { flex-direction: column; align-items: center; }
+    .stats-bar { gap: 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-badge-dot { animation: none; }
+    .btn, .feature, .step, .source-tag { transition: none; }
   }
 </style>
 </head>
@@ -328,49 +409,78 @@
   <section class="hero">
     <div class="hero-badge">
       <span class="hero-badge-dot"></span>
-      Telegram-бот
+      Telegram-бот &middot; Бесплатно
     </div>
-    <h1>AI-поиск вакансий.<br><span>Письма за секунды.</span></h1>
-    <p class="hero-sub">Hunter находит IT-вакансии на hh.ru и Habr, оценивает совпадение с твоим профилем и генерирует сопроводительные письма через AI.</p>
+    <h1>AI-поиск вакансий.<br><span>5 источников. 0 рублей.</span></h1>
+    <p class="hero-sub">Ловец находит IT-вакансии на 5 площадках, оценивает совпадение с твоим профилем и генерирует сопроводительные письма через AI.</p>
     <div class="cta-group">
       <a href="https://t.me/jobhunt_ai_bot" class="btn btn-primary">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
         Начать в Telegram
       </a>
     </div>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-value">5</div><div class="stat-label">Источников</div></div>
+      <div class="stat"><div class="stat-value">11</div><div class="stat-label">Профессий</div></div>
+      <div class="stat"><div class="stat-value">0 &#8381;</div><div class="stat-label">Стоимость</div></div>
+    </div>
+  </section>
+
+  <section class="sources">
+    <h2 class="section-title">Откуда берём вакансии</h2>
+    <div class="sources-grid">
+      <div class="source-tag"><span class="source-dot"></span> HeadHunter</div>
+      <div class="source-tag"><span class="source-dot"></span> Habr Career</div>
+      <div class="source-tag"><span class="source-dot"></span> GetMatch</div>
+      <div class="source-tag"><span class="source-dot"></span> HireHi</div>
+      <div class="source-tag"><span class="source-dot"></span> SuperJob</div>
+    </div>
   </section>
 
   <section class="features">
+    <h2 class="section-title">Что умеет</h2>
     <div class="features-grid">
       <div class="feature">
-        <div class="feature-icon">🎯</div>
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
         <div class="feature-title">Персональный скоринг</div>
-        <div class="feature-text">Каждая вакансия оценивается по твоим навыкам, зарплате, формату работы и отрасли.</div>
+        <div class="feature-text">Каждая вакансия получает скор 0-100 по навыкам, зарплате, формату и отрасли.</div>
       </div>
       <div class="feature">
-        <div class="feature-icon">✍️</div>
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
         <div class="feature-title">AI-письма</div>
-        <div class="feature-text">Claude пишет сопроводительные письма под конкретную вакансию и твой профиль.</div>
+        <div class="feature-text">Gemini 2.5 Pro пишет сопроводительные под конкретную вакансию и твой опыт за 3 секунды.</div>
       </div>
       <div class="feature">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">Умный дайджест</div>
-        <div class="feature-text">3 раза в день бот собирает новые вакансии и присылает лучшие прямо в Telegram.</div>
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="feature-title">Фильтры по источникам</div>
+        <div class="feature-text">Выбери откуда смотреть: HH, Habr, GetMatch, HireHi — тогглы прямо в дайджесте.</div>
       </div>
       <div class="feature">
-        <div class="feature-icon">🔍</div>
-        <div class="feature-title">hh.ru + Habr</div>
-        <div class="feature-text">Два крупнейших источника IT-вакансий в одном месте. Не нужно проверять каждый сайт.</div>
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="feature-title">Self-improving</div>
+        <div class="feature-text">Откликнулся — бот учтёт. Скрыл — запомнит. Скоринг подстраивается под тебя.</div>
       </div>
       <div class="feature">
-        <div class="feature-icon">📱</div>
-        <div class="feature-title">Прямо в Telegram</div>
-        <div class="feature-text">Никаких приложений. Весь поиск, фильтры и письма — в одном чате.</div>
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="feature-title">Импорт резюме</div>
+        <div class="feature-text">Загрузи PDF или DOCX — AI извлечёт навыки, должность и опыт автоматически.</div>
       </div>
       <div class="feature">
-        <div class="feature-icon">⚡</div>
-        <div class="feature-title">Быстрый старт</div>
-        <div class="feature-text">Заполни профиль за пару минут или загрузи резюме — бот извлечёт данные сам.</div>
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+        <div class="feature-title">Push-уведомления</div>
+        <div class="feature-text">Новые вакансии с высоким скором приходят сами. Не нужно проверять каждый день.</div>
       </div>
     </div>
   </section>
@@ -382,57 +492,64 @@
         <div class="step-num">1</div>
         <div class="step-content">
           <div class="step-title">Заполни профиль</div>
-          <div class="step-text">Должность, навыки, зарплата, формат — или просто загрузи PDF/DOCX резюме.</div>
+          <div class="step-text">Должность, навыки, зарплата, формат — 4 обязательных шага. Или загрузи резюме.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-content">
-          <div class="step-title">Получай дайджест</div>
-          <div class="step-text">Бот скорит вакансии 3 раза в день и показывает лучшие совпадения.</div>
+          <div class="step-title">Выбери источники</div>
+          <div class="step-text">HeadHunter, Habr Career, GetMatch, HireHi, SuperJob — тоглы в дайджесте.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-content">
-          <div class="step-title">Генерируй письма</div>
-          <div class="step-text">Нажми кнопку — AI напишет сопроводительное письмо за 5 секунд.</div>
+          <div class="step-title">Смотри дайджест</div>
+          <div class="step-text">Бот скрейпит площадки, скорит вакансии и показывает лучшие. Обновление каждые 30 минут.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-content">
-          <div class="step-title">Откликайся</div>
-          <div class="step-text">Перейди на вакансию, вставь письмо и отправь. Трекай статус прямо в боте.</div>
+          <div class="step-title">Генерируй письма и откликайся</div>
+          <div class="step-text">Нажми кнопку — AI напишет сопроводительное за 3 секунды. Перейди на вакансию и отправь.</div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="pricing">
-    <h2 class="section-title">Тарифы</h2>
-    <div class="plans">
-      <div class="plan">
-        <div class="plan-name">Free</div>
-        <div class="plan-price"><strong>0</strong> Stars</div>
-        <ul class="plan-features">
-          <li>5 писем в неделю</li>
-          <li>15 вакансий в дайджесте</li>
-          <li>2 push-уведомления</li>
-          <li>Импорт резюме</li>
-          <li>3 дня Pro при старте</li>
-        </ul>
+  <section class="scoring">
+    <h2 class="section-title">Формула скоринга</h2>
+    <div class="score-grid">
+      <div class="score-item">
+        <span class="score-label">Навыки</span>
+        <span class="score-weight">40%</span>
       </div>
-      <div class="plan plan-pro">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price"><strong>200</strong> Stars/нед</div>
-        <ul class="plan-features">
-          <li>Безлимит писем</li>
-          <li>Все вакансии в дайджесте</li>
-          <li>5 push-уведомлений</li>
-          <li>Импорт резюме</li>
-          <li>Приоритетная поддержка</li>
-        </ul>
+      <div class="score-item">
+        <span class="score-label">Зарплата</span>
+        <span class="score-weight">25%</span>
+      </div>
+      <div class="score-item">
+        <span class="score-label">Формат</span>
+        <span class="score-weight">20%</span>
+      </div>
+      <div class="score-item">
+        <span class="score-label">Отрасль</span>
+        <span class="score-weight">15%</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="free-banner">
+    <div class="free-card">
+      <h3>Всё бесплатно. Без ограничений.</h3>
+      <p>AI-письма, фильтры, push-уведомления, 5 источников — полный доступ для всех. Никаких пробных периодов.</p>
+      <div class="free-features">
+        <span><span class="check">&#10003;</span> Безлимит писем</span>
+        <span><span class="check">&#10003;</span> Все источники</span>
+        <span><span class="check">&#10003;</span> Push-алерты</span>
+        <span><span class="check">&#10003;</span> Импорт резюме</span>
       </div>
     </div>
   </section>
@@ -442,7 +559,7 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
       Начать в Telegram
     </a>
-    <p>Бесплатно. 3 дня Pro в подарок.</p>
+    <p>Онбординг 2 минуты. Вакансии сразу.</p>
   </section>
 
 </div>
