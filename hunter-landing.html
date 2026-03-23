@@ -4,237 +4,192 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ловец — AI-поиск вакансий в Telegram</title>
-<meta name="description" content="Telegram-бот для поиска IT-вакансий. 5 источников, персональный скоринг, AI-письма через Gemini 2.5 Pro. Всё бесплатно.">
-<meta property="og:title" content="Ловец — AI-поиск вакансий в Telegram">
-<meta property="og:description" content="Бот находит вакансии на 5 площадках, оценивает совпадение с профилем и пишет сопроводительные. Бесплатно.">
+<meta name="description" content="Telegram-бот для поиска IT-вакансий. 5 источников, персональный скоринг, AI-письма. Бесплатно.">
+<meta property="og:title" content="Ловец — AI-поиск вакансий">
+<meta property="og:description" content="5 площадок. Скоринг под профиль. AI-письма за 3 секунды. Бесплатно.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --border: #1e1e2e;
-    --text: #e8e8f0;
-    --text-secondary: #8888a0;
-    --accent: #6366f1;
-    --accent-light: #818cf8;
-    --accent-glow: rgba(99, 102, 241, 0.15);
-    --green: #22c55e;
-    --radius: 16px;
+    --black: #000;
+    --dark: #0a0a0a;
+    --surface: #111;
+    --border: #222;
+    --white: #fff;
+    --gray: #666;
+    --light-gray: #999;
+    --green: #00ff88;
+    --green-dim: rgba(0, 255, 136, 0.12);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
-  .container {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  /* Hero */
+  /* ---- HERO ---- */
   .hero {
-    padding: 80px 0 60px;
-    text-align: center;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    background: var(--accent-glow);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    border-radius: 20px;
-    font-size: 13px;
-    color: var(--accent-light);
-    margin-bottom: 24px;
-  }
-
-  .hero-badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  h1 {
-    font-size: clamp(32px, 6vw, 48px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -1px;
-    margin-bottom: 16px;
-  }
-
-  h1 span {
-    background: linear-gradient(135deg, var(--accent-light), #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    font-size: 18px;
-    color: var(--text-secondary);
-    max-width: 520px;
-    margin: 0 auto 40px;
-  }
-
-  .cta-group {
+    min-height: 100vh;
     display: flex;
-    gap: 12px;
+    flex-direction: column;
     justify-content: center;
-    flex-wrap: wrap;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 40px 24px;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,255,136,0.04) 0%, transparent 70%),
+      var(--dark);
   }
 
-  .btn {
+  /* XX face — brand mark */
+  .brand-mark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 32px;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .brand-mark .x {
+    width: 18px;
+    height: 18px;
+    position: relative;
+  }
+
+  .brand-mark .x::before,
+  .brand-mark .x::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: var(--black);
+    top: 50%;
+    left: 0;
+    border-radius: 2px;
+  }
+
+  .brand-mark .x::before { transform: translateY(-50%) rotate(45deg); }
+  .brand-mark .x::after { transform: translateY(-50%) rotate(-45deg); }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .brand-name {
+    font-size: clamp(56px, 12vw, 96px);
+    font-weight: 700;
+    letter-spacing: -3px;
+    line-height: 1;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .brand-name span {
+    color: var(--green);
+  }
+
+  .hero-tagline {
+    font-size: clamp(16px, 3vw, 20px);
+    color: var(--light-gray);
+    max-width: 440px;
+    margin-bottom: 40px;
+    font-weight: 400;
+  }
+
+  .cta {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 14px 28px;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 16px 36px;
+    background: var(--white);
+    color: var(--black);
+    border-radius: 100px;
     font-size: 16px;
     font-weight: 600;
     text-decoration: none;
-    transition: all 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
   }
 
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.3);
+  .cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,255,136,0.15);
   }
 
-  .btn-primary:hover {
-    background: var(--accent-light);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 32px rgba(99, 102, 241, 0.4);
+  .cta svg { flex-shrink: 0; }
+
+  /* ---- SECTIONS ---- */
+  .section {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 80px 24px;
   }
 
-  /* Stats bar */
-  .stats-bar {
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-    padding: 24px 0 0;
-    flex-wrap: wrap;
-  }
-
-  .stat {
-    text-align: center;
-  }
-
-  .stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--accent-light);
-  }
-
-  .stat-label {
-    font-size: 13px;
-    color: var(--text-secondary);
-  }
-
-  /* Features */
-  .features {
-    padding: 40px 0 60px;
-  }
-
-  .section-title {
-    font-size: 24px;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 32px;
-    letter-spacing: -0.5px;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .feature {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    transition: border-color 0.2s;
-  }
-
-  .feature:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-  }
-
-  .feature-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: var(--accent-glow);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 12px;
-    color: var(--accent-light);
-  }
-
-  .feature-title {
-    font-size: 16px;
+  .section-label {
+    font-size: 12px;
     font-weight: 600;
-    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--green);
+    margin-bottom: 16px;
   }
 
-  .feature-text {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.5;
+  .section h2 {
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 20px;
   }
 
-  /* Sources */
-  .sources {
-    padding: 40px 0;
+  .section p {
+    font-size: 16px;
+    color: var(--light-gray);
+    line-height: 1.7;
   }
 
-  .sources-grid {
+  .divider {
+    max-width: 640px;
+    margin: 0 auto;
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---- SOURCES ---- */
+  .sources-row {
     display: flex;
-    justify-content: center;
-    gap: 12px;
     flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
   }
 
-  .source-tag {
+  .source {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: var(--surface);
+    gap: 8px;
+    padding: 10px 18px;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 100px;
     font-size: 14px;
     font-weight: 500;
-    color: var(--text);
     transition: border-color 0.2s;
   }
 
-  .source-tag:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-  }
+  .source:hover { border-color: var(--green); }
 
   .source-dot {
     width: 6px;
@@ -243,326 +198,281 @@
     background: var(--green);
   }
 
-  /* How it works */
-  .how {
-    padding: 40px 0 60px;
-  }
-
-  .steps {
+  /* ---- SCORING ---- */
+  .score-row {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-  }
-
-  .step {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    transition: border-color 0.2s;
-  }
-
-  .step:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-  }
-
-  .step-num {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: var(--accent-glow);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: var(--accent-light);
-    font-size: 14px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .step-content { flex: 1; }
-
-  .step-title {
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-
-  .step-text {
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-
-  /* Scoring */
-  .scoring {
-    padding: 40px 0 60px;
-  }
-
-  .score-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 12px;
+    margin-top: 24px;
   }
 
   .score-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 20px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 16px;
+  }
+
+  .score-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .score-bar {
+    height: 100%;
+    background: var(--green);
+    border-radius: 3px;
+    animation: grow 1.2s ease-out forwards;
+    transform-origin: left;
+  }
+
+  @keyframes grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
   }
 
   .score-label {
     font-size: 14px;
     font-weight: 500;
+    width: 80px;
+    flex-shrink: 0;
   }
 
-  .score-weight {
-    font-size: 20px;
+  .score-pct {
+    font-size: 14px;
     font-weight: 700;
-    color: var(--accent-light);
+    color: var(--green);
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
   }
 
-  /* Free banner */
-  .free-banner {
-    padding: 40px 0;
+  /* ---- STEPS ---- */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 24px;
+    counter-reset: step;
   }
 
-  .free-card {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, var(--surface) 100%);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    border-radius: var(--radius);
+  .step {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    counter-increment: step;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step::before {
+    content: counter(step);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--green);
+    flex-shrink: 0;
+    width: 28px;
+    line-height: 1.4;
+  }
+
+  .step-body h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .step-body p {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ---- FREE BLOCK ---- */
+  .free-block {
+    margin-top: 24px;
     padding: 32px;
+    border: 1px solid rgba(0,255,136,0.2);
+    border-radius: 16px;
+    background: var(--green-dim);
     text-align: center;
   }
 
-  .free-card h3 {
-    font-size: 20px;
+  .free-block h3 {
+    font-size: 22px;
     font-weight: 700;
     margin-bottom: 8px;
   }
 
-  .free-card p {
-    color: var(--text-secondary);
+  .free-block p {
+    color: var(--light-gray);
     font-size: 15px;
-    max-width: 440px;
-    margin: 0 auto 20px;
+    margin-bottom: 20px;
   }
 
-  .free-features {
+  .free-list {
     display: flex;
     justify-content: center;
-    gap: 24px;
+    gap: 20px;
     flex-wrap: wrap;
     font-size: 14px;
-    color: var(--text-secondary);
+    color: var(--light-gray);
   }
 
-  .free-features span {
+  .free-list span {
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  .free-features .check {
-    color: var(--green);
-    font-weight: 700;
+  .check { color: var(--green); font-weight: 700; }
+
+  /* ---- FOOTER CTA ---- */
+  .footer-cta {
+    text-align: center;
+    padding: 80px 24px 60px;
   }
 
-  /* Footer CTA */
-  .footer-cta {
-    padding: 48px 0;
-    text-align: center;
-    border-top: 1px solid var(--border);
-  }
+  .footer-cta .cta { margin-bottom: 16px; }
 
   .footer-cta p {
-    color: var(--text-secondary);
     font-size: 14px;
-    margin-top: 16px;
+    color: var(--gray);
   }
 
-  /* Responsive */
-  @media (max-width: 540px) {
-    .hero { padding: 48px 0 40px; }
-    .features-grid { grid-template-columns: 1fr; }
-    .score-grid { grid-template-columns: 1fr; }
-    .cta-group { flex-direction: column; align-items: center; }
-    .stats-bar { gap: 20px; }
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 480px) {
+    .brand-name { letter-spacing: -2px; }
+    .score-label { width: 60px; font-size: 13px; }
+    .free-list { flex-direction: column; align-items: center; gap: 8px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-badge-dot { animation: none; }
-    .btn, .feature, .step, .source-tag { transition: none; }
+    .brand-mark { animation: none; }
+    .score-bar { animation: none; transform: scaleX(1); }
+    .cta { transition: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="container">
+<section class="hero">
+  <div class="brand-mark">
+    <div class="x"></div>
+    <div class="x"></div>
+  </div>
+  <h1 class="brand-name">Лове<span>ц</span></h1>
+  <p class="hero-tagline">AI-бот для поиска вакансий. 5 площадок, скоринг, письма за 3 секунды. Бесплатно.</p>
+  <a href="https://t.me/jobhunt_ai_bot" class="cta">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    Открыть в Telegram
+  </a>
+</section>
 
-  <section class="hero">
-    <div class="hero-badge">
-      <span class="hero-badge-dot"></span>
-      Telegram-бот &middot; Бесплатно
-    </div>
-    <h1>AI-поиск вакансий.<br><span>5 источников. 0 рублей.</span></h1>
-    <p class="hero-sub">Ловец находит IT-вакансии на 5 площадках, оценивает совпадение с твоим профилем и генерирует сопроводительные письма через AI.</p>
-    <div class="cta-group">
-      <a href="https://t.me/jobhunt_ai_bot" class="btn btn-primary">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-        Начать в Telegram
-      </a>
-    </div>
-    <div class="stats-bar">
-      <div class="stat"><div class="stat-value">5</div><div class="stat-label">Источников</div></div>
-      <div class="stat"><div class="stat-value">11</div><div class="stat-label">Профессий</div></div>
-      <div class="stat"><div class="stat-value">0 &#8381;</div><div class="stat-label">Стоимость</div></div>
-    </div>
-  </section>
+<hr class="divider">
 
-  <section class="sources">
-    <h2 class="section-title">Откуда берём вакансии</h2>
-    <div class="sources-grid">
-      <div class="source-tag"><span class="source-dot"></span> HeadHunter</div>
-      <div class="source-tag"><span class="source-dot"></span> Habr Career</div>
-      <div class="source-tag"><span class="source-dot"></span> GetMatch</div>
-      <div class="source-tag"><span class="source-dot"></span> HireHi</div>
-      <div class="source-tag"><span class="source-dot"></span> SuperJob</div>
-    </div>
-  </section>
+<section class="section">
+  <div class="section-label">Источники</div>
+  <h2>5 площадок. Одна кнопка.</h2>
+  <p>Бот скрейпит вакансии автоматически. Ты выбираешь откуда смотреть.</p>
+  <div class="sources-row">
+    <div class="source"><span class="source-dot"></span> HeadHunter</div>
+    <div class="source"><span class="source-dot"></span> Habr Career</div>
+    <div class="source"><span class="source-dot"></span> GetMatch</div>
+    <div class="source"><span class="source-dot"></span> HireHi</div>
+    <div class="source"><span class="source-dot"></span> SuperJob</div>
+  </div>
+</section>
 
-  <section class="features">
-    <h2 class="section-title">Что умеет</h2>
-    <div class="features-grid">
-      <div class="feature">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        </div>
-        <div class="feature-title">Персональный скоринг</div>
-        <div class="feature-text">Каждая вакансия получает скор 0-100 по навыкам, зарплате, формату и отрасли.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        </div>
-        <div class="feature-title">AI-письма</div>
-        <div class="feature-text">Gemini 2.5 Pro пишет сопроводительные под конкретную вакансию и твой опыт за 3 секунды.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        </div>
-        <div class="feature-title">Фильтры по источникам</div>
-        <div class="feature-text">Выбери откуда смотреть: HH, Habr, GetMatch, HireHi — тогглы прямо в дайджесте.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        </div>
-        <div class="feature-title">Self-improving</div>
-        <div class="feature-text">Откликнулся — бот учтёт. Скрыл — запомнит. Скоринг подстраивается под тебя.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        </div>
-        <div class="feature-title">Импорт резюме</div>
-        <div class="feature-text">Загрузи PDF или DOCX — AI извлечёт навыки, должность и опыт автоматически.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-        </div>
-        <div class="feature-title">Push-уведомления</div>
-        <div class="feature-text">Новые вакансии с высоким скором приходят сами. Не нужно проверять каждый день.</div>
+<hr class="divider">
+
+<section class="section">
+  <div class="section-label">Скоринг</div>
+  <h2>Каждая вакансия получает оценку 0-100</h2>
+  <p>Алгоритм сравнивает вакансию с твоим профилем по четырём параметрам.</p>
+  <div class="score-row">
+    <div class="score-item">
+      <span class="score-label">Навыки</span>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:40%"></div></div>
+      <span class="score-pct">40%</span>
+    </div>
+    <div class="score-item">
+      <span class="score-label">Зарплата</span>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:25%"></div></div>
+      <span class="score-pct">25%</span>
+    </div>
+    <div class="score-item">
+      <span class="score-label">Формат</span>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:20%"></div></div>
+      <span class="score-pct">20%</span>
+    </div>
+    <div class="score-item">
+      <span class="score-label">Отрасль</span>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:15%"></div></div>
+      <span class="score-pct">15%</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="section">
+  <div class="section-label">Как работает</div>
+  <h2>4 шага до первой вакансии</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-body">
+        <h3>Заполни профиль</h3>
+        <p>Должность, навыки, зарплата, формат. Или загрузи резюме PDF.</p>
       </div>
     </div>
-  </section>
-
-  <section class="how">
-    <h2 class="section-title">Как это работает</h2>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Заполни профиль</div>
-          <div class="step-text">Должность, навыки, зарплата, формат — 4 обязательных шага. Или загрузи резюме.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Выбери источники</div>
-          <div class="step-text">HeadHunter, Habr Career, GetMatch, HireHi, SuperJob — тоглы в дайджесте.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Смотри дайджест</div>
-          <div class="step-text">Бот скрейпит площадки, скорит вакансии и показывает лучшие. Обновление каждые 30 минут.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">Генерируй письма и откликайся</div>
-          <div class="step-text">Нажми кнопку — AI напишет сопроводительное за 3 секунды. Перейди на вакансию и отправь.</div>
-        </div>
+    <div class="step">
+      <div class="step-body">
+        <h3>Выбери источники</h3>
+        <p>Тогглы прямо в дайджесте. HeadHunter, Habr, GetMatch, HireHi.</p>
       </div>
     </div>
-  </section>
-
-  <section class="scoring">
-    <h2 class="section-title">Формула скоринга</h2>
-    <div class="score-grid">
-      <div class="score-item">
-        <span class="score-label">Навыки</span>
-        <span class="score-weight">40%</span>
-      </div>
-      <div class="score-item">
-        <span class="score-label">Зарплата</span>
-        <span class="score-weight">25%</span>
-      </div>
-      <div class="score-item">
-        <span class="score-label">Формат</span>
-        <span class="score-weight">20%</span>
-      </div>
-      <div class="score-item">
-        <span class="score-label">Отрасль</span>
-        <span class="score-weight">15%</span>
+    <div class="step">
+      <div class="step-body">
+        <h3>Смотри дайджест</h3>
+        <p>Бот скорит вакансии и показывает лучшие. Обновление каждые 30 минут.</p>
       </div>
     </div>
-  </section>
-
-  <section class="free-banner">
-    <div class="free-card">
-      <h3>Всё бесплатно. Без ограничений.</h3>
-      <p>AI-письма, фильтры, push-уведомления, 5 источников — полный доступ для всех. Никаких пробных периодов.</p>
-      <div class="free-features">
-        <span><span class="check">&#10003;</span> Безлимит писем</span>
-        <span><span class="check">&#10003;</span> Все источники</span>
-        <span><span class="check">&#10003;</span> Push-алерты</span>
-        <span><span class="check">&#10003;</span> Импорт резюме</span>
+    <div class="step">
+      <div class="step-body">
+        <h3>Откликайся с AI-письмом</h3>
+        <p>Gemini 2.5 Pro напишет сопроводительное за 3 секунды. Скопируй и отправь.</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="footer-cta">
-    <a href="https://t.me/jobhunt_ai_bot" class="btn btn-primary">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-      Начать в Telegram
-    </a>
-    <p>Онбординг 2 минуты. Вакансии сразу.</p>
-  </section>
+<hr class="divider">
 
-</div>
+<section class="section">
+  <div class="section-label">Цена</div>
+  <h2>Всё бесплатно</h2>
+  <div class="free-block">
+    <h3>Полный доступ. Без ограничений.</h3>
+    <p>Никаких пробных периодов, подписок или скрытых лимитов.</p>
+    <div class="free-list">
+      <span><span class="check">&#10003;</span> Безлимит AI-писем</span>
+      <span><span class="check">&#10003;</span> 5 источников</span>
+      <span><span class="check">&#10003;</span> Push-алерты</span>
+      <span><span class="check">&#10003;</span> Импорт резюме</span>
+    </div>
+  </div>
+</section>
+
+<section class="footer-cta">
+  <a href="https://t.me/jobhunt_ai_bot" class="cta">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    Открыть в Telegram
+  </a>
+  <p>2 минуты на профиль. Вакансии сразу.</p>
+</section>
 
 </body>
 </html>
