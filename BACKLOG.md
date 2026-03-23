@@ -1,33 +1,48 @@
 # Architect — Backlog
 
 Задачи создаются автоматически после каждого weekly review + ad-hoc из сессий.
-Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-041**.
+Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-043**.
 
 ---
 
-## Sprint 6 (open)
+## Sprint 7 (open)
 
-### Epic: INFRA — Упрощение инфраструктуры
+### Epic: DASH — Dashboard Moderation UI
 
-- [ ] **ARCH-031** Объединить Architect + Mega Reviewer — один агент, два этапа (код → процесс), один отчёт, -50% токенов
-- [ ] **ARCH-032** Кросс-проектный утренний брифинг — daily 09:00, один Telegram DM: статус агентов + critical alerts + вчерашние findings
+- [ ] **ARCH-041** Backlog pages: Keep/Remove кнопки для задач с тегами `[strategist]`/`[mega-review]`/`[coderabbit]`
+- [ ] **ARCH-042** Backlog pages: визуальное отличие auto-задач (цветная полоска или иконка источника)
+
+### Epic: INFRA
+
+- [ ] **ARCH-031** Объединить Architect + Mega Reviewer
+- [ ] **ARCH-032** Кросс-проектный утренний брифинг
 
 ### Epic: STRAT — AI Research
 
-- [ ] **ARCH-033** Architect: анализ @denis_news_feed — парсить посты из TG-канала, находить релевантные AI-инструменты/скиллы, рекомендовать в секции "Ресерч" еженедельного отчёта
-- [ ] **ARCH-034** Architect: секция "Рекомендации по тулзам" — при анализе воркфлоу находить узкие места и рекомендовать конкретные инструменты (MCP серверы, скиллы, плагины, AI сервисы)
+- [ ] **ARCH-033** Architect: анализ @denis_news_feed
+- [ ] **ARCH-034** Architect: рекомендации по тулзам
 
-### Epic: NOTIFY — Единый канал уведомлений
+### Epic: RELIABILITY
 
-- [x] **ARCH-035** Все стратеги → @diyoriko_claude_bot (единый токен в plists)
-- [x] **ARCH-036** Все стратеги еженедельно (вс утро, 09:30-10:30 MSK)
-- [x] **ARCH-037** /deploy skill: Telegram-уведомление о деплое → @diyoriko_claude_bot
+- [ ] **ARCH-038** Починить dev.hardstop — 3-недельный простой
+- [ ] **ARCH-039** Backup monitoring — Railway artifacts недоступны
+- [ ] **ARCH-040** Memory pruning автоматизация
 
-### Epic: RELIABILITY — Инфраструктурный долг (из Review 2026-03-23)
+---
 
-- [ ] **ARCH-038** Починить dev.hardstop — проверить `launchctl list | grep hardstop`, найти причину 3-недельного простоя или заменить на /loop; burnout guard не работает
-- [ ] **ARCH-039** Backup monitoring — найти почему Railway artifacts недоступны 2 недели, починить или переключить метод
-- [ ] **ARCH-040** Memory pruning автоматизация — архивировать session files старше 14 дней, держать MEMORY.md < 150 строк
+## Completed — Sprint 6 (23.03.2026, commit 23c3f76)
+
+<details><summary>7 задач — развернуть</summary>
+
+- [x] **ARCH-035** Все стратеги → @diyoriko_claude_bot
+- [x] **ARCH-036** Все стратеги еженедельно (вс 09:30-10:30 MSK)
+- [x] **ARCH-037** /deploy skill: Telegram деплой-уведомления
+- [x] **ARCH-038+** Dashboard moderation API: POST /api/moderate (Keep/Remove)
+- [x] **ARCH-039+** Source tags: `[strategist]` и `[mega-review]` в auto-задачах
+- [x] **ARCH-040+** format-telegram.sh: конвертер markdown→Telegram (emoji, bullets, no tables)
+- [x] **ARCH-041+** Dashboard: Vedic стратег + обновлённые расписания агентов
+
+</details>
 
 ---
 
