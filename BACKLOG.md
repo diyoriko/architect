@@ -1,29 +1,46 @@
 # Architect — Backlog
 
 Задачи создаются автоматически после каждого weekly review + ad-hoc из сессий.
-Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-025**.
+Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-033**.
 
 ---
 
-## Sprint 4 (open)
+## Sprint 5 (open)
 
-### Epic: PROC — Sprint/Release/Backlog Process
+### Epic: RELIABILITY — Надёжность агентов
 
-- [x] **ARCH-007** Унифицировать бэклоги — добавлен формат PROJ-NNN (HUNT-, SAMI-, PORT-) во все бэклоги
-- [x] **ARCH-008** Автоархивация спринтов — добавлен Step 6 в /deploy skill
-- [x] **ARCH-009** Процесс sprint→release — задокументирован в CLAUDE.md всех 5 проектов
+- [ ] **ARCH-025** Agent health watchdog — launchd скрипт (daily 10:00): проверяет что все агенты отработали. Если нет → Telegram DM
+- [ ] **ARCH-026** Timeout + crash alert для Portfolio стратега — 15 мин timeout, Telegram при ошибке
+- [ ] **ARCH-027** Timeout + crash alert для Vedic стратега — аналогично
 
-### Epic: STRAT — Strategist Improvements (→ проектные бэклоги)
+### Epic: STRAT — Backlog sync для всех стратегов
 
-- [x] **ARCH-010** → перенесён в Hunter BACKLOG.md (P2)
-- [x] **ARCH-011** → перенесён в Portfolio BACKLOG.md
-- [x] **ARCH-012** → перенесён в SAMI COMMUNITY_TASKS.md
+- [ ] **ARCH-028** extract-tasks для Portfolio стратега — автоизвлечение задач из отчёта → BACKLOG.md
+- [ ] **ARCH-029** extract-tasks для Vedic стратега — аналогично → BACKLOG.md
 
-### Epic: QUALITY (→ проектные бэклоги)
+### Epic: INFRA — Упрощение инфраструктуры
 
-- [x] **ARCH-020** → уже в SAMI COMMUNITY_TASKS.md
-- [x] **ARCH-021** → уже в Hunter BACKLOG.md (P1)
-- [x] **ARCH-022** → перенесён в Hunter BACKLOG.md
+- [ ] **ARCH-030** strategist-base.sh — общий шаблон (PATH, Telegram, Calendar, skip, timeout, retry). Параметризованный. Все стратеги наследуют
+- [ ] **ARCH-031** Объединить Architect + Mega Reviewer — один агент, два этапа (код → процесс), один отчёт, -50% токенов
+- [ ] **ARCH-032** Кросс-проектный утренний брифинг — daily 09:00, один Telegram DM: статус агентов + critical alerts + вчерашние findings
+
+---
+
+## Completed — Sprint 4 (23.03.2026, commit d7b3b30)
+
+<details><summary>9 задач — развернуть</summary>
+
+- [x] **ARCH-007** Унифицировать бэклоги — формат PROJ-NNN во всех проектах
+- [x] **ARCH-008** Автоархивация спринтов — Step 6 в /deploy skill
+- [x] **ARCH-009** Процесс sprint→release — CLAUDE.md всех 5 проектов
+- [x] **ARCH-010** → Hunter BACKLOG.md (P2)
+- [x] **ARCH-011** → Portfolio BACKLOG.md
+- [x] **ARCH-012** → SAMI COMMUNITY_TASKS.md
+- [x] **ARCH-020** → SAMI (уже был)
+- [x] **ARCH-021** → Hunter (уже был)
+- [x] **ARCH-022** → Hunter BACKLOG.md
+
+</details>
 
 ---
 
