@@ -55,7 +55,7 @@
 
   /* Alerts */
   .alerts{display:flex;flex-direction:column;gap:6px}
-  .alert{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px}
+  .alert{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-2);text-decoration:none;cursor:pointer;flex-wrap:wrap}
   .alert.red{border-left:3px solid var(--red)}
   .alert.amber{border-left:3px solid var(--amber)}
   .alert-icon{font-size:11px;flex-shrink:0}
@@ -360,7 +360,7 @@ function renderAlerts(agents,backlogs,mrMd){
   if(!items.length){el.innerHTML='<div class="alert-none">All clear</div>';return}
   el.innerHTML=items.map(i=>{
     const detailHtml=i.detail?`<div class="alert-detail" style="display:none;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;white-space:pre-line">${esc(i.detail)}</div>`:'';
-    return`<a href="${i.link||'#'}" class="alert ${i.level}" style="text-decoration:none;cursor:pointer" onclick="event.preventDefault();const d=this.querySelector('.alert-detail');if(d){d.style.display=d.style.display==='none'?'block':'none'}else{location.href='${i.link}'}"><span class="alert-icon">${i.level==='red'?'&#x26A0;':'&#x25CF;'}</span><span>${esc(i.text)}<span style="font-size:10px;color:var(--dim);margin-left:8px">▸ подробнее</span></span>${detailHtml}</a>`;
+    return`<div class="alert ${i.level}" onclick="const d=this.querySelector('.alert-detail');if(d){d.style.display=d.style.display==='none'?'block':'none'}else if('${i.link}'!=='#'){location.href='${i.link}'}"><span class="alert-icon">${i.level==='red'?'&#x26A0;':'&#x25CF;'}</span><div style="flex:1"><span style="color:var(--text);font-weight:500">${esc(i.text)}</span><span style="font-size:10px;color:var(--dim);margin-left:8px">▸ подробнее</span>${detailHtml}</div></div>`;
   }).join('');
 }
 
