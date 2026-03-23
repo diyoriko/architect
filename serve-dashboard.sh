@@ -253,7 +253,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if not task_text or not project:
                 self.send_response(400)
                 self.end_headers()
-                self.wfile.write(b'{"error":"missing task or project"}')
+                self.wfile.write(json.dumps({'error': 'missing task or project'}).encode())
                 return
 
             file_map = {
@@ -267,7 +267,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if not fpath or not os.path.isfile(fpath):
                 self.send_response(404)
                 self.end_headers()
-                self.wfile.write(b'{"error":"project not found"}')
+                self.wfile.write(json.dumps({'error': 'project not found'}).encode())
                 return
 
             if action == 'remove':
@@ -291,7 +291,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 new_lines = []
                 for l in lines:
                     if task_text in l:
-                        l = l.replace(' `[strategist]`', '').replace(' `[mega-review]`', '').replace(' `[coderabbit]`', '')
+                        for tag in ('strategist', 'mega-review', 'coderabbit'):
+                            l = l.replace(' \x60[' + tag + ']\x60', '')
                     new_lines.append(l)
                 open(fpath, 'w').writelines(new_lines)
                 self.send_response(200)
@@ -301,7 +302,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             else:
                 self.send_response(400)
                 self.end_headers()
-                self.wfile.write(b'{"error":"unknown action"}')
+                self.wfile.write(json.dumps({'error': 'unknown action'}).encode())
             return
 
         self.send_response(404)
