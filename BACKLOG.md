@@ -7,24 +7,25 @@
 
 ## Sprint 5 (open)
 
-### Epic: RELIABILITY — Надёжность агентов
-
-- [ ] **ARCH-025** Agent health watchdog — launchd скрипт (daily 10:00): проверяет что все агенты отработали. Если нет → Telegram DM
-- [ ] **ARCH-026** Timeout + crash alert для Portfolio стратега — 15 мин timeout, Telegram при ошибке
-- [ ] **ARCH-027** Timeout + crash alert для Vedic стратега — аналогично
-
-### Epic: STRAT — Backlog sync для всех стратегов
-
-- [ ] **ARCH-028** extract-tasks для Portfolio стратега — автоизвлечение задач из отчёта → BACKLOG.md
-- [ ] **ARCH-029** extract-tasks для Vedic стратега — аналогично → BACKLOG.md
-
 ### Epic: INFRA — Упрощение инфраструктуры
 
-- [ ] **ARCH-030** strategist-base.sh — общий шаблон (PATH, Telegram, Calendar, skip, timeout, retry). Параметризованный. Все стратеги наследуют
 - [ ] **ARCH-031** Объединить Architect + Mega Reviewer — один агент, два этапа (код → процесс), один отчёт, -50% токенов
 - [ ] **ARCH-032** Кросс-проектный утренний брифинг — daily 09:00, один Telegram DM: статус агентов + critical alerts + вчерашние findings
 
 ---
+
+## Completed — Sprint 5 (23.03.2026, commit e2831b2)
+
+<details><summary>6 задач — развернуть</summary>
+
+- [x] **ARCH-025** Agent health watchdog — daily 10:00, Telegram DM при overdue агентах
+- [x] **ARCH-026** Portfolio стратег: timeout 15 мин + crash alert
+- [x] **ARCH-027** Vedic стратег: timeout 15 мин + crash alert
+- [x] **ARCH-028** Portfolio: extract-tasks → BACKLOG.md (через shared/extract-tasks-simple.sh)
+- [x] **ARCH-029** Vedic: extract-tasks → BACKLOG.md (аналогично)
+- [x] **ARCH-030** strategist-base.sh — общая библиотека (PATH, Telegram, Calendar, timeout, feedback, extract)
+
+</details>
 
 ## Completed — Sprint 4 (23.03.2026, commit d7b3b30)
 
