@@ -48,6 +48,29 @@ STATIC_MAP = {
 
 Все агенты имеют `RunAtLoad: true` — запускаются при включении Mac если пропустили расписание.
 
+## Sprint → Release Process
+
+Единый процесс для всех проектов:
+
+1. **Sprint** — набор задач в `## Sprint N` секции бэклога
+2. **Реализация** — код + тесты в feature branch или main
+3. **Деплой** — `git push` + version bump (vX.Y.Z)
+4. **Архивация** — закрытый спринт сворачивается в `<details>` с номером релиза
+5. **Перенос** — незакрытые задачи переносятся в следующий спринт с причиной
+
+### Нумерация задач
+- `ARCH-NNN` — Architect
+- `HUNT-NNN` — Hunter (в процессе перехода)
+- `SAMI-NNN` — SAMI (в процессе перехода)
+- `VT-NNN` — Vedic Turkiye (уже используется)
+- `PORT-NNN` — Portfolio (в процессе перехода)
+
+### Автоматизация
+- Mega Reviewer (сб) → sync_items() → вставляет в текущий спринт проекта
+- Стратегисты (ежедневно/еженедельно) → extract-tasks → proposals → approval → бэклог
+- CodeRabbit (PR review) → coderabbit-to-backlog.yml → бэклог
+- Telegram alert при critical findings
+
 ## Quality Gate
 - Бэклог = единственный источник правды
 - mega-review-BACKLOG.md = реестр findings (auto-close при закрытии в проектных бэклогах)

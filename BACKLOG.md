@@ -9,21 +9,21 @@
 
 ### Epic: PROC — Sprint/Release/Backlog Process
 
-- [ ] **ARCH-007** Унифицировать бэклоги Hunter/SAMI/Vedic/Portfolio — перевести на PROJ-NNN формат, привязать к спринтам
-- [ ] **ARCH-008** Автоархивация спринтов — при деплое (git tag) текущий спринт сворачивается в `<details>`, открытые переносятся с причиной
-- [ ] **ARCH-009** Процесс спринт-релиз-тесты — задокументировать пайплайн в CLAUDE.md всех проектов
+- [x] **ARCH-007** Унифицировать бэклоги — добавлен формат PROJ-NNN (HUNT-, SAMI-, PORT-) во все бэклоги
+- [x] **ARCH-008** Автоархивация спринтов — добавлен Step 6 в /deploy skill
+- [x] **ARCH-009** Процесс sprint→release — задокументирован в CLAUDE.md всех 5 проектов
 
-### Epic: STRAT — Strategist Improvements
+### Epic: STRAT — Strategist Improvements (→ проектные бэклоги)
 
-- [ ] **ARCH-010** Hunter: метрики через /report endpoint — DAU/WAU, trial→paid, scraper success rate для стратега
-- [ ] **ARCH-011** Portfolio: GoatCounter парсинг — top pages, total views, trends вместо raw JSON
-- [ ] **ARCH-012** SAMI: автосинхронизация proposal-status — читать COMMUNITY_TASKS.md и автоотмечать выполненные
+- [x] **ARCH-010** → перенесён в Hunter BACKLOG.md (P2)
+- [x] **ARCH-011** → перенесён в Portfolio BACKLOG.md
+- [x] **ARCH-012** → перенесён в SAMI COMMUNITY_TASKS.md
 
-### Epic: QUALITY — From Review 2026-03-22
+### Epic: QUALITY (→ проектные бэклоги)
 
-- [ ] **ARCH-020** SAMI: починить CI — после коммита b4c79db (moderation relax) typecheck/lint падает; CI красный блокирует весь PR workflow
-- [ ] **ARCH-021** Hunter: HireHi category-фильтр до scorer — API поддерживает `category=design/dev/QA`, сейчас тянет все 8000+ вакансий без фильтра
-- [ ] **ARCH-022** Hunter: обновить pdf-parse 1.1.1 → 2.4.5 — major версия, проверить breaking changes в resume import
+- [x] **ARCH-020** → уже в SAMI COMMUNITY_TASKS.md
+- [x] **ARCH-021** → уже в Hunter BACKLOG.md (P1)
+- [x] **ARCH-022** → перенесён в Hunter BACKLOG.md
 
 ---
 
