@@ -453,11 +453,26 @@ sync_items() {
   local items
   items=$(echo "$REPORT" | sed -n '/^## Action Items/,/^## /p' | grep -iE "$pattern" | head -5 | sed 's/^[0-9]*\. /- [ ] **Mega Review:** /')
   if [ -n "$items" ] && [ -f "$tasks_file" ] && ! grep -q "Mega Review $DATE" "$tasks_file" 2>/dev/null; then
-    echo "" >> "$tasks_file"
-    echo "### Mega Review $DATE" >> "$tasks_file"
-    echo "<!-- Source: ~/Documents/Projects/Architect/code-reviews/$DATE.md -->" >> "$tasks_file"
-    echo "$items" >> "$tasks_file"
-    echo "$(date -Iseconds) $project backlog updated (with source link)"
+    local block
+    block=$(printf '\n### Mega Review %s\n<!-- Source: ~/Documents/Projects/Architect/code-reviews/%s.md -->\n%s\n' "$DATE" "$DATE" "$items")
+
+    # Try to insert before first "---" separator (end of current sprint)
+    # If no separator, append to end
+    if grep -qn '^---$' "$tasks_file" 2>/dev/null; then
+      local first_sep
+      first_sep=$(grep -n '^---$' "$tasks_file" | head -1 | cut -d: -f1)
+      if [ -n "$first_sep" ] && [ "$first_sep" -gt 5 ]; then
+        # Insert before the first separator (inside current sprint)
+        sed -i '' "${first_sep}i\\
+$(echo "$block" | sed 's/$/\\/' | sed '$ s/\\$//')
+" "$tasks_file" 2>/dev/null || echo "$block" >> "$tasks_file"
+      else
+        echo "$block" >> "$tasks_file"
+      fi
+    else
+      echo "$block" >> "$tasks_file"
+    fi
+    echo "$(date -Iseconds) $project backlog updated (in current sprint)"
   fi
 }
 
@@ -619,6 +634,19 @@ archive_old_reviews
 # Google Calendar event
 # =========================================================
 CRITICAL=$(echo "$REPORT" | grep -c "critical\|Critical\|CRITICAL" || true)
+
+# Telegram DM if critical findings
+if [ "$CRITICAL" -gt 0 ] && [ -n "$BOT_TOKEN" ]; then
+  CRIT_ITEMS=$(echo "$REPORT" | grep -i "critical" | head -5 | sed 's/\*\*//g; s/`//g; s/^|//; s/|.*|/—/' | tr '\n' '\n')
+  ALERT_TEXT="$(printf '🔴 Mega Review %s — %s critical\n\n%s\n\nFull: code-reviews/%s.md' "$DATE" "$CRITICAL" "$CRIT_ITEMS" "$DATE")"
+  ALERT_TEXT="${ALERT_TEXT:0:4000}"
+  curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+    -d "chat_id=${ADMIN_CHAT_ID}" \
+    --data-urlencode "text=${ALERT_TEXT}" \
+    > /dev/null 2>&1 && echo "$(date -Iseconds) Telegram alert sent ($CRITICAL critical)" \
+    || echo "$(date -Iseconds) Telegram alert failed (non-critical)"
+fi
+
 if command -v gcalcli >/dev/null 2>&1; then
   SUMMARY=$(echo "$REPORT" | head -5 | tail -3 | sed 's/\*\*//g; s/`//g; s/^#\+ //' | tr '\n' ' ' | cut -c1-150)
   ITEMS=$(echo "$REPORT" | grep -A 10 "## Action Items" | grep "^[0-9]\." | head -5 | sed 's/\*\*//g; s/`//g' | tr '\n' '\n')

@@ -1,7 +1,7 @@
 # Architect — Backlog
 
 Задачи создаются автоматически после каждого weekly review + ad-hoc из сессий.
-Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-020**.
+Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-025**.
 
 ---
 
@@ -27,6 +27,14 @@
 - [ ] **ARCH-015** Dashboard: агент-статусы — показывать время последнего запуска каждого стратега на index.html
 - [ ] **ARCH-018** Health парсер: parseMR() не видит `## From Review` и `### Critical/High` в новом формате — привести в sync с mega-review.html парсером
 - [ ] **ARCH-019** Needs Attention: добавить deep link на конкретный таб проекта в mega-review.html (сейчас ведёт на общую страницу)
+
+### Epic: QUALITY — From Review 2026-03-22
+
+- [ ] **ARCH-020** SAMI: починить CI — после коммита b4c79db (moderation relax) typecheck/lint падает; CI красный блокирует весь PR workflow
+- [ ] **ARCH-021** Hunter: HireHi category-фильтр до scorer — API поддерживает `category=design/dev/QA`, сейчас тянет все 8000+ вакансий без фильтра (O(n²) при росте аудитории)
+- [ ] **ARCH-022** Hunter: обновить pdf-parse 1.1.1 → 2.4.5 — major версия, проверить breaking changes в resume import
+- [ ] **ARCH-023** Memory system pruning — удалить session files старше 4 недель (18 штук), освободить MEMORY.md индекс
+- [ ] **ARCH-024** Проверить dev.hardstop launchd — агент показывает "- 0", не запускается; работа до 23:00 ежедневно без hard stop
 
 ---
 

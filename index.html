@@ -252,19 +252,31 @@ function extractP0(md){
   return items.join('\n')||'';
 }
 
-// Mega Review parser
+// Mega Review parser (synced with mega-review.html logic)
 function parseMR(md){
+  const PROJ_ALIAS={VT:'Vedic',VEDIC:'Vedic',SAMI:'SAMI',HUNTER:'Hunter',PORTFOLIO:'Portfolio'};
+  const SEV_ALIAS={CRITICAL:'critical',HIGH:'high',MED:'medium',MEDIUM:'medium',LOW:'low'};
   const tasks=[];let review='',sev='';
   md.split('\n').forEach(l=>{
-    const rm=l.match(/^## Review (\d{4}-\d{2}-\d{2})/);if(rm){review=rm[1];return}
+    const rm=l.match(/^## (?:From )?Review (\d{4}-\d{2}-\d{2})/);if(rm){review=rm[1];sev='';return}
     const sm=l.match(/^### (Critical|High|Medium|Low)/i);if(sm){sev=sm[1].toLowerCase();return}
-    if(/^- \[[ x]\]/.test(l)){
-      const done=l.includes('[x]');let text=l.replace(/^- \[[ x]\]\s*/,'').replace(/\*\*/g,'');
-      const pm=text.match(/^\[([^\]]+?)(?:\s*→\s*([^\]]+))?\]/);
-      const proj=pm?pm[1].trim():'Other',clean=pm?text.substring(pm[0].length).trim():text;
-      const title=(clean.split(' — ')[0]||clean).replace(/`[^`]+`/g,'').trim();
-      tasks.push({review,sev,done,proj,title});
-    }
+    if(/^###? /.test(l)&&!sm){sev='';return}
+    if(!/^- \[[ x]\]/.test(l))return;
+    const done=l.includes('[x]');let text=l.replace(/^- \[[ x]\]\s*/,'').replace(/\*\*/g,'');
+    let proj='Other',taskSev=sev;
+    // Format 1: [Project → Dest]
+    const pm=text.match(/^\[([^\]]+?)\s*→\s*([^\]]+)\]\s*/);
+    // Format 2: [VT][BUG][CRITICAL]
+    const tagM=text.match(/^(\[[^\]→]+\]){2,}\s*/);
+    // Format 3: Project — severity — title
+    const flatM=text.match(/^(\w+)\s*\u2014\s*(critical|high|medium|low)\s*\u2014\s*/i);
+    let clean=text;
+    if(pm){proj=PROJ_ALIAS[pm[1].trim().toUpperCase()]||pm[1].trim();clean=text.substring(pm[0].length)}
+    else if(tagM){const tags=text.match(/\[([^\]]+)\]/g).map(t=>t.slice(1,-1));for(const t of tags){if(PROJ_ALIAS[t.toUpperCase()])proj=PROJ_ALIAS[t.toUpperCase()];if(SEV_ALIAS[t.toUpperCase()])taskSev=SEV_ALIAS[t.toUpperCase()]}clean=text.substring(tagM[0].length)}
+    else if(flatM){proj=PROJ_ALIAS[flatM[1].toUpperCase()]||flatM[1];taskSev=flatM[2].toLowerCase();clean=text.substring(flatM[0].length)}
+    else{const pm1b=text.match(/^\[([^\]]+)\]\s*/);if(pm1b){proj=PROJ_ALIAS[pm1b[1].trim().toUpperCase()]||pm1b[1].trim();clean=text.substring(pm1b[0].length)}}
+    const title=(clean.split(' — ')[0]||clean).replace(/`[^`]+`/g,'').trim();
+    tasks.push({review,sev:taskSev||'medium',done,proj,title});
   });return tasks;
 }
 
@@ -289,8 +301,9 @@ function renderAgents(agents){
   el.innerHTML=agents.map(a=>{
     const st=a.status||'unknown';
     const lastTxt=st==='never'?'never ran':ago(a.last_run);
+    const lastTime=a.last_run?a.last_run.replace(/^\d{4}-\d{2}-\d{2}\s*/,''):'';
     const click=a.last_report?` onclick="viewFile('${esc(a.last_report)}')"`:' style="cursor:default"';
-    return`<div class="ag"${click}><span class="adot ${st}"></span><div class="ag-info"><div class="ag-name">${esc(a.name)}</div><div class="ag-sched">${esc(a.schedule)}</div></div><span class="ag-last ${st}">${esc(lastTxt)}</span></div>`;
+    return`<div class="ag"${click}><span class="adot ${st}"></span><div class="ag-info"><div class="ag-name">${esc(a.name)}</div><div class="ag-sched">${esc(a.schedule)}${lastTime?' · last: '+esc(lastTime):''}</div></div><span class="ag-last ${st}">${esc(lastTxt)}</span></div>`;
   }).join('');
 }
 
@@ -330,11 +343,18 @@ function renderAlerts(agents,backlogs,mrMd){
     if(s.p0>0)items.push({level:'red',text:p.name+': '+s.p0+' P0 task'+(s.p0>1?'s':''),link:BL_PAGES[p.id]||'#',detail:extractP0(backlogs[p.id])});
   });
 
-  // Critical mega-review findings
+  // Critical mega-review findings — group by project
   if(mrMd){
     const tasks=parseMR(mrMd);
     const crit=tasks.filter(t=>!t.done&&t.sev==='critical');
-    if(crit.length)items.push({level:'red',text:crit.length+' critical finding'+(crit.length>1?'s':'')+' in mega review',link:'mega-review.html',detail:crit.map(t=>t.title).join('\n')});
+    if(crit.length){
+      const byProj={};crit.forEach(t=>(byProj[t.proj]||=[]).push(t));
+      Object.entries(byProj).forEach(([proj,pts])=>{
+        items.push({level:'red',text:proj+': '+pts.length+' critical'+(pts.length>1?' findings':' finding'),link:'mega-review.html#p-'+proj,detail:pts.map(t=>t.title).join('\n')});
+      });
+    }
+    const high=tasks.filter(t=>!t.done&&t.sev==='high');
+    if(high.length)items.push({level:'amber',text:high.length+' high finding'+(high.length>1?'s':''),link:'mega-review.html',detail:high.map(t=>(t.proj||'')+': '+t.title).join('\n')});
   }
 
   if(!items.length){el.innerHTML='<div class="alert-none">All clear</div>';return}
