@@ -451,7 +451,7 @@ echo "$(date -Iseconds) Syncing action items to project backlogs..."
 sync_items() {
   local project="$1" pattern="$2" tasks_file="$3"
   local items
-  items=$(echo "$REPORT" | sed -n '/^## Action Items/,/^## /p' | grep -iE "$pattern" | head -5 | sed 's/^[0-9]*\. /- [ ] **Mega Review:** /')
+  items=$(echo "$REPORT" | sed -n '/^## Action Items/,/^## /p' | grep -iE "$pattern" | head -5 | sed 's/^[0-9]*\. /- [ ] **Mega Review:** /' | sed 's/$/ `[mega-review]`/')
   if [ -n "$items" ] && [ -f "$tasks_file" ] && ! grep -q "Mega Review $DATE" "$tasks_file" 2>/dev/null; then
     local block
     block=$(printf '\n### Mega Review %s\n<!-- Source: ~/Documents/Projects/Architect/code-reviews/%s.md -->\n%s\n' "$DATE" "$DATE" "$items")
@@ -637,8 +637,13 @@ CRITICAL=$(echo "$REPORT" | grep -c "critical\|Critical\|CRITICAL" || true)
 
 # Telegram DM if critical findings
 if [ "$CRITICAL" -gt 0 ] && [ -n "$BOT_TOKEN" ]; then
-  CRIT_ITEMS=$(echo "$REPORT" | grep -i "critical" | head -5 | sed 's/\*\*//g; s/`//g; s/^|//; s/|.*|/—/' | tr '\n' '\n')
-  ALERT_TEXT="$(printf '🔴 Mega Review %s — %s critical\n\n%s\n\nFull: code-reviews/%s.md' "$DATE" "$CRITICAL" "$CRIT_ITEMS" "$DATE")"
+  FMT="$ARCHITECT_DIR/shared/format-telegram.sh"
+  if [ -f "$FMT" ]; then
+    CRIT_ITEMS=$(echo "$REPORT" | grep -i "critical" | head -5 | bash "$FMT")
+  else
+    CRIT_ITEMS=$(echo "$REPORT" | grep -i "critical" | head -5 | sed 's/\*\*//g; s/`//g; s/^|//; s/|.*|/—/' | tr '\n' '\n')
+  fi
+  ALERT_TEXT="$(printf '🔴 Mega Review %s — %s critical\n\n%s\n\n📄 code-reviews/%s.md' "$DATE" "$CRITICAL" "$CRIT_ITEMS" "$DATE")"
   ALERT_TEXT="${ALERT_TEXT:0:4000}"
   curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
     -d "chat_id=${ADMIN_CHAT_ID}" \

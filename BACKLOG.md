@@ -1,7 +1,7 @@
 # Architect — Backlog
 
 Задачи создаются автоматически после каждого weekly review + ad-hoc из сессий.
-Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-038**.
+Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-041**.
 
 ---
 
@@ -22,6 +22,12 @@
 - [x] **ARCH-035** Все стратеги → @diyoriko_claude_bot (единый токен в plists)
 - [x] **ARCH-036** Все стратеги еженедельно (вс утро, 09:30-10:30 MSK)
 - [x] **ARCH-037** /deploy skill: Telegram-уведомление о деплое → @diyoriko_claude_bot
+
+### Epic: RELIABILITY — Инфраструктурный долг (из Review 2026-03-23)
+
+- [ ] **ARCH-038** Починить dev.hardstop — проверить `launchctl list | grep hardstop`, найти причину 3-недельного простоя или заменить на /loop; burnout guard не работает
+- [ ] **ARCH-039** Backup monitoring — найти почему Railway artifacts недоступны 2 недели, починить или переключить метод
+- [ ] **ARCH-040** Memory pruning автоматизация — архивировать session files старше 14 дней, держать MEMORY.md < 150 строк
 
 ---
 

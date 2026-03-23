@@ -44,14 +44,17 @@ while IFS= read -r task; do
     continue
   fi
 
+  # Add source tag
+  tagged_task="${task} \`[strategist]\`"
+
   # Add to backlog — find first --- separator and insert before it
   FIRST_SEP=$(grep -n '^---$' "$BACKLOG_FILE" | head -1 | cut -d: -f1)
   if [ -n "$FIRST_SEP" ] && [ "$FIRST_SEP" -gt 3 ]; then
     sed -i '' "${FIRST_SEP}i\\
-${task}
-" "$BACKLOG_FILE" 2>/dev/null || echo "$task" >> "$BACKLOG_FILE"
+${tagged_task}
+" "$BACKLOG_FILE" 2>/dev/null || echo "$tagged_task" >> "$BACKLOG_FILE"
   else
-    echo "$task" >> "$BACKLOG_FILE"
+    echo "$tagged_task" >> "$BACKLOG_FILE"
   fi
 
   echo "Added: $TASK_NAME"

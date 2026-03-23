@@ -37,8 +37,8 @@ AGENTS = [
     {
         'id': 'sami_strategist',
         'name': 'SAMI Strategist',
-        'schedule': '09:30 MSK daily',
-        'frequency': 'daily',
+        'schedule': 'Sun 09:30 MSK',
+        'frequency': 'weekly',
         'platform': 'Mac launchd',
         'description': 'Backlog analysis + Telegram report',
         'reports_dir': PROJECTS + '/Sami/reports/strategist',
@@ -49,8 +49,8 @@ AGENTS = [
     {
         'id': 'hunter_strategist',
         'name': 'Hunter Strategist',
-        'schedule': '09:30 MSK daily',
-        'frequency': 'daily',
+        'schedule': 'Sun 09:45 MSK',
+        'frequency': 'weekly',
         'platform': 'Mac launchd',
         'description': 'Backlog analysis + Telegram report',
         'reports_dir': PROJECTS + '/Hunter/reports/strategist',
@@ -61,7 +61,7 @@ AGENTS = [
     {
         'id': 'portfolio_strategist',
         'name': 'Portfolio Strategist',
-        'schedule': 'Sun 11:00 MSK',
+        'schedule': 'Sun 10:15 MSK',
         'frequency': 'weekly',
         'platform': 'Mac launchd',
         'description': 'Portfolio content + SEO analysis',
@@ -69,6 +69,18 @@ AGENTS = [
         'project_dir': PROJECTS + '/Portfolio',
         'plist': HOME + '/Library/LaunchAgents/com.portfolio.strategist.plist',
         'run_sh': PROJECTS + '/Portfolio/agents/strategist/run.sh',
+    },
+    {
+        'id': 'vedic_strategist',
+        'name': 'Vedic Strategist',
+        'schedule': 'Sun 10:30 MSK',
+        'frequency': 'weekly',
+        'platform': 'Mac launchd',
+        'description': 'Platform health + blockers',
+        'reports_dir': PROJECTS + '/Vedic Turkey/reports/strategist',
+        'project_dir': PROJECTS + '/Vedic Turkey',
+        'plist': HOME + '/Library/LaunchAgents/com.diyoriko.vedic-strategist.plist',
+        'run_sh': PROJECTS + '/Vedic Turkey/agents/strategist/run.sh',
     },
     {
         'id': 'mega_reviewer',
@@ -226,6 +238,74 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         return super().do_GET()
+
+    def do_POST(self):
+        name = self.path.split('?')[0].lstrip('/')
+
+        # Moderate task: remove from backlog
+        if name == 'api/moderate':
+            length = int(self.headers.get('Content-Length', 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            action = body.get('action')  # 'remove' or 'keep'
+            project = body.get('project')  # 'hunter', 'sami', etc.
+            task_text = body.get('task', '').strip()
+
+            if not task_text or not project:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b'{"error":"missing task or project"}')
+                return
+
+            file_map = {
+                'hunter': PROJECTS + '/Hunter/BACKLOG.md',
+                'sami': PROJECTS + '/Sami/COMMUNITY_TASKS.md',
+                'vedic': PROJECTS + '/Vedic Turkey/BACKLOG.md',
+                'portfolio': PROJECTS + '/Portfolio/BACKLOG.md',
+                'architect': 'BACKLOG.md',
+            }
+            fpath = file_map.get(project)
+            if not fpath or not os.path.isfile(fpath):
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b'{"error":"project not found"}')
+                return
+
+            if action == 'remove':
+                # Remove the task line from the file
+                lines = open(fpath, 'r').readlines()
+                new_lines = [l for l in lines if task_text not in l]
+                if len(new_lines) < len(lines):
+                    open(fpath, 'w').writelines(new_lines)
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'ok': True, 'removed': True}).encode())
+                else:
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'ok': True, 'removed': False, 'reason': 'not found'}).encode())
+            elif action == 'keep':
+                # Remove source tag [strategist] / [mega-review] / [coderabbit]
+                lines = open(fpath, 'r').readlines()
+                new_lines = []
+                for l in lines:
+                    if task_text in l:
+                        l = l.replace(' `[strategist]`', '').replace(' `[mega-review]`', '').replace(' `[coderabbit]`', '')
+                    new_lines.append(l)
+                open(fpath, 'w').writelines(new_lines)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': True, 'kept': True}).encode())
+            else:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b'{"error":"unknown action"}')
+            return
+
+        self.send_response(404)
+        self.end_headers()
 
     def end_headers(self):
         # Prevent aggressive caching (Arc browser)
