@@ -36,6 +36,12 @@ if [ -f "$REPORT_FILE" ]; then
   exit 0
 fi
 
+# Pre-step: prune stale memory session files
+if [ -x "$SCRIPT_DIR/memory-prune.sh" ]; then
+  echo "$(date -Iseconds) Running memory pruning..."
+  bash "$SCRIPT_DIR/memory-prune.sh" || echo "$(date -Iseconds) Memory pruning failed (non-fatal)"
+fi
+
 echo "$(date -Iseconds) Starting architect review..."
 
 # Build prompt

@@ -98,3 +98,21 @@
 - [ ] **[Hunter → Refactor] 3 файла-монолита** — db.ts (1291), bot.ts (940), onboarding.ts (955). Разбить на модули
 - [ ] **[Vedic → Cleanup] Тестовая admin-страница видна в проде** — `test-admin/page.tsx` показывает "Not available" вместо 404. Заменить на `notFound()`
 - [ ] **[Vedic → i18n] Admin-панель на английском** — остальной сайт на турецком, admin забыли перевести
+
+## From Review 2026-03-23
+
+- [ ] **Vedic** — critical — Исправить 404: открыть Vercel dashboard → Deployments → найти failed build → проверить DATABASE_URL в Environment Variables → передеплоить — немедленно
+- [ ] **Vedic** — critical — Оплатить VedicAstroAPI $18/мес до 28 марта (5 дней, 498 вызовов осталось) — VT-703
+- [ ] **Hunter** — critical — Добавить `GOOGLE_AI_API_KEY` в GitHub → Settings → Secrets → Actions — 5 минут, фиксирует CI стратега
+- [ ] **Vedic** — high — `npm audit fix` — выявить 3 high vulnerabilities, обновить react 19.2.3→19.2.4
+- [ ] **Hunter** — high — Опубликовать пост в 3 Telegram чата с разработчиками/дизайнерами — стратег прав: один пост = 20-50 юзеров
+- [ ] **Portfolio** — high — Опубликовать черновики (Telegram @diyoriko, LinkedIn Featured, HH описание) — DIST-NOW
+- [ ] **Portfolio** — high — Зарегистрировать аккаунт на goatcounter.com (diyordesign) — 2 минуты, 3 недели потеряны
+- [ ] **Portfolio** — medium — `git rm vedic-v2.html && git commit` — ZOMBIE-01
+- [ ] **SAMI** — medium — SM-1010: вынести videos, posts, members, challenges из `db.ts` (остаток ~1800L после db-approval.ts) — фаза 2-5
+- [ ] **SAMI** — medium — Вынести `sendMyWorkouts`, `sendChallengeView`, `sendFilterResults` из `bot-menu.ts:1745,1875,1950` в отдельный файл
+- [ ] **Hunter** — medium — Проверить `resume-import.ts:22-24`: `new PDFParse({ data: buffer })` на совместимость с pdf-parse v2 — риск молчащего бага
+- [ ] **Vedic** — medium — `rateLimit.ts`: задокументировать ограничение (in-memory = не работает на serverless) — добавить TODO комментарий или перейти на Upstash Redis — `lib/utils/rateLimit.ts:3`
+- [ ] **Portfolio** — medium — Проверить mobile nav burger на 375px (JS toggle), если сломан — добавить в `script.js`
+- [ ] **SAMI** — medium — Написать оставшимся 9 знакомым (SM-1000: 1/10 за 2 недели) — единственный рычаг роста при 16 подписчиках
+- [ ] **Vedic** — low — `payment/success/page.tsx:128` — кнопка "Raporu İndir" (`href="#"`) — добавить `disabled` стиль и tooltip "Yakında" до реализации VT-702

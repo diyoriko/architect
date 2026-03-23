@@ -96,6 +96,28 @@
   .task-progress .task-check { border-color: var(--blue); background: transparent; }
   .task-progress .task-check::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
 
+  /* Moderation UI */
+  .task.moderable { border-left: 3px solid var(--blue); padding-left: 12px; position: relative; }
+  .task.moderable[data-source="strategist"] { border-left-color: var(--blue); }
+  .task.moderable[data-source="mega-review"] { border-left-color: var(--red); }
+  .task.moderable[data-source="coderabbit"] { border-left-color: var(--purple); }
+  .source-badge { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap; vertical-align: middle; }
+  .source-badge.strategist { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .source-badge.mega-review { background: rgba(239,68,68,0.12); color: var(--red); }
+  .source-badge.coderabbit { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .mod-actions { display: inline-flex; gap: 4px; margin-left: 8px; flex-shrink: 0; }
+  .mod-btn { font-size: 11px; padding: 1px 8px; border-radius: 4px; border: 1px solid var(--border); background: transparent; cursor: pointer; font-family: var(--sans); transition: all 0.15s; white-space: nowrap; }
+  .mod-btn:hover { background: var(--surface-2); }
+  .mod-btn.keep { color: var(--green); border-color: rgba(34,197,94,0.3); }
+  .mod-btn.keep:hover { background: rgba(34,197,94,0.12); }
+  .mod-btn.remove { color: var(--red); border-color: rgba(239,68,68,0.3); }
+  .mod-btn.remove:hover { background: rgba(239,68,68,0.1); }
+  .mod-btn:disabled { opacity: 0.4; cursor: default; }
+  .task.mod-removing { animation: modFadeOut 0.3s ease forwards; }
+  .task.mod-kept .source-badge, .task.mod-kept .mod-actions { display: none; }
+  .task.mod-kept { border-left-color: var(--border); }
+  @keyframes modFadeOut { to { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; } }
+
   @media (max-width: 600px) {
     .stats { grid-template-columns: repeat(3, 1fr); }
     body { padding: 16px; }
@@ -201,12 +223,59 @@ function groupColor(title) {
   return 'var(--muted)';
 }
 
+const SOURCE_TAGS = ['strategist', 'mega-review', 'coderabbit'];
+const PROJECT_ID = 'portfolio';
+
+function detectSource(text) {
+  for (const tag of SOURCE_TAGS) {
+    if (text.includes('[' + tag + ']')) return tag;
+  }
+  return null;
+}
+
+function stripSourceTag(text, tag) {
+  return text.replace(new RegExp('\\s*\\`?\\[' + tag + '\\]\\`?', 'g'), '').trim();
+}
+
 function renderTask(t) {
+  const isActionable = !t.done && !t.cancelled;
+  const source = isActionable ? detectSource(t.text) : null;
   let cls = '';
   if (t.done) cls = 'task-done';
   else if (t.cancelled) cls = 'task-cancelled';
   else if (t.progress) cls = 'task-progress';
-  return `<div class="task ${cls}"><div class="task-check"></div><div class="task-content"><span class="task-text">${esc(t.text)}</span></div></div>`;
+  const modCls = source ? ' moderable' : '';
+  const dataAttr = source ? ` data-source="${source}"` : '';
+  const cleanText = source ? stripSourceTag(t.text, source) : t.text;
+  const badge = source ? `<span class="source-badge ${source}">${source}</span>` : '';
+  const rawTask = t.text.replace(/`/g, '');
+  const actions = source ? `<span class="mod-actions"><button class="mod-btn keep" onclick="event.stopPropagation();moderate(this,'keep','${esc(rawTask).replace(/'/g, "\\'")}')">&#10003; Keep</button><button class="mod-btn remove" onclick="event.stopPropagation();moderate(this,'remove','${esc(rawTask).replace(/'/g, "\\'")}')">&#10007; Remove</button></span>` : '';
+  return `<div class="task ${cls}${modCls}"${dataAttr}><div class="task-check"></div><div class="task-content"><span class="task-text">${esc(cleanText)}</span>${badge}${actions}</div></div>`;
+}
+
+async function moderate(btn, action, taskText) {
+  const task = btn.closest('.task');
+  const btns = task.querySelectorAll('.mod-btn');
+  btns.forEach(b => b.disabled = true);
+  try {
+    const res = await fetch('/api/moderate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, project: PROJECT_ID, task: taskText })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    if (action === 'remove') {
+      task.classList.add('mod-removing');
+      setTimeout(() => task.remove(), 350);
+    } else {
+      task.classList.add('mod-kept');
+      task.removeAttribute('data-source');
+    }
+  } catch (e) {
+    console.error('Moderate error:', e);
+    btns.forEach(b => b.disabled = false);
+  }
 }
 
 function renderSection(sec) {

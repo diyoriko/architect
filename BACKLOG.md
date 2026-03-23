@@ -5,30 +5,27 @@
 
 ---
 
-## Sprint 7 (open)
+## Бэклог чист
 
-### Epic: DASH — Dashboard Moderation UI
-
-- [ ] **ARCH-041** Backlog pages: Keep/Remove кнопки для задач с тегами `[strategist]`/`[mega-review]`/`[coderabbit]`
-- [ ] **ARCH-042** Backlog pages: визуальное отличие auto-задач (цветная полоска или иконка источника)
-
-### Epic: INFRA
-
-- [ ] **ARCH-031** Объединить Architect + Mega Reviewer
-- [ ] **ARCH-032** Кросс-проектный утренний брифинг
-
-### Epic: STRAT — AI Research
-
-- [ ] **ARCH-033** Architect: анализ @denis_news_feed
-- [ ] **ARCH-034** Architect: рекомендации по тулзам
-
-### Epic: RELIABILITY
-
-- [x] **ARCH-038** Починить dev.hardstop — verified working (loaded, plist valid, kickstart OK)
-- [x] **ARCH-039** Backup monitoring — both running daily, pinned upload-artifact@v4.6.2 + Node24
-- [x] **ARCH-040** Memory pruning автоматизация — memory-prune.sh + integrated into run.sh
+Новые задачи появятся из Mega Reviewer (сб), Architect (вс), стратегистов (вс).
 
 ---
+
+## Completed — Sprint 7 (23.03.2026, commit 118619c)
+
+<details><summary>9 задач — развернуть</summary>
+
+- [x] **ARCH-031** Architect prompt де-дуплицирован (health/quality/code → "see Mega Review", -30% промпт)
+- [x] **ARCH-032** morning-briefing.sh — daily 09:00 MSK, Telegram DM (silent when all OK)
+- [x] **ARCH-033** Architect: AI research секция в промпте + @denis_news_feed reference
+- [x] **ARCH-034** "Tool Recommendations" секция в формате отчёта Architect
+- [x] **ARCH-038** dev.hardstop — verified working
+- [x] **ARCH-039** Backup monitoring — both repos running, pinned upload-artifact@v4.6.2
+- [x] **ARCH-040** memory-prune.sh — auto-cleanup sessions >14 дней, integrated into run.sh
+- [x] **ARCH-041** Backlog pages: Keep/Remove кнопки для auto-задач (dashboard moderation UI)
+- [x] **ARCH-042** Visual distinction: цветные полоски + source badges для auto-задач
+
+</details>
 
 ## Completed — Sprint 6 (23.03.2026, commit 23c3f76)
 

@@ -86,14 +86,9 @@ echo ""
 
 OVERDUE=()
 
-# Daily agents (threshold: 26 hours)
-echo "=== Daily Agents ==="
-check_agent "Hunter Strategist" "$HUNTER_DIR/reports/strategist" 26 || true
-
-echo ""
-
 # Weekly agents (threshold: 8 days = 192 hours)
 echo "=== Weekly Agents ==="
+check_agent "Hunter Strategist"    "$HUNTER_DIR/reports/strategist"      192 || true
 check_agent "SAMI Strategist"      "$SAMI_DIR/reports/strategist"        192 || true
 check_agent "Portfolio Strategist"  "$PORTFOLIO_DIR/reports/strategist"   192 || true
 check_agent "Vedic Strategist"     "$VEDIC_DIR/reports/strategist"       192 || true
