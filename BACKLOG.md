@@ -5,38 +5,42 @@
 
 ---
 
-## Sprint 3 (следующий)
+## Sprint 4 (open)
 
 ### Epic: PROC — Sprint/Release/Backlog Process
 
 - [ ] **ARCH-007** Унифицировать бэклоги Hunter/SAMI/Vedic/Portfolio — перевести на PROJ-NNN формат, привязать к спринтам
 - [ ] **ARCH-008** Автоархивация спринтов — при деплое (git tag) текущий спринт сворачивается в `<details>`, открытые переносятся с причиной
 - [ ] **ARCH-009** Процесс спринт-релиз-тесты — задокументировать пайплайн в CLAUDE.md всех проектов
-- [ ] **ARCH-017** sync_items() должен вставлять таски в текущий спринт проекта — сейчас append в конец файла вне спринтов
 
 ### Epic: STRAT — Strategist Improvements
 
-- [ ] **ARCH-004** Hunter: починить долгий запуск стратега — 21.03 запуск занял 11ч26м, нет таймаута. Добавить проверку размера промпта и timeout
 - [ ] **ARCH-010** Hunter: метрики через /report endpoint — DAU/WAU, trial→paid, scraper success rate для стратега
 - [ ] **ARCH-011** Portfolio: GoatCounter парсинг — top pages, total views, trends вместо raw JSON
 - [ ] **ARCH-012** SAMI: автосинхронизация proposal-status — читать COMMUNITY_TASKS.md и автоотмечать выполненные
 
-### Epic: INFRA — Infrastructure
-
-- [ ] **ARCH-013** Architect: Telegram alert — при critical findings DM admin
-- [ ] **ARCH-015** Dashboard: агент-статусы — показывать время последнего запуска каждого стратега на index.html
-- [ ] **ARCH-018** Health парсер: parseMR() не видит `## From Review` и `### Critical/High` в новом формате — привести в sync с mega-review.html парсером
-- [ ] **ARCH-019** Needs Attention: добавить deep link на конкретный таб проекта в mega-review.html (сейчас ведёт на общую страницу)
-
 ### Epic: QUALITY — From Review 2026-03-22
 
 - [ ] **ARCH-020** SAMI: починить CI — после коммита b4c79db (moderation relax) typecheck/lint падает; CI красный блокирует весь PR workflow
-- [ ] **ARCH-021** Hunter: HireHi category-фильтр до scorer — API поддерживает `category=design/dev/QA`, сейчас тянет все 8000+ вакансий без фильтра (O(n²) при росте аудитории)
+- [ ] **ARCH-021** Hunter: HireHi category-фильтр до scorer — API поддерживает `category=design/dev/QA`, сейчас тянет все 8000+ вакансий без фильтра
 - [ ] **ARCH-022** Hunter: обновить pdf-parse 1.1.1 → 2.4.5 — major версия, проверить breaking changes в resume import
-- [ ] **ARCH-023** Memory system pruning — удалить session files старше 4 недель (18 штук), освободить MEMORY.md индекс
-- [ ] **ARCH-024** Проверить dev.hardstop launchd — агент показывает "- 0", не запускается; работа до 23:00 ежедневно без hard stop
 
 ---
+
+## Completed — Sprint 3 (23.03.2026, commit f67f8b5)
+
+<details><summary>8 задач — развернуть</summary>
+
+- [x] **ARCH-004** Hunter стратег: timeout 15 мин + логирование размера промпта
+- [x] **ARCH-013** Telegram alert при critical findings в mega review
+- [x] **ARCH-015** Agent Pulse: показывает время последнего запуска (не только "ago")
+- [x] **ARCH-017** sync_items() вставляет в текущий спринт (перед первым `---`)
+- [x] **ARCH-018** parseMR() в index.html синхронизирован с mega-review.html (From Review, ### Severity, все 3 формата)
+- [x] **ARCH-019** Needs Attention: critical findings группируются по проектам с deep links + high findings показываются
+- [x] **ARCH-023** Memory pruning — проверено, все 18 файлов в пределах недели, нечего удалять
+- [x] **ARCH-024** dev.hardstop — проверен, работает корректно (`- 0` = нормальный статус, нотификация исправна)
+
+</details>
 
 ## Completed — Sprint 2 (21.03.2026, commits 77cdbc3..1c606fc)
 
