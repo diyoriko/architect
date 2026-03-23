@@ -24,9 +24,9 @@
 
 ### Epic: RELIABILITY
 
-- [ ] **ARCH-038** Починить dev.hardstop — 3-недельный простой
-- [ ] **ARCH-039** Backup monitoring — Railway artifacts недоступны
-- [ ] **ARCH-040** Memory pruning автоматизация
+- [x] **ARCH-038** Починить dev.hardstop — verified working (loaded, plist valid, kickstart OK)
+- [x] **ARCH-039** Backup monitoring — both running daily, pinned upload-artifact@v4.6.2 + Node24
+- [x] **ARCH-040** Memory pruning автоматизация — memory-prune.sh + integrated into run.sh
 
 ---
 
