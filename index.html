@@ -3,106 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Architect</title>
+<title>ARCHITECT</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
   :root {
-    --bg: #0F172A; --surface: #1E293B; --surface-2: #273549; --border: #334155;
-    --text: #F8FAFC; --text-2: #CBD5E1; --muted: #94A3B8; --dim: #64748B;
-    --green: #22C55E; --red: #EF4444; --amber: #F59E0B; --blue: #3B82F6;
-    --purple: #A78BFA; --pink: #F472B6;
-    --mono: 'SF Mono','Fira Code','JetBrains Mono',monospace;
-    --sans: -apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',system-ui,sans-serif;
+    --bg: #080b12; --surface: #0d1117; --surface-2: #131920; --border: #1b2332;
+    --text: #e2e8f0; --text-2: #8b949e; --muted: #545d68; --dim: #363f4a;
+    --green: #00e676; --red: #ff1744; --amber: #ffab00; --blue: #448aff;
+    --purple: #b388ff; --pink: #ff80ab; --cyan: #18ffff;
+    --mono: 'JetBrains Mono','SF Mono','Fira Code',monospace;
+    --sans: 'JetBrains Mono','SF Mono',monospace;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:var(--sans);background:var(--bg);color:var(--text-2);padding:24px;max-width:960px;margin:0 auto;line-height:1.5}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text-2);min-height:100vh}
+  .shell{max-width:1080px;margin:0 auto;padding:16px 20px 40px}
 
-  .hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
-  .hdr h1{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px}
-  .hdr-st{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}
-  .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  .sub{font-size:13px;color:var(--dim);margin-bottom:20px}
+  /* === TOP BAR === */
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);margin-bottom:0}
+  .topbar-left{display:flex;align-items:center;gap:12px}
+  .topbar-brand{font-size:14px;font-weight:800;letter-spacing:3px;color:var(--text);text-transform:uppercase}
+  .status-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:2px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+  .status-pill.ok{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.2)}
+  .status-pill.critical{background:rgba(255,23,68,.1);color:var(--red);border:1px solid rgba(255,23,68,.2);animation:pill-pulse 2s infinite}
+  .status-pill.warning{background:rgba(255,171,0,.1);color:var(--amber);border:1px solid rgba(255,171,0,.2)}
+  @keyframes pill-pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  .topbar-right{display:flex;align-items:center;gap:14px;font-size:11px;color:var(--muted)}
+  .topbar-clock{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:1px}
+  .topbar-refresh{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim);letter-spacing:.5px}
+  .refresh-dot{width:4px;height:4px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 
-  .nav{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:0;overflow-x:auto}
-  .nav a{font-size:13px;padding:8px 14px;color:var(--muted);text-decoration:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-weight:500;white-space:nowrap}
+  /* === NAV === */
+  .nav{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0;overflow-x:auto}
+  .nav a{font-size:10px;font-weight:600;padding:10px 16px;color:var(--muted);text-decoration:none;cursor:pointer;border-bottom:2px solid transparent;letter-spacing:1.5px;text-transform:uppercase;transition:all .15s;white-space:nowrap}
   .nav a:hover{color:var(--text-2)}
   .nav a.active{color:var(--text);border-bottom-color:var(--blue)}
 
-  .stitle{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:24px 0 10px}
+  /* === SECTION LABEL === */
+  .slabel{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--dim);margin:24px 0 10px;display:flex;align-items:center;gap:8px}
+  .slabel::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  /* Agent Pulse */
-  .agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
-  .ag{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;transition:all .15s;cursor:pointer}
-  .ag:hover{border-color:var(--dim);background:var(--surface-2)}
-  .adot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-  .adot.ok{background:var(--green)}.adot.warning{background:var(--amber)}.adot.error{background:var(--red);animation:pulse 1.5s infinite}.adot.unknown{background:var(--dim)}.adot.never{background:var(--red);animation:pulse 1.5s infinite}
-  .ag-info{flex:1;min-width:0}
-  .ag-name{font-weight:600;color:var(--text);font-size:13px}
-  .ag-sched{font-size:11px;color:var(--dim)}
-  .ag-last{font-family:var(--mono);font-size:11px;text-align:right;white-space:nowrap}
-  .ag-last.ok{color:var(--green)}.ag-last.warning{color:var(--amber)}.ag-last.error{color:var(--red)}.ag-last.unknown{color:var(--dim)}.ag-last.never{color:var(--red)}
+  /* === SYSTEM OVERVIEW (5 col grid) === */
+  .overview{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+  .ov-card{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:background .15s}
+  .ov-card:hover{background:var(--surface-2)}
+  .ov-head{display:flex;align-items:center;justify-content:space-between}
+  .ov-name{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-2)}
+  .ov-health{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .ov-version{font-family:var(--mono);font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1.1}
+  .ov-meta{display:flex;gap:12px;font-size:10px;color:var(--muted);letter-spacing:.5px}
+  .ov-meta span{display:flex;align-items:center;gap:3px}
+  .ov-meta .num{font-weight:700;color:var(--text-2);font-size:11px}
+  .ov-meta .num.critical{color:var(--red)}
+  .ov-meta .num.ok{color:var(--green)}
 
-  /* Projects */
-  .projs{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-  .proj{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-decoration:none;color:inherit;transition:all .15s;display:block;border-left:3px solid var(--border)}
-  .proj:hover{border-color:var(--dim);background:var(--surface-2)}
-  .proj-name{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-  .proj-health{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-  .proj-stats{display:flex;gap:12px}
-  .proj-stat{text-align:center}
-  .proj-n{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
-  .proj-l{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+  /* === AGENT PULSE (horizontal strip) === */
+  .agent-strip{display:flex;flex-wrap:wrap;gap:0;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:2px;font-size:11px;align-items:center}
+  .ag-item{display:inline-flex;align-items:center;gap:5px;padding:2px 0;cursor:pointer;white-space:nowrap;transition:color .15s}
+  .ag-item:hover{color:var(--text)}
+  .ag-sep{color:var(--dim);margin:0 10px;font-size:8px;user-select:none}
+  .ag-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .ag-dot.ok{background:var(--green)}.ag-dot.warning{background:var(--amber)}.ag-dot.error{background:var(--red);animation:pulse 1.5s infinite}.ag-dot.unknown{background:var(--dim)}.ag-dot.never{background:var(--red);animation:pulse 1.5s infinite}
+  .ag-name{font-weight:600;color:var(--text-2)}
+  .ag-ago{color:var(--muted);font-size:10px}
+  .ag-ago.ok{color:var(--green)}.ag-ago.warning{color:var(--amber)}.ag-ago.error{color:var(--red)}.ag-ago.unknown{color:var(--dim)}.ag-ago.never{color:var(--red)}
 
-  /* Alerts */
-  .alerts{display:flex;flex-direction:column;gap:6px}
-  .alert{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-2);text-decoration:none;cursor:pointer;flex-wrap:wrap}
-  .alert.red{border-left:3px solid var(--red)}
-  .alert.amber{border-left:3px solid var(--amber)}
-  .alert-icon{font-size:11px;flex-shrink:0}
-  .alert-none{color:var(--green);font-size:13px;padding:8px 0}
+  /* === NEEDS ATTENTION === */
+  .alerts{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+  .alerts:empty{display:none}
+  .alert{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--surface);font-size:11px;color:var(--text-2);cursor:pointer;transition:background .15s}
+  .alert:hover{background:var(--surface-2)}
+  .alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .alert-dot.red{background:var(--red)}.alert-dot.amber{background:var(--amber)}
+  .alert-text{flex:1}
+  .alert-text strong{color:var(--text);font-weight:600}
+  .alert-detail{display:none;font-size:10px;color:var(--muted);margin-top:4px;line-height:1.6;white-space:pre-line;padding-left:16px}
+  .alert-expand{font-size:9px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase}
+  .alert-none{color:var(--green);font-size:11px;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:2px;display:flex;align-items:center;gap:6px}
+  .alert-none::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
 
-  /* Insights */
-  .insights{display:flex;flex-direction:column;gap:6px}
-  .insight{display:flex;align-items:baseline;gap:10px;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px}
-  .insight-proj{font-weight:600;flex-shrink:0;font-size:12px}
-  .insight-txt{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* === ARCHITECT BACKLOG === */
+  .backlog-wrap{background:var(--surface);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+  .bl-sprint{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);padding:12px 16px 0}
+  .bl-item{padding:6px 16px;font-size:11px;color:var(--text-2);border-bottom:1px solid var(--border)}
+  .bl-item:last-child{border:none}
+  .bl-toggle{padding:10px 16px;font-size:9px;font-weight:600;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:color .15s;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)}
+  .bl-toggle:hover{color:var(--text-2)}
+  .bl-done{text-decoration:line-through;color:var(--dim) !important;opacity:.5}
+  .bl-hidden{display:none}
+  .sprint-closed{border-top:1px solid var(--border);padding:8px 16px;font-size:10px;color:var(--dim);cursor:pointer;display:flex;justify-content:space-between;align-items:center;letter-spacing:.5px;transition:color .15s}
+  .sprint-closed:hover{color:var(--text-2)}
+  .sprint-closed-tasks{display:none;padding:0 16px 8px}
+  .sprint-closed-task{font-size:10px;color:var(--dim);padding:2px 0;text-decoration:line-through;opacity:.5}
 
-  /* Collapsible */
-  .coll{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
-  .coll-h{padding:12px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
-  .coll-h:hover{color:var(--text);background:rgba(255,255,255,.02)}
-  .coll-arr{font-size:10px;transition:transform .2s;color:var(--dim)}
+  /* === INSIGHTS === */
+  .insights{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:2px;overflow:hidden}
+  .insight{display:flex;align-items:baseline;gap:12px;padding:8px 16px;background:var(--surface);font-size:11px}
+  .insight-proj{font-weight:700;flex-shrink:0;font-size:10px;letter-spacing:1px;text-transform:uppercase;min-width:70px}
+  .insight-txt{color:var(--muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+  .insight-ago{font-size:10px;color:var(--dim);flex-shrink:0;margin-left:auto}
+
+  /* === DETAILS (collapsible) === */
+  .coll{background:var(--surface);border:1px solid var(--border);border-radius:2px;margin-bottom:1px;overflow:hidden}
+  .coll-h{padding:10px 16px;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
+  .coll-h:hover{color:var(--text);background:rgba(255,255,255,.015)}
+  .coll-arr{font-size:8px;transition:transform .2s;color:var(--dim)}
   .coll.open .coll-arr{transform:rotate(90deg)}
-  .coll-b{display:none;padding:0 16px 14px;font-size:13px;color:var(--muted);line-height:1.7}
+  .coll-b{display:none;padding:0 16px 14px;font-size:11px;color:var(--muted);line-height:1.7}
   .coll.open .coll-b{display:block}
   .coll-b table{width:100%;border-collapse:collapse}
-  .coll-b th{text-align:left;font-size:11px;font-weight:600;color:var(--dim);padding:4px 8px;text-transform:uppercase;letter-spacing:.3px}
-  .coll-b td{padding:5px 8px;border-top:1px solid rgba(51,65,85,.5);font-size:12px}
-  .tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600}
-  .tag-on{background:rgba(34,197,94,.2);color:var(--green)}.tag-off{background:rgba(100,116,139,.15);color:var(--dim)}
-  .arch{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre;line-height:1.8;overflow-x:auto}
-  .arch b{color:var(--text);font-weight:600}
+  .coll-b th{text-align:left;font-size:9px;font-weight:700;color:var(--dim);padding:4px 8px;text-transform:uppercase;letter-spacing:1px}
+  .coll-b td{padding:5px 8px;border-top:1px solid var(--border);font-size:11px}
+  .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:.5px}
+  .tag-on{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.15)}
+  .tag-off{background:rgba(54,63,74,.3);color:var(--dim);border:1px solid var(--border)}
+  .arch{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:pre;line-height:1.9;overflow-x:auto}
+  .arch b{color:var(--text);font-weight:700}
 
-  /* Architect backlog */
-  .bl-item{padding:5px 0;border-bottom:1px solid rgba(51,65,85,.4);font-size:13px}
-  .bl-item:last-child{border:none}
-
-  /* File viewer modal */
-  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+  /* === MODAL === */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
   .modal-bg.open{display:flex}
-  .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:90%;max-width:800px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
-  .modal-h{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-  .modal-title{font-size:13px;font-weight:600;color:var(--text);font-family:var(--mono)}
-  .modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:4px}
-  .modal-close:hover{background:var(--surface-2);color:var(--text)}
-  .modal-body{padding:18px;overflow-y:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text-2);white-space:pre-wrap;word-break:break-word}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:2px;width:90%;max-width:800px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+  .modal-h{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .modal-title{font-size:11px;font-weight:600;color:var(--text);font-family:var(--mono);letter-spacing:.5px}
+  .modal-close{background:none;border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;padding:2px 8px;border-radius:2px;font-family:var(--mono)}
+  .modal-close:hover{background:var(--surface-2);color:var(--text);border-color:var(--dim)}
+  .modal-body{padding:16px;overflow-y:auto;font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--text-2);white-space:pre-wrap;word-break:break-word}
 
-  .footer{margin-top:32px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--dim);display:flex;justify-content:space-between}
-  @media(max-width:640px){body{padding:16px}.projs{grid-template-columns:repeat(2,1fr)}.agents{grid-template-columns:1fr}}
-  @media(max-width:400px){.projs{grid-template-columns:1fr}}
+  /* === FOOTER === */
+  .footer{margin-top:32px;padding-top:12px;border-top:1px solid var(--border);font-size:9px;color:var(--dim);display:flex;justify-content:space-between;letter-spacing:.5px;text-transform:uppercase}
+
+  /* === RESPONSIVE === */
+  @media(max-width:768px){
+    .shell{padding:12px}
+    .overview{grid-template-columns:repeat(2,1fr)}
+    .agent-strip{gap:4px}
+    .ag-sep{margin:0 6px}
+    .topbar{flex-wrap:wrap;gap:8px}
+  }
+  @media(max-width:480px){
+    .overview{grid-template-columns:1fr 1fr}
+    .ov-card:last-child{grid-column:span 2}
+  }
 </style>
 </head>
 <body>
+<div class="shell">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-brand">Architect</span>
+    <span class="status-pill ok" id="global-status">LOADING</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-clock" id="clock">--:--:--</span>
+    <span class="topbar-refresh"><span class="refresh-dot"></span> LIVE 30s</span>
+  </div>
+</div>
+
+<!-- NAV -->
 <div class="nav">
   <a class="active" href="index.html">Architect</a>
   <a href="mega-review.html">Health</a>
@@ -112,58 +173,65 @@
   <a href="portfolio-backlog.html">Portfolio</a>
 </div>
 
-<div class="hdr"><h1>Command Center</h1><div class="hdr-st"><span class="pulse"></span><span id="clock">--:--</span></div></div>
-<div class="sub">Agents, projects, alerts</div>
+<!-- SYSTEM OVERVIEW -->
+<div class="slabel">System Overview</div>
+<div class="overview" id="projects"></div>
 
-<div class="stitle">Agent Pulse</div>
-<div class="agents" id="agents"><div style="color:var(--dim)">Loading...</div></div>
+<!-- AGENT PULSE -->
+<div class="slabel">Agent Pulse</div>
+<div class="agent-strip" id="agents"><span style="color:var(--dim)">Loading...</span></div>
 
-<div class="stitle">Projects</div>
-<div class="projs" id="projects"></div>
+<!-- NEEDS ATTENTION -->
+<div class="slabel">Needs Attention</div>
+<div id="alerts-wrap">
+  <div class="alerts" id="alerts"><div class="alert"><span style="color:var(--dim)">Loading...</span></div></div>
+</div>
 
-<div class="stitle">Needs Attention</div>
-<div class="alerts" id="alerts"><div style="color:var(--dim)">Loading...</div></div>
+<!-- ARCHITECT BACKLOG -->
+<div class="slabel">Architect Backlog</div>
+<div class="backlog-wrap" id="arch-bl-wrap">
+  <div id="arch-bl" style="padding:12px 16px;color:var(--dim);font-size:11px">Loading...</div>
+</div>
 
-<div class="stitle">Latest Insights</div>
-<div class="insights" id="insights"><div style="color:var(--dim)">Loading...</div></div>
+<!-- LATEST INSIGHTS -->
+<div class="slabel">Latest Insights</div>
+<div class="insights" id="insights"><div class="insight"><span style="color:var(--dim)">Loading...</span></div></div>
 
-<div class="stitle">Architect Backlog</div>
-<div class="coll open" id="c-archbl"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Tasks</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b" id="arch-bl">Loading...</div></div>
-
-<div class="stitle">Details</div>
+<!-- DETAILS -->
+<div class="slabel">Details</div>
 <div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Tools & Setup</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b">
-<div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Global Tools</div>
+<div style="font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Global Tools</div>
 <table>
-<tr><th style="width:180px">Tool</th><th>What it does</th><th style="width:70px">Status</th></tr>
-<tr><td style="color:var(--text)">/ui-ux-pro-max</td><td style="font-size:12px;color:var(--muted)">Дизайн-система: 67 стилей, 96 палитр, 57 шрифтов. Генерит палитру/типографику/стиль под проект. Дефолт: HTML + Tailwind</td><td><span class="tag tag-on">skill</span></td></tr>
-<tr><td style="color:var(--text)">MCP Figma</td><td style="font-size:12px;color:var(--muted)">Читает дизайн из Figma по URL, генерит код. get_design_context, get_screenshot</td><td><span class="tag tag-on">MCP</span></td></tr>
-<tr><td style="color:var(--text)">/claude-api</td><td style="font-size:12px;color:var(--muted)">Помощь в интеграции Claude API / Anthropic SDK в проекты</td><td><span class="tag tag-on">skill</span></td></tr>
-<tr><td style="color:var(--text)">/simplify</td><td style="font-size:12px;color:var(--muted)">Ревью изменённого кода: reuse, качество, эффективность — автофикс</td><td><span class="tag tag-on">skill</span></td></tr>
-<tr><td style="color:var(--text)">/commit</td><td style="font-size:12px;color:var(--muted)">Коммит с осмысленным сообщением по diff</td><td><span class="tag tag-on">built-in</span></td></tr>
+<tr><th style="width:180px">Tool</th><th>Function</th><th style="width:70px">Type</th></tr>
+<tr><td style="color:var(--text)">/ui-ux-pro-max</td><td style="color:var(--muted)">Design system: 67 styles, 96 palettes, 57 fonts. Generates palette/typography per project</td><td><span class="tag tag-on">skill</span></td></tr>
+<tr><td style="color:var(--text)">MCP Figma</td><td style="color:var(--muted)">Reads design from Figma by URL, generates code. get_design_context, get_screenshot</td><td><span class="tag tag-on">MCP</span></td></tr>
+<tr><td style="color:var(--text)">/claude-api</td><td style="color:var(--muted)">Claude API / Anthropic SDK integration helper</td><td><span class="tag tag-on">skill</span></td></tr>
+<tr><td style="color:var(--text)">/simplify</td><td style="color:var(--muted)">Code review: reuse, quality, efficiency with autofix</td><td><span class="tag tag-on">skill</span></td></tr>
+<tr><td style="color:var(--text)">/commit</td><td style="color:var(--muted)">Semantic commit message from diff</td><td><span class="tag tag-on">built-in</span></td></tr>
 </table>
 
-<div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px">Plugins</div>
+<div style="font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin:16px 0 8px">Plugins</div>
 <table>
-<tr><th style="width:180px">Plugin</th><th>What it does</th></tr>
-<tr><td style="color:var(--text)">claude-md</td><td style="font-size:12px;color:var(--muted)">Управление CLAUDE.md файлами проектов</td></tr>
-<tr><td style="color:var(--text)">hookify</td><td style="font-size:12px;color:var(--muted)">Создание правил для хуков (автоматизация на события)</td></tr>
-<tr><td style="color:var(--text)">skill-creator</td><td style="font-size:12px;color:var(--muted)">Создание новых скиллов для Claude Code</td></tr>
-<tr><td style="color:var(--text)">frontend-design</td><td style="font-size:12px;color:var(--muted)">Помощь с фронтенд-дизайном</td></tr>
-<tr><td style="color:var(--text)">stripe</td><td style="font-size:12px;color:var(--muted)">Best practices для Stripe интеграции</td></tr>
+<tr><th style="width:180px">Plugin</th><th>Function</th></tr>
+<tr><td style="color:var(--text)">claude-md</td><td style="color:var(--muted)">Manage CLAUDE.md project files</td></tr>
+<tr><td style="color:var(--text)">hookify</td><td style="color:var(--muted)">Create hook rules (event automation)</td></tr>
+<tr><td style="color:var(--text)">skill-creator</td><td style="color:var(--muted)">Create new skills for Claude Code</td></tr>
+<tr><td style="color:var(--text)">frontend-design</td><td style="color:var(--muted)">Frontend design assistance</td></tr>
+<tr><td style="color:var(--text)">stripe</td><td style="color:var(--muted)">Stripe integration best practices</td></tr>
 </table>
 
-<div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px">Per-Project Commands <span style="font-weight:400;text-transform:none;letter-spacing:0">(CLAUDE.md — пиши как текст, без автокомплита)</span></div>
+<div style="font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin:16px 0 8px">Per-Project Commands</div>
 <table>
 <tr><th style="width:180px">Project</th><th>Commands</th></tr>
-<tr><td>SAMI / Hunter</td><td style="font-size:12px;color:var(--muted)"><span style="font-family:var(--mono)">/deploy</span> push+verify, <span style="font-family:var(--mono)">/backlog</span> показать/обновить, <span style="font-family:var(--mono)">/status</span> здоровье, <span style="font-family:var(--mono)">/catchup</span> брифинг, <span style="font-family:var(--mono)">/save</span> сохранить сессию</td></tr>
-<tr><td>Vedic</td><td style="font-size:12px;color:var(--muted)"><span style="font-family:var(--mono)">/deploy</span> push+verify, <span style="font-family:var(--mono)">/backlog</span> показать/обновить, <span style="font-family:var(--mono)">/status</span> здоровье, <span style="font-family:var(--mono)">/catchup</span> брифинг</td></tr>
-<tr><td>Portfolio</td><td style="font-size:12px;color:var(--muted)"><span style="font-family:var(--mono)">/deploy</span> push GH Pages, <span style="font-family:var(--mono)">/save</span> сохранить, <span style="font-family:var(--mono)">/audit-seo</span> SEO аудит, <span style="font-family:var(--mono)">/copy-review</span> ревью текстов</td></tr>
+<tr><td>SAMI / Hunter</td><td style="color:var(--muted)"><span style="font-family:var(--mono);color:var(--text)">/deploy</span> push+verify, <span style="font-family:var(--mono);color:var(--text)">/backlog</span> show/update, <span style="font-family:var(--mono);color:var(--text)">/status</span> health, <span style="font-family:var(--mono);color:var(--text)">/catchup</span> briefing, <span style="font-family:var(--mono);color:var(--text)">/save</span> save session</td></tr>
+<tr><td>Vedic</td><td style="color:var(--muted)"><span style="font-family:var(--mono);color:var(--text)">/deploy</span> push+verify, <span style="font-family:var(--mono);color:var(--text)">/backlog</span> show/update, <span style="font-family:var(--mono);color:var(--text)">/status</span> health, <span style="font-family:var(--mono);color:var(--text)">/catchup</span> briefing</td></tr>
+<tr><td>Portfolio</td><td style="color:var(--muted)"><span style="font-family:var(--mono);color:var(--text)">/deploy</span> push GH Pages, <span style="font-family:var(--mono);color:var(--text)">/save</span> save, <span style="font-family:var(--mono);color:var(--text)">/audit-seo</span> SEO audit, <span style="font-family:var(--mono);color:var(--text)">/copy-review</span> text review</td></tr>
 </table>
 </div></div>
 
 <div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Billing</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b"><table><tr><th>Service</th><th>Cost</th><th>Auth</th></tr><tr><td style="color:var(--text)">Claude Max</td><td style="color:var(--amber)">$200/mo</td><td>OAuth (CLI, strategists, architect)</td></tr><tr><td style="color:var(--text)">Anthropic API</td><td style="color:var(--amber)">$5 balance</td><td>API key (GH Actions, cover letters)</td></tr><tr><td style="color:var(--text)">Railway x2</td><td style="color:var(--amber)">~$10/mo</td><td>Auto-deploy from main</td></tr><tr><td>Vercel, GitHub, CodeRabbit, YouTube API</td><td style="color:var(--green)">$0</td><td>Free tier</td></tr></table></div></div>
 
-<div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Quality Gates</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b"><table><tr><th></th><th>SAMI</th><th>Hunter</th><th>Vedic</th><th>Portfolio</th></tr><tr><td>Pre-commit</td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>CI</td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>Coverage</td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>CodeRabbit</td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-on">on</span></td><td><span class="tag tag-off">--</span></td></tr></table></div></div>
+<div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Quality Gates</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b"><table><tr><th></th><th>SAMI</th><th>Hunter</th><th>Vedic</th><th>Portfolio</th></tr><tr><td>Pre-commit</td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>CI</td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>Coverage</td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-on">20%</span></td><td><span class="tag tag-off">--</span></td></tr><tr><td>CodeRabbit</td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-on">ON</span></td><td><span class="tag tag-off">--</span></td></tr></table></div></div>
 
 <div class="coll"><div class="coll-h" onclick="this.parentElement.classList.toggle('open')"><span>Architecture</span><span class="coll-arr">&#x25B6;</span></div><div class="coll-b"><div class="arch"><b>Mac launchd</b> ─── Strategists (09:30) ─── claude --print ─── Report + Telegram
             ─── Mega Reviewer (Sat 10) ── Code review + Calendar
@@ -181,7 +249,9 @@
 
 <b>Dashboard</b> ──── localhost:3333 ── launchd KeepAlive</div></div></div>
 
-<div class="footer"><span id="ft-upd"></span><span>auto-refresh 30s</span></div>
+<div class="footer"><span id="ft-upd"></span><span>AUTO-REFRESH 30S</span></div>
+
+</div><!-- .shell -->
 
 <!-- File viewer modal -->
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
@@ -209,8 +279,8 @@ function shortPath(p){return p?p.replace(/\/Users\/diyoriko/g,'~'):''}
 function ago(ds){
   if(!ds)return'never';
   const d=new Date(ds.replace(' ','T')),h=Math.floor((Date.now()-d)/36e5);
-  if(h<1)return'just now';if(h<24)return h+'h ago';
-  const dd=Math.floor(h/24);return dd===1?'yesterday':dd+'d ago';
+  if(h<1)return'<1h';if(h<24)return h+'h';
+  const dd=Math.floor(h/24);return dd===1?'1d':dd+'d';
 }
 
 // File viewer
@@ -239,6 +309,12 @@ function countStats(md){
   return{open,done,p0};
 }
 
+// Extract version from backlog
+function extractVersion(md){
+  const m=md.match(/v(\d+\.\d+\.\d+)/);
+  return m?'v'+m[1]:'--';
+}
+
 function extractP0(md){
   const lines=md.split('\n');let inP0=false,items=[];
   for(const l of lines){
@@ -246,13 +322,13 @@ function extractP0(md){
     if(/^### /.test(l)){inP0=/P0|blocker|critical/i.test(l)}
     if(inP0&&/^- \[ \]/.test(l)){
       const txt=l.replace(/^- \[ \]\s*/,'').replace(/\*\*/g,'').trim();
-      items.push(txt.length>80?txt.substring(0,80)+'…':txt);
+      items.push(txt.length>80?txt.substring(0,80)+'...':txt);
     }
   }
   return items.join('\n')||'';
 }
 
-// Mega Review parser (synced with mega-review.html logic)
+// Mega Review parser
 function parseMR(md){
   const PROJ_ALIAS={VT:'Vedic',VEDIC:'Vedic',SAMI:'SAMI',HUNTER:'Hunter',PORTFOLIO:'Portfolio'};
   const SEV_ALIAS={CRITICAL:'critical',HIGH:'high',MED:'medium',MEDIUM:'medium',LOW:'low'};
@@ -264,11 +340,8 @@ function parseMR(md){
     if(!/^- \[[ x]\]/.test(l))return;
     const done=l.includes('[x]');let text=l.replace(/^- \[[ x]\]\s*/,'').replace(/\*\*/g,'');
     let proj='Other',taskSev=sev;
-    // Format 1: [Project → Dest]
     const pm=text.match(/^\[([^\]]+?)\s*→\s*([^\]]+)\]\s*/);
-    // Format 2: [VT][BUG][CRITICAL]
     const tagM=text.match(/^(\[[^\]→]+\]){2,}\s*/);
-    // Format 3: Project — severity — title
     const flatM=text.match(/^(\w+)\s*\u2014\s*(critical|high|medium|low)\s*\u2014\s*/i);
     let clean=text;
     if(pm){proj=PROJ_ALIAS[pm[1].trim().toUpperCase()]||pm[1].trim();clean=text.substring(pm[0].length)}
@@ -297,13 +370,13 @@ function extractInsight(md){
 
 function renderAgents(agents){
   const el=$('agents');
-  if(!agents.length){el.innerHTML='<div style="color:var(--dim)">No data</div>';return}
-  el.innerHTML=agents.map(a=>{
+  if(!agents.length){el.innerHTML='<span style="color:var(--dim)">No data</span>';return}
+  el.innerHTML=agents.map((a,i)=>{
     const st=a.status||'unknown';
-    const lastTxt=st==='never'?'never ran':ago(a.last_run);
-    const lastTime=a.last_run?a.last_run.replace(/^\d{4}-\d{2}-\d{2}\s*/,''):'';
+    const lastTxt=st==='never'?'never':ago(a.last_run);
     const click=a.last_report?` onclick="viewFile('${esc(a.last_report)}')"`:' style="cursor:default"';
-    return`<div class="ag"${click}><span class="adot ${st}"></span><div class="ag-info"><div class="ag-name">${esc(a.name)}</div><div class="ag-sched">${esc(a.schedule)}${lastTime?' · last: '+esc(lastTime):''}</div></div><span class="ag-last ${st}">${esc(lastTxt)}</span></div>`;
+    const sep=i<agents.length-1?'<span class="ag-sep">&middot;</span>':'';
+    return`<span class="ag-item"${click}><span class="ag-dot ${st}"></span><span class="ag-name">${esc(a.name)}</span> <span class="ag-ago ${st}">${esc(lastTxt)}</span></span>${sep}`;
   }).join('');
 }
 
@@ -311,9 +384,10 @@ function renderProjects(backlogs){
   const el=$('projects');
   el.innerHTML=PROJECTS.map(p=>{
     const s=backlogs[p.id]?countStats(backlogs[p.id]):{open:0,done:0,p0:0};
+    const ver=backlogs[p.id]?extractVersion(backlogs[p.id]):'--';
     const href=p.page?` onclick="location.href='${p.page}'"`:' style="cursor:default"';
     const healthId='ph-'+p.id;
-    return`<div class="proj"${href} style="border-left-color:${p.color}"><div class="proj-name" style="color:${p.color}">${p.health?`<span class="proj-health" id="${healthId}" style="background:var(--dim)"></span>`:''}${esc(p.name)}</div><div class="proj-stats"><div class="proj-stat"><div class="proj-n" style="color:var(--text)">${s.open}</div><div class="proj-l">Open</div></div>${s.p0?`<div class="proj-stat"><div class="proj-n" style="color:var(--red)">${s.p0}</div><div class="proj-l">P0</div></div>`:`<div class="proj-stat"><div class="proj-n" style="color:var(--green)">${s.done}</div><div class="proj-l">Done</div></div>`}</div></div>`;
+    return`<div class="ov-card"${href}><div class="ov-head"><span class="ov-name" style="color:${p.color}">${esc(p.name)}</span>${p.health?`<span class="ov-health" id="${healthId}" style="background:var(--dim)"></span>`:''}</div><div class="ov-version">${esc(ver)}</div><div class="ov-meta"><span><span class="num">${s.open}</span> open</span>${s.p0?`<span><span class="num critical">${s.p0}</span> P0</span>`:`<span><span class="num ok">${s.done}</span> done</span>`}</div></div>`;
   }).join('');
   // Health checks
   PROJECTS.forEach(p=>{
@@ -325,12 +399,12 @@ function renderProjects(backlogs){
 }
 
 function renderAlerts(agents,backlogs,mrMd){
-  const el=$('alerts');
+  const wrap=$('alerts-wrap');
   const items=[];
 
   // Agent alerts
   agents.forEach(a=>{
-    if(a.status==='error')items.push({level:'red',text:a.name+' not running — last: '+(a.last_run||'never')});
+    if(a.status==='error')items.push({level:'red',text:a.name+' not running',detail:'Last: '+(a.last_run||'never')});
     if(a.status==='never')items.push({level:'red',text:a.name+' has never run'});
     if(a.status==='warning')items.push({level:'amber',text:a.name+' missed last run — '+ago(a.last_run)});
   });
@@ -343,31 +417,49 @@ function renderAlerts(agents,backlogs,mrMd){
     if(s.p0>0)items.push({level:'red',text:p.name+': '+s.p0+' P0 task'+(s.p0>1?'s':''),link:BL_PAGES[p.id]||'#',detail:extractP0(backlogs[p.id])});
   });
 
-  // Critical mega-review findings — group by project
+  // Critical mega-review findings
   if(mrMd){
     const tasks=parseMR(mrMd);
     const crit=tasks.filter(t=>!t.done&&t.sev==='critical');
     if(crit.length){
       const byProj={};crit.forEach(t=>(byProj[t.proj]||=[]).push(t));
       Object.entries(byProj).forEach(([proj,pts])=>{
-        items.push({level:'red',text:proj+': '+pts.length+' critical'+(pts.length>1?' findings':' finding'),link:'mega-review.html#p-'+proj,detail:pts.map(t=>t.title).join('\n')});
+        items.push({level:'red',text:proj+': '+pts.length+' critical finding'+(pts.length>1?'s':''),link:'mega-review.html#p-'+proj,detail:pts.map(t=>t.title).join('\n')});
       });
     }
     const high=tasks.filter(t=>!t.done&&t.sev==='high');
     if(high.length)items.push({level:'amber',text:high.length+' high finding'+(high.length>1?'s':''),link:'mega-review.html',detail:high.map(t=>(t.proj||'')+': '+t.title).join('\n')});
   }
 
-  if(!items.length){el.innerHTML='<div class="alert-none">All clear</div>';return}
-  el.innerHTML=items.map(i=>{
-    const detailHtml=i.detail?`<div class="alert-detail" style="display:none;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;white-space:pre-line">${esc(i.detail)}</div>`:'';
-    return`<div class="alert ${i.level}" onclick="const d=this.querySelector('.alert-detail');if(d){d.style.display=d.style.display==='none'?'block':'none'}else if('${i.link}'!=='#'){location.href='${i.link}'}"><span class="alert-icon">${i.level==='red'?'&#x26A0;':'&#x25CF;'}</span><div style="flex:1"><span style="color:var(--text);font-weight:500">${esc(i.text)}</span><span style="font-size:10px;color:var(--dim);margin-left:8px">▸ подробнее</span>${detailHtml}</div></div>`;
-  }).join('');
+  // Update global status pill
+  const pill=$('global-status');
+  const critCount=items.filter(i=>i.level==='red').length;
+  const warnCount=items.filter(i=>i.level==='amber').length;
+  if(critCount>0){
+    pill.className='status-pill critical';
+    pill.textContent=critCount+' CRITICAL';
+  } else if(warnCount>0){
+    pill.className='status-pill warning';
+    pill.textContent=warnCount+' WARNING';
+  } else {
+    pill.className='status-pill ok';
+    pill.textContent='ALL CLEAR';
+  }
+
+  if(!items.length){
+    wrap.innerHTML='<div class="alert-none">All systems operational</div>';
+    return;
+  }
+  wrap.innerHTML='<div class="alerts">'+items.map(i=>{
+    const detailHtml=i.detail?`<div class="alert-detail">${esc(i.detail)}</div>`:'';
+    return`<div class="alert" onclick="const d=this.querySelector('.alert-detail');if(d){d.style.display=d.style.display==='none'?'block':'none'}else if('${i.link||'#'}'!=='#'){location.href='${i.link||'#'}'}"><span class="alert-dot ${i.level}"></span><div class="alert-text"><strong>${esc(i.text)}</strong>${detailHtml}</div><span class="alert-expand">DETAIL</span></div>`;
+  }).join('')+'</div>';
 }
 
 function renderInsights(agents){
   const el=$('insights');
   const strategists=agents.filter(a=>a.id&&a.id.includes('strategist')&&a.last_report);
-  if(!strategists.length){el.innerHTML='<div style="color:var(--dim)">No recent strategist reports</div>';return}
+  if(!strategists.length){el.innerHTML='<div class="insight"><span style="color:var(--dim)">No recent strategist reports</span></div>';return}
 
   const promises=strategists.map(a=>{
     const short=shortPath(a.last_report);
@@ -378,19 +470,16 @@ function renderInsights(agents){
   });
 
   Promise.all(promises).then(results=>{
-    el.innerHTML=results.map(r=>`<div class="insight"><span class="insight-proj" style="color:${r.color}">${esc(r.name)}</span><span class="insight-txt">${r.txt?esc(r.txt):'<span style="color:var(--dim)">No summary</span>'}</span><span style="font-size:11px;color:var(--dim);flex-shrink:0;margin-left:auto">${esc(r.ago)}</span></div>`).join('');
+    el.innerHTML=results.map(r=>`<div class="insight"><span class="insight-proj" style="color:${r.color}">${esc(r.name)}</span><span class="insight-txt">${r.txt?esc(r.txt):'<span style="color:var(--dim)">No summary</span>'}</span><span class="insight-ago">${esc(r.ago)}</span></div>`).join('');
   });
 }
 
 function renderArchBacklog(md){
-  const el=$('arch-bl');
+  const el=$('arch-bl-wrap');
   const lines=md.split('\n');
   const open=lines.filter(l=>/^- \[ \]/.test(l));
-  // Find recently completed (under "Completed (DATE)" sections matching today-ish)
-  const today=new Date().toISOString().slice(0,10).replace(/-/g,'.');
-  const todayAlt=new Date().toISOString().slice(0,10);
   const done=lines.filter(l=>/^- \[x\]/.test(l));
-  // Get done items from the most recent "Completed" section (not archived)
+  // Recent done (not in archived <details>)
   let recentDone=[];
   let inRecentCompleted=false;
   for(const l of lines){
@@ -415,27 +504,27 @@ function renderArchBacklog(md){
   }
 
   let html='';
-  if(currentSprint)html+=`<div style="font-size:12px;color:var(--blue);font-weight:600;margin-bottom:8px">${esc(currentSprint)}</div>`;
+  if(currentSprint)html+=`<div class="bl-sprint">${esc(currentSprint)}</div>`;
   if(open.length){
     html+=open.map(l=>`<div class="bl-item">${esc(l.replace(/^- \[ \]\s*/,'').replace(/\*\*/g,''))}</div>`).join('');
   } else {
-    html+='<div style="color:var(--green);margin-bottom:8px">No open tasks</div>';
+    html+='<div style="color:var(--green);padding:12px 16px;font-size:11px">No open tasks</div>';
   }
   if(recentDone.length){
-    html+=`<div style="margin-top:12px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;cursor:pointer" onclick="var d=$('arch-done');d.style.display=d.style.display==='none'?'block':'none'">Done recently (${recentDone.length}) ▸</div>`;
-    html+=`<div id="arch-done" style="display:none;opacity:.5">`;
-    html+=recentDone.map(l=>`<div class="bl-item" style="text-decoration:line-through;color:var(--dim)">${esc(l.replace(/^- \[x\]\s*/,'').replace(/\*\*/g,''))}</div>`).join('');
+    html+=`<div class="bl-toggle" onclick="var d=$('arch-done');d.classList.toggle('bl-hidden')"><span>DONE RECENTLY (${recentDone.length})</span><span class="coll-arr">&#x25B6;</span></div>`;
+    html+=`<div id="arch-done" class="bl-hidden">`;
+    html+=recentDone.map(l=>`<div class="bl-item bl-done">${esc(l.replace(/^- \[x\]\s*/,'').replace(/\*\*/g,''))}</div>`).join('');
     html+=`</div>`;
   }
   if(sprintsDone.length){
     const totalDone=done.length;
-    html+=`<div style="margin-top:12px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;cursor:pointer" onclick="var d=$('arch-sprints');d.style.display=d.style.display==='none'?'block':'none'">Closed sprints (${sprintsDone.length}) — ${totalDone} tasks total ▸</div>`;
-    html+=`<div id="arch-sprints" style="display:none;margin-top:6px">`;
+    html+=`<div class="bl-toggle" onclick="var d=$('arch-sprints');d.classList.toggle('bl-hidden')"><span>CLOSED SPRINTS (${sprintsDone.length}) &mdash; ${totalDone} TASKS</span><span class="coll-arr">&#x25B6;</span></div>`;
+    html+=`<div id="arch-sprints" class="bl-hidden">`;
     html+=sprintsDone.map(s=>{
       const id='sp-'+s.n;
-      let h=`<div style="font-size:12px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="var d=$('${id}');d.style.display=d.style.display==='none'?'block':'none'">✅ Sprint ${esc(s.n)} <span style="color:var(--dim);font-size:11px">${esc(s.info)}</span> <span style="font-size:10px;color:var(--dim)">(${s.tasks.length}) ▸</span></div>`;
-      h+=`<div id="${id}" style="display:none;padding:4px 0 8px 12px">`;
-      h+=s.tasks.map(t=>`<div style="font-size:11px;color:var(--dim);padding:2px 0;text-decoration:line-through">${esc(t)}</div>`).join('');
+      let h=`<div class="sprint-closed" onclick="var d=$('${id}');d.style.display=d.style.display==='none'?'block':'none'"><span>Sprint ${esc(s.n)} <span style="color:var(--dim)">${esc(s.info)}</span></span><span style="font-size:10px;color:var(--dim)">${s.tasks.length} tasks</span></div>`;
+      h+=`<div id="${id}" class="sprint-closed-tasks" style="display:none">`;
+      h+=s.tasks.map(t=>`<div class="sprint-closed-task">${esc(t)}</div>`).join('');
       h+=`</div>`;
       return h;
     }).join('');
@@ -466,8 +555,8 @@ async function refresh(){
   renderArchBacklog(archMd);
 
   const now=new Date();
-  $('ft-upd').textContent='Updated '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  $('clock').textContent=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  $('ft-upd').textContent='UPDATED '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  $('clock').textContent=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 
 refresh();
