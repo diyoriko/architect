@@ -107,6 +107,18 @@ AGENTS = [
         'run_sh': os.getcwd() + '/run.sh',
     },
     {
+        'id': 'portfolio_radar',
+        'name': 'Portfolio Radar',
+        'schedule': '10:30 MSK daily',
+        'frequency': 'daily',
+        'platform': 'Mac launchd',
+        'description': 'Design × AI news scout',
+        'reports_dir': PROJECTS + '/Portfolio/reports/radar',
+        'project_dir': PROJECTS + '/Portfolio',
+        'plist': HOME + '/Library/LaunchAgents/com.diyoriko.portfolio-radar.plist',
+        'run_sh': PROJECTS + '/Portfolio/agents/radar/run.sh',
+    },
+    {
         'id': 'backup',
         'name': 'Backup',
         'schedule': '03:00 MSK daily',

@@ -1,13 +1,25 @@
 # Architect — Backlog
 
 Задачи создаются автоматически после каждого weekly review + ad-hoc из сессий.
-Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-043**.
+Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-051**.
 
 ---
 
-## Бэклог чист
+## Sprint 8 (open)
 
-Новые задачи появятся из Mega Reviewer (сб), Architect (вс), стратегистов (вс).
+### Epic: DASH — Dashboard Redesign
+- [ ] **ARCH-043** Dashboard redesign — technical/military стиль (Crucix reference), убрать шум, крупные метрики, command center feel
+- [ ] **ARCH-044** Dashboard: показывать полезную сводку, не сырые данные — P0 задачи, critical findings, agent status, версии, health одним взглядом
+- [ ] **ARCH-045** Dashboard: mobile responsive (сейчас ломается на телефоне)
+
+### Epic: RELIABILITY — Стратегисты не работают
+- [ ] **ARCH-046** Диагностика Claude CLI timeout — стратегисты не работали 23-25.03, все Claude calls зависают. Проверить лимиты Max, env, PATH
+- [ ] **ARCH-047** Закоммитить незакоммиченное — Hunter (4 файла + отчёты), SAMI (notify-admin), Architect (serve-dashboard + auto-save)
+
+### Epic: QUALITY — Из аудита 25.03
+- [ ] **ARCH-048** Vedic 404 — DATABASE_URL в Vercel env vars, починить деплой (делать в Vedic проекте)
+- [ ] **ARCH-049** VedicAstroAPI trial → $18/мес до 28.03 (3 дня, делает Диёр)
+- [ ] **ARCH-050** Hunter: GOOGLE_AI_API_KEY в GitHub Secrets (5 мин)
 
 ---
 
