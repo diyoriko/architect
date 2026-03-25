@@ -27,9 +27,10 @@
     radial-gradient(circle at 20% 30%, rgba(0,230,118,.03), transparent 60%),
     radial-gradient(circle at 80% 70%, rgba(68,138,255,.03), transparent 60%);
     pointer-events:none;z-index:0}
-  /* Scan line animation */
-  body::after{content:'';position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,230,118,.15),transparent);animation:scanMove 4s ease-in-out infinite;pointer-events:none;z-index:999}
-  @keyframes scanMove{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100vh;opacity:0}}
+  /* Scan line — triggered on each 30s refresh */
+  #scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,230,118,.25),transparent);pointer-events:none;z-index:999;opacity:0}
+  #scanline.active{animation:scanMove 2s ease-in-out forwards}
+  @keyframes scanMove{0%{top:0;opacity:0}5%{opacity:1}95%{opacity:1}100%{top:100vh;opacity:0}}
   .shell{position:relative;z-index:1}
   .shell{max-width:1200px;margin:0 auto;padding:24px 32px 40px}
 
@@ -165,6 +166,7 @@
 </style>
 </head>
 <body>
+<div id="scanline"></div>
 <div class="shell">
 
 <!-- TOP BAR -->
@@ -551,7 +553,9 @@ function renderArchBacklog(md){
 }
 
 // === Main refresh ===
+function triggerScan(){const s=document.getElementById('scanline');if(s){s.classList.remove('active');void s.offsetWidth;s.classList.add('active')}}
 async function refresh(){
+  triggerScan();
   const results=await Promise.allSettled([
     fetch('agents-status.json?'+Date.now()).then(r=>r.json()),
     fetch('mega-review-BACKLOG.md?'+Date.now()).then(r=>r.text()),
