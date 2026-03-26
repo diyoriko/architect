@@ -254,7 +254,7 @@ body.low-perf .agent-dot.error,body.low-perf .agent-dot.never,body.low-perf .sta
   <div class="topbar">
     <div class="top-left">
       <span class="brand">Architect</span>
-      <span class="status-chip ok" id="globalStatus"><span class="blink"></span> LOADING</span>
+      <span class="status-chip ok" id="globalStatus" onclick="navigate('cc')" style="cursor:pointer"><span class="blink"></span> LOADING</span>
     </div>
     <div class="top-nav" id="navTabs"></div>
     <div class="top-right">
@@ -413,18 +413,20 @@ function renderAlerts(){
   const items=[];
   const agents=D.agents||[];
 
-  // Agent alerts
+  // Agent alerts — link to related project
+  const agentToProject={sami_strategist:'sami',hunter_strategist:'hunter',portfolio_strategist:'portfolio',vedic_strategist:'vedic',mega_reviewer:'architect',architect:'architect',portfolio_radar:'radar'};
   agents.forEach(a=>{
-    if(a.status==='error')items.push({level:'red',text:a.name+' not running',detail:'Last: '+(a.last_run||'never')});
-    if(a.status==='never')items.push({level:'red',text:a.name+' has never run'});
-    if(a.status==='warning')items.push({level:'amber',text:a.name+' missed last run \u2014 '+ago(a.last_run)});
+    const proj=agentToProject[a.id]||null;
+    if(a.status==='error')items.push({level:'red',text:a.name+' not running',detail:'Last: '+(a.last_run||'never'),proj});
+    if(a.status==='never')items.push({level:'red',text:a.name+' has never run',proj});
+    if(a.status==='warning')items.push({level:'amber',text:a.name+' missed last run \u2014 '+ago(a.last_run),proj});
   });
 
   // P0 from backlogs
   PROJECTS.forEach(p=>{
     const md=D.backlogs?.[p.id]||'';
     const s=countStats(md);
-    if(s.p0>0)items.push({level:'red',text:p.name+': '+s.p0+' P0 task'+(s.p0>1?'s':''),detail:extractP0(md)});
+    if(s.p0>0)items.push({level:'red',text:p.name+': '+s.p0+' P0 task'+(s.p0>1?'s':''),detail:extractP0(md),proj:p.id});
   });
 
   // Critical mega-review findings
@@ -434,7 +436,8 @@ function renderAlerts(){
     if(crit.length){
       const byProj={};crit.forEach(t=>(byProj[t.proj]||=[]).push(t));
       Object.entries(byProj).forEach(([proj,pts])=>{
-        items.push({level:'red',text:proj+': '+pts.length+' critical finding'+(pts.length>1?'s':''),detail:pts.map(t=>t.title).join('\n')});
+        const projId=PROJECTS.find(p=>p.name.toLowerCase()===proj.toLowerCase())?.id||null;
+        items.push({level:'red',text:proj+': '+pts.length+' critical finding'+(pts.length>1?'s':''),detail:pts.map(t=>t.title).join('\n'),proj:projId});
       });
     }
     const high=tasks.filter(t=>!t.done&&t.sev==='high');
@@ -447,6 +450,8 @@ function renderAlerts(){
   const warnCount=items.filter(i=>i.level==='amber').length;
   $('alertsBadge').textContent=(critCount+warnCount)||'0';
 
+  pill.style.cursor='pointer';
+  pill.onclick=()=>navigate('cc');
   if(critCount>0){
     pill.className='status-chip critical';
     pill.innerHTML='<span class="blink"></span> '+critCount+' CRITICAL';
@@ -465,9 +470,10 @@ function renderAlerts(){
   wrap.innerHTML='<div class="alerts">'+items.map(i=>{
     const cls=i.level==='red'?' red-glow':' amber-glow';
     const detail=i.detail?`<div class="alert-detail">${esc(i.detail)}</div>`:'';
+    const goBtn=i.proj?`<span style="color:var(--accent2);font-size:11px;flex-shrink:0;cursor:pointer" onclick="event.stopPropagation();navigate('${i.proj}')">\u25B6 ${esc(i.proj)}</span>`:'';
     return`<div class="alert${cls}" onclick="const d=this.querySelector('.alert-detail');if(d)d.style.display=d.style.display==='block'?'none':'block'">
       <span class="alert-dot ${i.level}"></span>
-      <div class="alert-text"><strong>${esc(i.text)}</strong>${detail}</div>
+      <div class="alert-text"><strong>${esc(i.text)}</strong>${detail}</div>${goBtn}
     </div>`;
   }).join('')+'</div>';
 }
@@ -843,7 +849,7 @@ const PROJECT_INFO={
     desc:'Telegram-бот для поиска вакансий. AI-скоринг, сопроводительные.',
     links:[{name:'@jobhunt_ai_bot',url:'https://t.me/jobhunt_ai_bot'},{name:'Railway',url:'https://hunter-production-0b65.up.railway.app'}],
     stack:['Node.js','SQLite','Telegram Bot API','Gemini 2.5 Pro','Groq Llama 3.3'],
-    services:[{name:'Railway',cost:'~$5/mo'},{name:'CodeRabbit',cost:'free'},{name:'GH Actions CI',cost:'free'}],
+    services:[{name:'Railway',cost:'~$5/mo',renew:'auto monthly'},{name:'CodeRabbit',cost:'free'},{name:'GH Actions CI',cost:'free'}],
     skills:['/deploy','/backlog','/status','/catchup'],
     commands:['/research','/compact','/learn'],
   },
@@ -851,7 +857,7 @@ const PROJECT_INFO={
     desc:'Fitness community бот + канал. Видео, челленджи, аналитика.',
     links:[{name:'@sami_workout_bot',url:'https://t.me/sami_workout_bot'},{name:'Railway',url:'https://courageous-happiness-production.up.railway.app/health'}],
     stack:['Node.js','SQLite','Telegram Bot API','YouTube API','yt-dlp'],
-    services:[{name:'Railway',cost:'~$5/mo'},{name:'CodeRabbit',cost:'free'},{name:'GH Actions CI',cost:'free'}],
+    services:[{name:'Railway',cost:'~$5/mo',renew:'auto monthly'},{name:'CodeRabbit',cost:'free'},{name:'GH Actions CI',cost:'free'}],
     skills:['/deploy','/backlog','/status','/catchup'],
     commands:['/research','/compact','/learn'],
   },
@@ -859,7 +865,7 @@ const PROJECT_INFO={
     desc:'Vedik Astroloji Platformu. Natal charts, Shopier payments.',
     links:[{name:'Vercel',url:'https://vedic-turkiye.vercel.app'}],
     stack:['Next.js 16','VedAstro API','Prokerala API','VedicAstroAPI','Claude AI'],
-    services:[{name:'Vercel',cost:'free'},{name:'VedicAstroAPI',cost:'$18/mo trial'},{name:'CodeRabbit',cost:'free'}],
+    services:[{name:'Vercel',cost:'free'},{name:'VedicAstroAPI',cost:'$18/mo',renew:'trial expires ~28.03'},{name:'CodeRabbit',cost:'free'}],
     skills:['/deploy','/backlog','/status'],
     commands:['/research','/compact','/learn'],
   },
@@ -875,7 +881,7 @@ const PROJECT_INFO={
     desc:'Design x AI news scout. Daily radar.',
     links:[],
     stack:['Claude CLI','launchd'],
-    services:[{name:'Claude Max',cost:'$200/mo (shared)'}],
+    services:[{name:'Claude Max',cost:'$200/mo',renew:'1st of month'}],
     skills:[],
     commands:['/research','/learn'],
   },
@@ -883,7 +889,7 @@ const PROJECT_INFO={
     desc:'Command center + code review + process review.',
     links:[{name:'Dashboard',url:'http://localhost:3333'}],
     stack:['Node.js','Express 5','SSE','launchd'],
-    services:[{name:'Claude Max',cost:'$200/mo (shared)'},{name:'Anthropic API',cost:'$5 bal'}],
+    services:[{name:'Claude Max',cost:'$200/mo',renew:'1st of month'},{name:'Anthropic API',cost:'$5 bal',renew:'prepaid'}],
     skills:['/simplify','/commit'],
     commands:['/research','/compact','/learn'],
   },
@@ -992,7 +998,7 @@ function renderProjectView(projId){
       </div>`:``}
       ${info.services?.length?`<div class="g-panel">
         <div class="sec-head"><h3>Services</h3></div>
-        ${info.services.map(s=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px"><span style="color:var(--text)">${esc(s.name)}</span><span style="font-family:var(--mono);color:${s.cost==='free'?'var(--accent)':'var(--warn)'}">${esc(s.cost)}</span></div>`).join('')}
+        ${info.services.map(s=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.03)"><span style="color:var(--text)">${esc(s.name)}${s.renew?`<span style="font-size:9px;color:var(--dim);margin-left:6px">${esc(s.renew)}</span>`:''}</span><span style="font-family:var(--mono);color:${s.cost==='free'?'var(--accent)':'var(--warn)'}">${esc(s.cost)}</span></div>`).join('')}
       </div>`:''}
       <div class="g-panel" style="flex:1">
         <div class="sec-head"><h3>Agents</h3></div>

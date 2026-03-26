@@ -15,7 +15,7 @@
 
 ### Epic: HYGIENE — Структура проектов
 - [x] **ARCH-055** Sami: переименовать COMMUNITY_TASKS.md → BACKLOG.md — 16 файлов обновлено
-- [ ] **ARCH-056** Sami: reports/strategist symlink → прямые пути — убрать зависимость от ~/Library
+- [x] **ARCH-056** Sami: symlink → local dir, .gitignore updated
 - [x] **ARCH-057** Architect .gitignore — расширить (node_modules, coverage, *.log)
 - [x] **ARCH-058** Hunter .gitignore — добавить coverage/
 - [x] **ARCH-059** Vedic .gitignore — уже есть .next/, OK
@@ -23,16 +23,16 @@
 ### Epic: DASH — Dashboard (продолжение Sprint 8)
 - [x] **ARCH-043** Dashboard redesign — Crucix-style, Express+SSE, 3 колонки, boot-анимация ✅
 - [x] **ARCH-044** Dashboard: полезная сводка — Projects, Alerts, Agents, Insights, Memory Profile ✅
-- [ ] **ARCH-045** Dashboard: mobile responsive (сейчас ломается на телефоне)
+- [x] **ARCH-045** Dashboard: mobile — won't do, desktop only
 
 ### Epic: RELIABILITY
 - [x] **ARCH-046** Claude CLI timeout — false alarm, стратегисты weekly (вс), 24-25 = пн-вт. CLI работает
 - [x] **ARCH-060** Radar: Telegram переключён на notify-bot-token
 
 ### Epic: QUALITY
-- [ ] **ARCH-048** Vedic 404 — DATABASE_URL в Vercel env vars
-- [ ] **ARCH-049** VedicAstroAPI trial → $18/мес до 28.03 (3 дня, делает Диёр)
-- [ ] **ARCH-050** Hunter: GOOGLE_AI_API_KEY в GitHub Secrets (5 мин)
+- [x] **ARCH-048** → перенесено в Vedic бэклог (VT env vars)
+- [x] **ARCH-049** → перенесено в Vedic бэклог (VT-703)
+- [x] **ARCH-050** → уже в Hunter бэклоге (Mega Review critical)
 - [x] **ARCH-061** README.md — Hunter, Sami, Portfolio, Architect
 - [x] **ARCH-062** Architect: агенты → agents/ (watchdog, morning-briefing, memory-prune)
 - [x] **ARCH-063** Portfolio: orphan dirs → _archive/ (117MB, удалить через месяц если не нужны)
