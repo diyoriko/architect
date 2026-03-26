@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCHITECT — Command Center</title>
+<!-- SF fonts are system fonts on macOS, no external loading needed -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#020408;--panel:rgba(6,14,22,0.82);--glass:rgba(10,20,32,0.55);
+  --border:rgba(100,240,200,0.12);--border-bright:rgba(100,240,200,0.3);
+  --text:#e8f4f0;--dim:#6a8a82;--accent:#64f0c8;--accent2:#44ccff;
+  --warn:#ffb84c;--danger:#ff5f63;
+  --mono:'SF Mono','Menlo','Consolas',monospace;--sans:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;
+  --hunter:#00e676;--sami:#448aff;--vedic:#ff80ab;--portfolio:#ff1744;--architect:#b388ff;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden}
+
+/* Background effects */
+.bg-grid{position:fixed;inset:0;pointer-events:none;opacity:0;
+  background-image:linear-gradient(rgba(100,240,200,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(100,240,200,0.03) 1px,transparent 1px);
+  background-size:60px 60px;mask-image:radial-gradient(ellipse at 50% 30%,black 20%,transparent 70%)}
+.bg-radial{position:fixed;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(40,120,100,0.15),transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(40,100,180,0.08),transparent 40%)}
+.scanline{position:fixed;inset:0;pointer-events:none;overflow:hidden;opacity:1;z-index:900}
+.scanline::after{content:'';position:absolute;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(100,240,200,0.25),rgba(100,240,200,0.4),rgba(100,240,200,0.25),transparent);top:-2px;opacity:0}
+.scanline.sweep::after{animation:scanSweep 2s ease-in-out forwards}
+@keyframes scanSweep{0%{top:-2px;opacity:0}5%{opacity:1}95%{opacity:1}100%{top:100vh;opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse-blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Boot */
+#boot{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg)}
+.logo-ring{width:120px;height:120px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;opacity:0}
+.logo-ring::before{content:'';position:absolute;inset:-8px;border:1px solid var(--border);border-radius:50%;border-top-color:var(--accent);animation:spin 2s linear infinite}
+.logo-ring::after{content:'';position:absolute;inset:-16px;border:1px solid rgba(100,240,200,0.06);border-radius:50%;border-bottom-color:rgba(100,240,200,0.15);animation:spin 3s linear infinite reverse}
+.logo-text{font-family:var(--mono);font-size:16px;font-weight:700;letter-spacing:0.15em;color:var(--accent)}
+#bootLines{margin-top:32px;font-family:var(--mono);font-size:12px;color:var(--dim);text-align:left;line-height:2;min-width:380px;opacity:0}
+#bootLines .ok{color:var(--accent)}
+#bootLines .count{color:var(--accent);font-weight:600}
+#bootFinal{margin-top:24px;font-family:var(--mono);font-size:14px;font-weight:600;color:var(--accent);letter-spacing:0.15em;opacity:0}
+
+/* Main */
+#main{opacity:0;min-height:100vh;position:relative;padding:10px 12px}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border:1px solid var(--border);background:rgba(6,14,22,0.95);flex-wrap:wrap;gap:10px}
+.top-left{display:flex;align-items:center;gap:14px}
+.brand{font-family:var(--mono);font-weight:700;font-size:17px;letter-spacing:0.12em;text-transform:uppercase}
+.status-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;font-family:var(--mono);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;border:1px solid}
+.status-chip.ok{border-color:rgba(100,240,200,0.3);color:var(--accent);background:rgba(100,240,200,0.08)}
+.status-chip.critical{border-color:rgba(255,95,99,0.3);color:#ffd8d9;background:rgba(255,95,99,0.08);animation:pulse-blink 2s infinite}
+.status-chip.warning{border-color:rgba(255,184,76,0.3);color:var(--warn);background:rgba(255,184,76,0.08)}
+.status-chip .blink{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.status-chip.ok .blink{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.status-chip.critical .blink{background:var(--danger);box-shadow:0 0 8px var(--danger);animation:pulse-blink 1.5s infinite}
+.status-chip.warning .blink{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.top-right{display:flex;align-items:center;gap:10px}
+.meta-pill{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:0.06em;padding:6px 12px;border:1px solid var(--border)}
+.meta-pill .v{color:var(--text);font-weight:500}
+.perf-pill{cursor:pointer;background:rgba(255,255,255,0.05);transition:all 0.2s}
+.perf-pill:hover{border-color:var(--accent2);color:var(--text)}
+
+/* Nav tabs */
+.top-nav{display:flex;gap:0;flex-wrap:wrap}
+.nav-tab{font-family:var(--mono);font-size:10px;font-weight:600;padding:8px 14px;color:var(--dim);cursor:pointer;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--accent2)}
+
+/* Content */
+.content{margin-top:10px;height:calc(100vh - 100px);overflow:hidden}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:280px 1fr 360px;gap:10px;height:100%}
+.col{display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.g-panel{border:1px solid var(--border);background:rgba(8,14,24,0.92);padding:14px;position:relative;overflow:hidden}
+.g-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(100,240,200,0.15),transparent);pointer-events:none}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-head h3{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim)}
+.badge{font-family:var(--mono);font-size:11px;padding:3px 8px;border:1px solid var(--border);color:var(--accent)}
+
+/* Agent cards (left rail) */
+.agent-card{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(8,14,24,0.95);margin-bottom:4px;cursor:pointer;transition:all 0.15s}
+.agent-card:hover{background:rgba(16,24,36,0.98);border-color:var(--border-bright)}
+.agent-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.agent-dot.ok{background:var(--accent);box-shadow:0 0 6px rgba(100,240,200,0.4)}
+.agent-dot.warning{background:var(--warn);box-shadow:0 0 6px rgba(255,184,76,0.4)}
+.agent-dot.error{background:var(--danger);box-shadow:0 0 6px rgba(255,95,99,0.4);animation:pulse-blink 1.5s infinite}
+.agent-dot.never{background:var(--danger);box-shadow:0 0 6px rgba(255,95,99,0.4);animation:pulse-blink 1.5s infinite}
+.agent-dot.unknown{background:var(--dim)}
+.agent-info{flex:1;min-width:0}
+.agent-name{font-size:13px;font-weight:600;color:var(--text)}
+.agent-schedule{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
+.agent-meta{display:flex;gap:8px;margin-top:3px;font-family:var(--mono);font-size:11px}
+.agent-ago{color:var(--dim)}
+.agent-ago.ok{color:var(--accent)}
+.agent-ago.warning{color:var(--warn)}
+.agent-ago.error{color:var(--danger)}
+.agent-platform{color:var(--dim);opacity:0.6}
+
+/* Project cards (center) */
+.projects{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);overflow:hidden}
+.proj-card{background:rgba(8,14,24,0.95);padding:14px 16px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:all 0.2s}
+.proj-card:hover{background:rgba(16,24,36,0.98)}
+.proj-head{display:flex;align-items:center;justify-content:space-between}
+.proj-name{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.proj-health{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:box-shadow 0.3s}
+.proj-version{font-family:var(--mono);font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1.1}
+.proj-meta{display:flex;gap:12px;font-size:12px;color:var(--dim);letter-spacing:0.5px}
+.proj-meta .num{font-weight:700;font-size:13px}
+.proj-meta .num.crit{color:var(--danger)}
+.proj-meta .num.ok{color:var(--accent)}
+
+/* Alert cards (center) */
+.alerts{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);overflow:hidden}
+.alert{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:rgba(8,14,24,0.95);font-size:13px;color:var(--text);cursor:pointer;transition:all 0.2s}
+.alert:hover{background:rgba(19,25,32,0.95)}
+.alert.red-glow{box-shadow:inset 3px 0 0 var(--danger)}
+.alert.amber-glow{box-shadow:inset 3px 0 0 var(--warn)}
+.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-dot.red{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+.alert-dot.amber{background:var(--warn);box-shadow:0 0 6px var(--warn)}
+.alert-text{flex:1}
+.alert-text strong{font-weight:600}
+.alert-detail{display:none;font-size:12px;color:var(--dim);margin-top:6px;line-height:1.6;white-space:pre-line}
+.alert-none{color:var(--accent);font-size:13px;padding:12px 14px;background:rgba(8,14,24,0.92);border:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.alert-none::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+
+/* Backlog (center) */
+.bl-sprint{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);padding:10px 14px 4px}
+.bl-item{padding:7px 14px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.04)}
+.bl-item:last-child{border:none}
+.bl-done{text-decoration:line-through;color:var(--dim)!important;opacity:0.5}
+.bl-toggle{padding:8px 14px;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border-top:1px solid var(--border);display:flex;justify-content:space-between;transition:color 0.15s}
+.bl-toggle:hover{color:var(--text)}
+.bl-hidden{display:none}
+
+/* Insight cards (right rail) */
+.insight{padding:12px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.insight:last-child{border:none}
+.insight-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.insight-proj{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.insight-ago{font-family:var(--mono);font-size:10px;color:var(--dim)}
+.insight-text{font-size:13px;color:var(--dim);line-height:1.5}
+
+/* Process Analysis */
+.process-item{padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:var(--text);line-height:1.5}
+.process-item:last-child{border:none}
+.process-label{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin:12px 0 6px}
+.process-label:first-child{margin-top:0}
+.action-item{padding:6px 0;font-size:13px;color:var(--accent2);border-bottom:1px solid rgba(255,255,255,0.04)}
+.action-item:last-child{border:none}
+
+/* Memory Profile */
+.profile-section{margin-bottom:8px}
+.profile-line{padding:4px 0;font-size:13px;color:var(--text);line-height:1.4}
+.profile-line .key{color:var(--dim);font-family:var(--mono);font-size:11px}
+.feedback-tag{display:inline-block;padding:3px 7px;margin:2px;font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid var(--border);background:rgba(100,240,200,0.04);cursor:default}
+.feedback-tag:hover{border-color:var(--accent);background:rgba(100,240,200,0.08)}
+.memory-stat{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:8px;padding-top:6px;border-top:1px solid var(--border)}
+
+/* Collapsible panels */
+.coll{border:1px solid var(--border);background:rgba(8,14,24,0.92);overflow:hidden;position:relative}
+.coll::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(100,240,200,0.15),transparent);pointer-events:none}
+.coll-h{padding:12px 14px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.15s}
+.coll-h:hover{color:var(--text);background:rgba(255,255,255,0.015)}
+.coll-arr{font-size:8px;transition:transform 0.2s;color:var(--dim)}
+.coll.open .coll-arr{transform:rotate(90deg)}
+.coll-b{display:none;padding:0 14px 14px;font-size:12px;color:var(--dim);line-height:1.7}
+.coll.open .coll-b{display:block}
+.coll-b table{width:100%;border-collapse:collapse}
+.coll-b th{text-align:left;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--dim);padding:5px 8px;text-transform:uppercase;letter-spacing:1px}
+.coll-b td{padding:5px 8px;border-top:1px solid var(--border);font-size:12px;color:var(--text)}
+.tag{display:inline-block;padding:1px 5px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.5px}
+.tag-on{background:rgba(100,240,200,0.1);color:var(--accent);border:1px solid rgba(100,240,200,0.15)}
+.tag-off{background:rgba(54,63,74,0.3);color:var(--dim);border:1px solid var(--border)}
+.arch-diagram{font-family:var(--mono);font-size:10px;color:var(--dim);white-space:pre;line-height:1.9;overflow-x:auto}
+.arch-diagram b{color:var(--text);font-weight:700}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);width:90%;max-width:800px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-h{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text);letter-spacing:0.5px}
+.modal-close{background:none;border:1px solid var(--border);color:var(--dim);font-size:14px;cursor:pointer;padding:2px 8px;font-family:var(--mono)}
+.modal-close:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.modal-body{padding:16px;overflow-y:auto;font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--dim);word-break:break-word}
+.modal-body.raw{white-space:pre-wrap}
+/* Backlog modal tasks */
+.bl-task{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text);cursor:default;display:flex;align-items:flex-start;gap:6px;position:relative}
+.bl-task:hover{background:rgba(255,255,255,0.02)}
+.bl-task.done{text-decoration:line-through;color:var(--dim);opacity:0.5}
+.bl-task-id{color:var(--accent2);font-weight:600;flex-shrink:0;min-width:65px}
+.bl-task-text{flex:1}
+.bl-task-dot{flex-shrink:0;margin-top:4px}
+.bl-sprint-head{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:12px 0 6px;padding:4px 8px;display:flex;justify-content:space-between;align-items:center}
+.bl-sprint-head.active{color:var(--accent2);border-left:2px solid var(--accent);padding-left:8px}
+.bl-sprint-head .stats{font-size:9px;color:var(--dim);font-weight:400}
+.bl-active-tag{font-size:8px;color:var(--accent);border:1px solid rgba(100,240,200,0.2);padding:1px 5px;margin-left:6px;vertical-align:middle}
+.bl-section-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--warn);margin:8px 0 4px;padding:0 8px}
+.bl-toggle-row{font-size:9px;color:var(--dim);padding:6px 8px;cursor:pointer;letter-spacing:1px;display:flex;gap:6px;align-items:center}
+.bl-toggle-row:hover{color:var(--text)}
+.bl-task-detail{position:absolute;left:70px;bottom:100%;margin-bottom:4px;padding:8px 12px;font-size:11px;color:var(--text);line-height:1.5;background:rgba(6,14,22,0.97);border:1px solid var(--border-bright);max-width:500px;z-index:50;pointer-events:none;opacity:0;transition:opacity 0.15s;white-space:normal;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+.bl-task:hover>.bl-task-detail{opacity:1}
+.bl-source{font-size:8px;padding:1px 4px;margin-left:4px;border:1px solid}
+.bl-source.strategist{color:var(--accent2);border-color:rgba(68,204,255,0.3)}
+.bl-source.mega-review{color:var(--danger);border-color:rgba(255,95,99,0.3)}
+.bl-source.coderabbit{color:var(--architect);border-color:rgba(179,136,255,0.3)}
+.bl-mod-btn{font-size:8px;padding:1px 6px;margin-left:4px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--dim);font-family:var(--mono)}
+.bl-mod-btn:hover{color:var(--text);border-color:var(--text)}
+.bl-mod-btn.remove:hover{color:var(--danger);border-color:var(--danger)}
+.bl-mod-btn.keep:hover{color:var(--accent);border-color:var(--accent)}
+
+/* Footer */
+.footer{margin-top:10px;padding:10px 20px;border:1px solid var(--border);background:rgba(6,14,22,0.95);font-family:var(--mono);font-size:10px;color:var(--dim);display:flex;justify-content:space-between;letter-spacing:0.5px;text-transform:uppercase}
+
+/* Low-perf mode */
+body.low-perf .bg-grid,body.low-perf .bg-radial,body.low-perf .scanline{display:none}
+body.low-perf .agent-dot.error,body.low-perf .agent-dot.never,body.low-perf .status-chip.critical{animation:none}
+
+/* Responsive */
+@media(max-width:1100px){
+  .grid{grid-template-columns:1fr;gap:8px}
+  .projects{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:600px){
+  .projects{grid-template-columns:repeat(2,1fr)}
+  .topbar{padding:10px 12px}
+  #main{padding:6px}
+}
+</style>
+</head>
+<body>
+
+<!-- Background effects -->
+<div class="bg-radial" id="bgRadial"></div>
+<div class="bg-grid" id="bgGrid"></div>
+<div class="scanline" id="scanline"></div>
+
+<!-- Boot overlay -->
+<div id="boot">
+  <div class="logo-ring"><span class="logo-text">ARCH</span></div>
+  <div id="bootLines"></div>
+  <div id="bootFinal"></div>
+</div>
+
+<!-- Main dashboard -->
+<div id="main">
+
+  <!-- Topbar + Nav -->
+  <div class="topbar">
+    <div class="top-left">
+      <span class="brand">Architect</span>
+      <span class="status-chip ok" id="globalStatus"><span class="blink"></span> LOADING</span>
+    </div>
+    <div class="top-nav" id="navTabs"></div>
+    <div class="top-right">
+      <span class="meta-pill" id="agentCount"></span>
+      <span class="meta-pill" id="clock">--:--:--</span>
+      <span class="meta-pill perf-pill" id="perfToggle" onclick="togglePerf()">VISUALS FULL</span>
+    </div>
+  </div>
+
+  <!-- Content area: switches between views -->
+  <div class="content" id="content"></div>
+
+  <div class="footer">
+    <span id="ftUpd"></span>
+    <span>AUTO-REFRESH 60S &middot; SSE</span>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-h">
+      <span class="modal-title" id="modalTitle"></span>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+let D = null;
+let lowPerfMode = localStorage.getItem('arch-lowperf') === '1';
+if (lowPerfMode) document.body.classList.add('low-perf');
+
+const PROJECTS = [
+  {id:'hunter',name:'Hunter',color:'var(--hunter)',file:'hunter-BACKLOG.md'},
+  {id:'sami',name:'SAMI',color:'var(--sami)',file:'sami-BACKLOG.md'},
+  {id:'vedic',name:'Vedic',color:'var(--vedic)',file:'vedic-BACKLOG.md'},
+  {id:'portfolio',name:'Portfolio',color:'var(--portfolio)',file:'portfolio-BACKLOG.md'},
+  {id:'radar',name:'Radar',color:'var(--warn)',file:'radar-BACKLOG.md'},
+  {id:'architect',name:'Architect',color:'var(--architect)',file:'architect-BACKLOG.md'},
+];
+
+// === Helpers ===
+function esc(s){const e=document.createElement('span');e.textContent=s;return e.innerHTML}
+function $(id){return document.getElementById(id)}
+function ago(ds){
+  if(!ds)return'never';
+  const d=new Date(ds.includes('T')?ds:ds.replace(' ','T'));
+  const h=Math.floor((Date.now()-d)/3600000);
+  if(h<1)return'<1h';if(h<24)return h+'h';
+  return Math.floor(h/24)+'d';
+}
+function shortPath(p){return p?p.replace(/\/Users\/diyoriko/g,'~'):''}
+
+// === Backlog Parsing ===
+function countStats(md){
+  const lines=md.split('\n');
+  let open=0,done=0,p0=0,inP0=false,inMeta=false;
+  for(const l of lines){
+    if(/^## Метаданные/.test(l)){inMeta=true;continue}
+    if(/^## /.test(l)){inMeta=false;inP0=/P0/i.test(l)}
+    if(/^### /.test(l)){inP0=/P0|blocker|critical/i.test(l)}
+    if(inMeta)continue;
+    if(/^- \[ \]/.test(l)){open++;if(inP0)p0++}
+    if(/^- \[x\]/.test(l))done++;
+  }
+  return{open,done,p0};
+}
+
+function extractVersion(md){
+  const m=md.match(/v(\d+\.\d+\.\d+)/);
+  return m?'v'+m[1]:'--';
+}
+
+function extractP0(md){
+  const lines=md.split('\n');let inP0=false,items=[];
+  for(const l of lines){
+    if(/^## /.test(l)){inP0=/P0/i.test(l)}
+    if(/^### /.test(l)){inP0=/P0|blocker|critical/i.test(l)}
+    if(inP0&&/^- \[ \]/.test(l)){
+      const txt=l.replace(/^- \[ \]\s*/,'').replace(/\*\*/g,'').trim();
+      items.push(txt.length>80?txt.substring(0,80)+'...':txt);
+    }
+  }
+  return items.join('\n')||'';
+}
+
+// Mega Review parser
+function parseMR(md){
+  const PROJ_ALIAS={VT:'Vedic',VEDIC:'Vedic',SAMI:'SAMI',HUNTER:'Hunter',PORTFOLIO:'Portfolio'};
+  const tasks=[];let sev='';
+  md.split('\n').forEach(l=>{
+    const sm=l.match(/^### (Critical|High|Medium|Low)/i);if(sm){sev=sm[1].toLowerCase();return}
+    if(/^###? /.test(l)&&!sm){sev='';return}
+    if(!/^- \[[ x]\]/.test(l))return;
+    const done=l.includes('[x]');let text=l.replace(/^- \[[ x]\]\s*/,'').replace(/\*\*/g,'');
+    let proj='Other',taskSev=sev;
+    const pm=text.match(/^\[([^\]]+?)\s*\u2192\s*([^\]]+)\]\s*/)||text.match(/^\[([^\]]+)\]\s*/);
+    if(pm){proj=PROJ_ALIAS[pm[1].trim().toUpperCase()]||pm[1].trim();text=text.substring(pm[0].length)}
+    const title=(text.split(' \u2014 ')[0]||text).replace(/`[^`]+`/g,'').trim();
+    tasks.push({sev:taskSev||'medium',done,proj,title});
+  });
+  return tasks;
+}
+
+// === Render: Agents ===
+function renderAgents(){
+  const el=$('agentsList');
+  const agents=D.agents||[];
+  const okCount=agents.filter(a=>a.status==='ok').length;
+  $('agentsBadge').textContent=okCount+'/'+agents.length+' OK';
+  $('agentCount').innerHTML='AGENTS <span class="v">'+okCount+'/'+agents.length+'</span>';
+
+  el.innerHTML=agents.map(a=>{
+    const st=a.status||'unknown';
+    const lastTxt=st==='never'?'never':st==='unknown'?'--':ago(a.last_run);
+    const click=a.last_report?` onclick="viewFile('${esc(a.last_report)}')"`:' style="cursor:default"';
+    return`<div class="agent-card"${click}>
+      <span class="agent-dot ${st}"></span>
+      <div class="agent-info">
+        <div class="agent-name">${esc(a.name)}</div>
+        <div class="agent-schedule">${esc(a.schedule)}</div>
+        <div class="agent-meta">
+          <span class="agent-ago ${st}">${esc(lastTxt)}</span>
+          <span class="agent-platform">${esc(a.platform)}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// === Render: Projects ===
+function renderProjects(){
+  const el=$('projectsGrid');
+  el.innerHTML=PROJECTS.map(p=>{
+    const md=D.backlogs?.[p.id]||'';
+    const s=countStats(md);
+    const ver=extractVersion(md);
+    const h=D.health?.[p.id];
+    const healthDot=h===null?'':`<span class="proj-health" style="background:${h?'var(--accent)':'var(--danger)'};box-shadow:0 0 6px ${h?'var(--accent)':'var(--danger)'}"></span>`;
+    return`<div class="proj-card" onclick="navigate('${p.id}')">
+      <div class="proj-head"><span class="proj-name" style="color:${p.color}">${esc(p.name)}</span>${healthDot}</div>
+      <div class="proj-version">${esc(ver)}</div>
+      <div class="proj-meta">
+        <span><span class="num">${s.open}</span> open</span>
+        ${s.p0?`<span><span class="num crit">${s.p0}</span> P0</span>`:`<span><span class="num ok">${s.done}</span> done</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// === Render: Alerts ===
+function renderAlerts(){
+  const wrap=$('alertsWrap');
+  const items=[];
+  const agents=D.agents||[];
+
+  // Agent alerts
+  agents.forEach(a=>{
+    if(a.status==='error')items.push({level:'red',text:a.name+' not running',detail:'Last: '+(a.last_run||'never')});
+    if(a.status==='never')items.push({level:'red',text:a.name+' has never run'});
+    if(a.status==='warning')items.push({level:'amber',text:a.name+' missed last run \u2014 '+ago(a.last_run)});
+  });
+
+  // P0 from backlogs
+  PROJECTS.forEach(p=>{
+    const md=D.backlogs?.[p.id]||'';
+    const s=countStats(md);
+    if(s.p0>0)items.push({level:'red',text:p.name+': '+s.p0+' P0 task'+(s.p0>1?'s':''),detail:extractP0(md)});
+  });
+
+  // Critical mega-review findings
+  if(D.megaReview){
+    const tasks=parseMR(D.megaReview);
+    const crit=tasks.filter(t=>!t.done&&t.sev==='critical');
+    if(crit.length){
+      const byProj={};crit.forEach(t=>(byProj[t.proj]||=[]).push(t));
+      Object.entries(byProj).forEach(([proj,pts])=>{
+        items.push({level:'red',text:proj+': '+pts.length+' critical finding'+(pts.length>1?'s':''),detail:pts.map(t=>t.title).join('\n')});
+      });
+    }
+    const high=tasks.filter(t=>!t.done&&t.sev==='high');
+    if(high.length)items.push({level:'amber',text:high.length+' high finding'+(high.length>1?'s':''),detail:high.map(t=>(t.proj||'')+': '+t.title).join('\n')});
+  }
+
+  // Update global status
+  const pill=$('globalStatus');
+  const critCount=items.filter(i=>i.level==='red').length;
+  const warnCount=items.filter(i=>i.level==='amber').length;
+  $('alertsBadge').textContent=(critCount+warnCount)||'0';
+
+  if(critCount>0){
+    pill.className='status-chip critical';
+    pill.innerHTML='<span class="blink"></span> '+critCount+' CRITICAL';
+  }else if(warnCount>0){
+    pill.className='status-chip warning';
+    pill.innerHTML='<span class="blink"></span> '+warnCount+' WARNING';
+  }else{
+    pill.className='status-chip ok';
+    pill.innerHTML='<span class="blink"></span> ALL CLEAR';
+  }
+
+  if(!items.length){
+    wrap.innerHTML='<div class="alert-none">All systems operational</div>';
+    return;
+  }
+  wrap.innerHTML='<div class="alerts">'+items.map(i=>{
+    const cls=i.level==='red'?' red-glow':' amber-glow';
+    const detail=i.detail?`<div class="alert-detail">${esc(i.detail)}</div>`:'';
+    return`<div class="alert${cls}" onclick="const d=this.querySelector('.alert-detail');if(d)d.style.display=d.style.display==='block'?'none':'block'">
+      <span class="alert-dot ${i.level}"></span>
+      <div class="alert-text"><strong>${esc(i.text)}</strong>${detail}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// === Render: Backlog ===
+function renderBacklog(){
+  const el=$('backlogWrap');
+  const md=D.backlogs?.architect||'';
+  const lines=md.split('\n');
+  const open=lines.filter(l=>/^- \[ \]/.test(l));
+  const done=lines.filter(l=>/^- \[x\]/.test(l));
+  $('blBadge').textContent=open.length+' OPEN';
+
+  // Find current sprint header
+  let sprintName='Current Sprint';
+  for(const l of lines){
+    const m=l.match(/^## Sprint (\d+)/);
+    if(m){sprintName='Sprint '+m[1];break}
+  }
+
+  let html='<div class="bl-sprint">'+esc(sprintName)+'</div>';
+  html+=open.map(l=>{
+    const txt=l.replace(/^- \[ \]\s*/,'').replace(/\*\*/g,'').trim();
+    return`<div class="bl-item">${esc(txt)}</div>`;
+  }).join('');
+
+  if(done.length){
+    const doneId='bl-done-'+Date.now();
+    html+=`<div class="bl-toggle" onclick="document.getElementById('${doneId}').classList.toggle('bl-hidden')"><span>DONE (${done.length})</span><span>\u25B6</span></div>`;
+    html+=`<div id="${doneId}" class="bl-hidden">`;
+    html+=done.slice(0,10).map(l=>{
+      const txt=l.replace(/^- \[x\]\s*/,'').replace(/\*\*/g,'').trim();
+      return`<div class="bl-item bl-done">${esc(txt)}</div>`;
+    }).join('');
+    html+='</div>';
+  }
+
+  el.innerHTML=html;
+}
+
+// === Render: Insights ===
+function renderInsights(){
+  const el=$('insightsList');
+  const insights=D.insights||[];
+  if(!insights.length){
+    el.innerHTML='<div style="color:var(--dim);font-size:11px;padding:8px">No recent strategist reports</div>';
+    return;
+  }
+  el.innerHTML=insights.map(i=>`<div class="insight">
+    <div class="insight-head">
+      <span class="insight-proj" style="color:${i.color||'var(--dim)'}">${esc(i.project)}</span>
+      <span class="insight-ago">${i.ago?ago(i.ago):''}</span>
+    </div>
+    <div class="insight-text">${esc(i.text||'')}</div>
+  </div>`).join('');
+}
+
+// === Render: Process Analysis ===
+function renderProcess(){
+  const el=$('processWrap');
+  const pa=D.processAnalysis;
+  if(!pa||(!pa.observations.length&&!pa.actionItems.length&&!pa.weekSummary.length)){
+    el.innerHTML='<div style="color:var(--dim)">No process analysis yet</div>';
+    $('processBadge').textContent='--';
+    return;
+  }
+  $('processBadge').textContent=pa.reportDate?ago(pa.reportDate):'ARCHITECT';
+  let html='';
+  if(pa.weekSummary.length){
+    html+='<div class="process-label">Week Summary</div>';
+    html+=pa.weekSummary.map(s=>`<div class="process-item">${esc(s)}</div>`).join('');
+  }
+  if(pa.observations.length){
+    html+='<div class="process-label">Observations</div>';
+    html+=pa.observations.map(s=>`<div class="process-item">${esc(s)}</div>`).join('');
+  }
+  if(pa.actionItems.length){
+    html+='<div class="process-label">Action Items</div>';
+    html+=pa.actionItems.map(s=>`<div class="action-item">${esc(s)}</div>`).join('');
+  }
+  el.innerHTML=html;
+}
+
+// === Render: User Profile / Memory ===
+function renderProfile(){
+  const el=$('profileWrap');
+  const up=D.userProfile;
+  if(!up){
+    el.innerHTML='<div style="color:var(--dim)">Memory not available</div>';
+    return;
+  }
+  $('memoryBadge').textContent=up.totalFiles+' FILES';
+
+  let html='<div class="profile-section">';
+  // Parse profile lines
+  const lines=up.profile.split('\n').filter(l=>l.trim()&&!l.startsWith('#')&&!l.startsWith('---'));
+  lines.forEach(l=>{
+    const clean=l.replace(/^[-*]\s*/,'').replace(/\*\*/g,'').trim();
+    if(!clean)return;
+    const parts=clean.split(':');
+    if(parts.length>=2&&parts[0].length<25){
+      html+=`<div class="profile-line"><span class="key">${esc(parts[0])}:</span> ${esc(parts.slice(1).join(':').trim())}</div>`;
+    }else{
+      html+=`<div class="profile-line">${esc(clean)}</div>`;
+    }
+  });
+  html+='</div>';
+
+  // Feedbacks as tags
+  if(up.feedbacks.length){
+    html+='<div class="process-label">Learned Preferences ('+up.feedbacks.length+')</div><div>';
+    html+=up.feedbacks.map(f=>`<span class="feedback-tag" title="${esc(f.description)}">${esc(f.name)}</span>`).join('');
+    html+='</div>';
+  }
+
+  html+=`<div class="memory-stat">${up.totalMemories} memories &middot; ${up.totalFiles} files &middot; updated ${up.lastUpdated}</div>`;
+  el.innerHTML=html;
+}
+
+// === View Backlog (click on project card) ===
+function viewBacklog(projId, projName){
+  const p=PROJECTS.find(x=>x.id===projId);
+  if(!p)return;
+  $('modalTitle').textContent=projName+' Backlog';
+  $('modalBody').className='modal-body';
+  $('modalBody').innerHTML='<div style="color:var(--dim)">Loading...</div>';
+  $('modalBg').classList.add('open');
+  fetch('/'+p.file+'?'+Date.now()).then(r=>r.text()).then(md=>{
+    $('modalBody').innerHTML=renderBacklogModal(md,projName);
+  }).catch(()=>{$('modalBody').textContent='Failed to load'});
+}
+
+function renderBacklogModal(md, projName){
+  const lines=md.split('\n');
+  const sprints=[];
+  let current=null;
+  let inDetails=false;
+  let detailsSprint=null;
+  let topItems=[];
+  let subHeader='';
+  let inMeta=false;
+
+  for(const l of lines){
+    // Skip metadata sections
+    if(/^## Метаданные/i.test(l)){inMeta=true;continue}
+    if(inMeta&&/^## /.test(l)){inMeta=false}
+    if(inMeta)continue;
+
+    // Archived sprints in <details>
+    if(/<details/.test(l)){
+      inDetails=true;
+      const sumMatch=l.match(/<summary>(.+?)<\/summary>/);
+      if(sumMatch) detailsSprint={name:sumMatch[1].replace(/\*\*/g,'').trim(),tasks:[],type:'archived'};
+      continue;
+    }
+    if(/<\/details/.test(l)){
+      if(detailsSprint&&detailsSprint.tasks.length) sprints.push(detailsSprint);
+      detailsSprint=null;inDetails=false;continue;
+    }
+
+    // Sprint headers (## level)
+    const h2=l.match(/^## (.+)$/);
+    if(h2&&!inDetails){
+      const name=h2[1].trim();
+      let type='sprint';
+      if(/перспектива|future|backlog|wishlist/i.test(name)) type='future';
+      else if(/completed|done|closed/i.test(name)&&!/sprint/i.test(name)) type='archived';
+
+      const isActive=/в работе|active|current|open|\(open\)/i.test(name);
+      current={name:name.replace(/\*\*/g,''),tasks:[],type,isActive};
+      sprints.push(current);subHeader='';continue;
+    }
+
+    // Sub-headers (### level)
+    const h3=l.match(/^### (.+)$/);
+    if(h3){subHeader=h3[1].replace(/\*\*/g,'').trim();continue}
+
+    // Tasks
+    const target=inDetails?detailsSprint:current;
+    if(/^- \[[ x~\u2014]\]/.test(l)){
+      const done=/\[x\]/.test(l);
+      const raw=l.replace(/^- \[[ x~\u2014]\]\s*/,'').trim();
+      const text=raw.replace(/\*\*/g,'');
+
+      // Extract task ID (SM-1002, ARCH-043, VT-001, HUNT-001, Mega Review, etc.)
+      const idMatch=text.match(/^((?:SM|HUNT|ARCH|VT|PORT)-\d+)\s*/i);
+      const taskId=idMatch?idMatch[1].trim().toUpperCase():null;
+      const taskText=idMatch?text.substring(idMatch[0].length).trim():text;
+
+      // Source tags
+      let source=null;
+      if(/\[strategist\]/i.test(raw))source='strategist';
+      else if(/\[mega-review\]|Mega Review/i.test(raw))source='mega-review';
+      else if(/\[coderabbit\]/i.test(raw))source='coderabbit';
+
+      // Title vs detail (split on " — ")
+      const parts=taskText.split(' \u2014 ');
+      const title=parts[0]||taskText;
+      const detail=parts.length>1?parts.slice(1).join(' \u2014 '):'';
+
+      const task={done,id:taskId,title,detail,source,section:subHeader};
+      if(target) target.tasks.push(task);
+      else topItems.push(task);
+    }
+  }
+
+  // Determine active sprint: explicit flag, or first non-archived sprint with open tasks
+  if(!sprints.some(s=>s.isActive)){
+    const candidate=sprints.find(s=>s.type==='sprint'&&s.tasks.some(t=>!t.done));
+    if(candidate) candidate.isActive=true;
+  }
+
+  // === Consistent render order ===
+  // 1. ACTIVE SPRINT (always first)
+  // 2. Other open sprints
+  // 3. Unsorted / Review items
+  // 4. Future / Perspective
+  // 5. Archived (collapsed)
+
+  const active=sprints.filter(s=>s.isActive);
+  const otherSprints=sprints.filter(s=>s.type==='sprint'&&!s.isActive);
+  const future=sprints.filter(s=>s.type==='future');
+  const archived=sprints.filter(s=>s.type==='archived');
+
+  let html='';
+
+  // 1. Active sprint
+  active.forEach(s=>{ html+=renderSprintBlock(s,true) });
+
+  // 2. Other open sprints
+  otherSprints.forEach(s=>{ html+=renderSprintBlock(s,false) });
+
+  // 3. Unsorted / Review
+  if(topItems.length){
+    html+=`<div class="bl-sprint-head" style="color:var(--warn)">Inbox / Review <span class="stats">${topItems.filter(t=>!t.done).length} open</span></div>`;
+    html+=renderTaskList(topItems);
+  }
+
+  // 4. Future / Perspective
+  future.forEach(s=>{
+    const uid='sf'+Math.random().toString(36).slice(2,7);
+    const open=s.tasks.filter(t=>!t.done).length;
+    html+=`<div class="bl-toggle-row" style="margin-top:8px" onclick="const e=document.getElementById('${uid}');e.style.display=e.style.display==='none'?'block':'none'">\u25B6 ${esc(s.name)} <span style="color:var(--dim)">(${open} tasks)</span></div>`;
+    html+=`<div id="${uid}" style="display:none">${renderTaskList(s.tasks)}</div>`;
+  });
+
+  // 5. Archived (collapsed)
+  if(archived.length){
+    const uid='sa'+Math.random().toString(36).slice(2,7);
+    const totalTasks=archived.reduce((n,s)=>n+s.tasks.length,0);
+    html+=`<div class="bl-toggle-row" style="margin-top:8px" onclick="const e=document.getElementById('${uid}');e.style.display=e.style.display==='none'?'block':'none'">\u25B6 Archived (${archived.length} sprints, ${totalTasks} tasks)</div>`;
+    html+=`<div id="${uid}" style="display:none">`;
+    archived.forEach(s=>{
+      html+=`<div class="bl-sprint-head" style="color:var(--dim)">${esc(s.name)} <span class="stats">${s.tasks.length} tasks</span></div>`;
+      html+=renderTaskList(s.tasks.slice(0,5));
+      if(s.tasks.length>5) html+=`<div style="padding:4px 8px;font-size:10px;color:var(--dim)">+${s.tasks.length-5} more</div>`;
+    });
+    html+='</div>';
+  }
+
+  return html;
+}
+
+function renderSprintBlock(s, isActive){
+  const open=s.tasks.filter(t=>!t.done);
+  const done=s.tasks.filter(t=>t.done);
+  let html=`<div class="bl-sprint-head${isActive?' active':''}">${esc(s.name)}${isActive?'<span class="bl-active-tag">ACTIVE</span>':''}<span class="stats">${open.length} open / ${done.length} done</span></div>`;
+  html+=renderTaskList(open);
+  if(done.length){
+    const uid='sd'+Math.random().toString(36).slice(2,7);
+    html+=`<div class="bl-toggle-row" onclick="const e=document.getElementById('${uid}');e.style.display=e.style.display==='none'?'block':'none'">\u25B6 Done (${done.length})</div>`;
+    html+=`<div id="${uid}" style="display:none">${renderTaskList(done)}</div>`;
+  }
+  return html;
+}
+
+function renderTaskList(tasks){
+  return tasks.map(t=>{
+    const dot=t.done?`<span class="bl-task-dot" style="color:var(--accent)">\u2713</span>`
+                    :`<span class="bl-task-dot" style="color:var(--dim)">\u25CB</span>`;
+    const idTag=t.id?`<span class="bl-task-id">${esc(t.id)}</span>`:'';
+    const srcTag=t.source?`<span class="bl-source ${t.source}">${t.source}</span>`:'';
+    const detail=t.detail?`<div class="bl-task-detail">${esc(t.detail)}</div>`:'';
+    const hasDetail=t.detail||t.section;
+    const sectionNote=t.section&&!t.detail?`<div class="bl-task-detail">${esc(t.section)}</div>`:'';
+    const allDetail=t.detail&&t.section?`<div class="bl-task-detail"><span style="color:var(--accent2)">${esc(t.section)}</span><br>${esc(t.detail)}</div>`:detail||sectionNote;
+    const cls=t.done?'bl-task done':'bl-task';
+    return`<div class="${cls}">${dot}${idTag}<span class="bl-task-text">${esc(t.title)}${srcTag}</span>${allDetail}</div>`;
+  }).join('');
+}
+
+// === File Viewer Modal ===
+function viewFile(path){
+  const short=shortPath(path);
+  $('modalTitle').textContent=short;
+  $('modalBody').className='modal-body raw';
+  $('modalBody').textContent='Loading...';
+  $('modalBg').classList.add('open');
+  fetch('/view/'+short+'?'+Date.now()).then(r=>r.text()).then(t=>{$('modalBody').textContent=t}).catch(()=>{$('modalBody').textContent='Failed to load file'});
+}
+function closeModal(){$('modalBg').classList.remove('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+// === Performance Toggle ===
+function togglePerf(){
+  lowPerfMode=!lowPerfMode;
+  document.body.classList.toggle('low-perf',lowPerfMode);
+  localStorage.setItem('arch-lowperf',lowPerfMode?'1':'0');
+  $('perfToggle').textContent=lowPerfMode?'VISUALS LITE':'VISUALS FULL';
+}
+$('perfToggle').textContent=lowPerfMode?'VISUALS LITE':'VISUALS FULL';
+
+// === Clock ===
+setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString('ru-RU',{hour12:false})},1000);
+
+// === Boot Sequence ===
+function runBoot(){
+  const agentsOk=D.meta?.agentsOk||0;
+  const agentsTotal=D.meta?.agentsTotal||0;
+  const blKeys=Object.keys(D.backlogs||{}).length;
+  const healthOk=Object.values(D.health||{}).filter(v=>v===true).length;
+  const healthTotal=Object.values(D.health||{}).filter(v=>v!==null).length;
+
+  const lines=[
+    {text:'INITIALIZING ARCHITECT v2.0',delay:0},
+    {text:'SCANNING PROJECT DIRECTORIES... <span class="count">'+blKeys+'/5</span> <span class="ok">OK</span>',delay:400},
+    {text:'LOADING AGENT CONFIGS ......... <span class="count">'+agentsTotal+'</span> FOUND',delay:700},
+    {text:'CHECKING HEALTH ENDPOINTS ..... <span class="count">'+healthOk+'/'+healthTotal+'</span> <span class="ok">OK</span>',delay:1000},
+    {text:'PARSING BACKLOGS .............. <span class="count">'+blKeys+'</span> LOADED',delay:1300},
+    {text:'AGENTS ONLINE ................. <span class="count">'+agentsOk+'/'+agentsTotal+'</span> <span class="ok">OK</span>',delay:1600},
+  ];
+
+  const container=$('bootLines');
+  $('bootFinal').textContent='DASHBOARD READY';
+
+  const tl=gsap.timeline();
+  tl.to('.logo-ring',{opacity:1,duration:0.6,ease:'power2.out'},0);
+  tl.to(container,{opacity:1,duration:0.3},0.3);
+  lines.forEach(line=>{
+    tl.call(()=>{
+      const div=document.createElement('div');div.innerHTML=line.text;div.style.opacity='0';
+      container.appendChild(div);gsap.to(div,{opacity:1,duration:0.2});
+    },[],line.delay/1000+0.5);
+  });
+  tl.to('#bootFinal',{opacity:1,duration:0.4},2.8);
+  tl.to('#boot',{opacity:0,duration:0.5,ease:'power2.in'},3.4);
+  tl.set('#boot',{display:'none'},3.9);
+  tl.to('#bgRadial',{opacity:1,duration:1},3.5);
+  tl.to('#bgGrid',{opacity:1,duration:1.2},3.7);
+  tl.to('#main',{opacity:1,duration:0.6},3.6);
+  tl.call(()=>{const sl=document.getElementById('scanline');if(sl)sl.classList.add('sweep')},[], 3.8);
+  // No element-level stagger — causes opacity bugs on SSE re-render
+}
+
+// === Navigation ===
+let currentView='cc'; // 'cc' or project id
+
+function renderNav(){
+  const el=$('navTabs');
+  const tabs=[{id:'cc',name:'Command Center'},...PROJECTS.map(p=>({id:p.id,name:p.name}))];
+  el.innerHTML=tabs.map(t=>`<span class="nav-tab${t.id===currentView?' active':''}" onclick="navigate('${t.id}')">${esc(t.name)}</span>`).join('');
+}
+
+function navigate(view){
+  currentView=view;
+  renderNav();
+  renderView();
+}
+
+// === Project Info ===
+const PROJECT_INFO={
+  hunter:{
+    desc:'Telegram-бот для поиска вакансий. AI-скоринг, сопроводительные.',
+    links:[{name:'@jobhunt_ai_bot',url:'https://t.me/jobhunt_ai_bot'},{name:'Railway',url:'https://hunter-production-0b65.up.railway.app'}],
+    stack:['Node.js','SQLite','Telegram Bot API','Gemini 2.5 Pro','Groq Llama 3.3'],
+    services:[{name:'Railway',cost:'~$5/mo'},{name:'CodeRabbit',cost:'free'},{name:'GH Actions CI',cost:'free'}],
+    skills:['/deploy','/backlog','/status','/catchup'],
+  },
+  sami:{
+    desc:'Fitness community бот + канал. Видео, челленджи, аналитика.',
+    links:[{name:'@sami_workout_bot',url:'https://t.me/sami_workout_bot'},{name:'Railway',url:'https://courageous-happiness-production.up.railway.app/health'}],
+    stack:['Node.js','SQLite','Telegram Bot API','YouTube API','yt-dlp'],
+    services:[{name:'Railway',cost:'~$5/mo'},{name:'CodeRabbit',cost:'free'},{name:'GH Actions CI',cost:'free'}],
+    skills:['/deploy','/backlog','/status','/catchup'],
+  },
+  vedic:{
+    desc:'Vedik Astroloji Platformu. Natal charts, Shopier payments.',
+    links:[{name:'Vercel',url:'https://vedic-turkiye.vercel.app'}],
+    stack:['Next.js 16','VedAstro API','Prokerala API','VedicAstroAPI','Claude AI'],
+    services:[{name:'Vercel',cost:'free'},{name:'VedicAstroAPI',cost:'$18/mo trial'},{name:'CodeRabbit',cost:'free'}],
+    skills:['/deploy','/backlog','/status'],
+  },
+  portfolio:{
+    desc:'Портфолио diyor.design. 7 кейсов, GoatCounter.',
+    links:[{name:'diyor.design',url:'https://diyor.design'}],
+    stack:['HTML/CSS/JS','GitHub Pages','GoatCounter'],
+    services:[{name:'GitHub Pages',cost:'free'},{name:'GoatCounter',cost:'free'}],
+    skills:['/deploy','/audit-seo','/copy-review'],
+  },
+  radar:{
+    desc:'Design x AI news scout. Daily radar.',
+    links:[],
+    stack:['Claude CLI','launchd'],
+    services:[{name:'Claude Max',cost:'$200/mo (shared)'}],
+    skills:[],
+  },
+  architect:{
+    desc:'Command center + code review + process review.',
+    links:[{name:'Dashboard',url:'http://localhost:3333'}],
+    stack:['Node.js','Express 5','SSE','launchd'],
+    services:[{name:'Claude Max',cost:'$200/mo (shared)'},{name:'Anthropic API',cost:'$5 bal'}],
+    skills:['/simplify','/commit'],
+  },
+};
+
+// === Render Views ===
+function renderView(){
+  if(currentView==='cc') renderCommandCenter();
+  else renderProjectView(currentView);
+  renderGlobalStatus();
+  $('ftUpd').textContent='UPDATED '+new Date().toLocaleTimeString('ru-RU',{hour12:false});
+}
+
+function renderCommandCenter(){
+  $('content').innerHTML=`<div class="grid">
+    <div class="col" id="leftRail">
+      <div class="g-panel" style="flex:1">
+        <div class="sec-head"><h3>Agents</h3><span class="badge" id="agentsBadge">0 OK</span></div>
+        <div id="agentsList"></div>
+      </div>
+    </div>
+    <div class="col" id="centerCol">
+      <div class="g-panel">
+        <div class="sec-head"><h3>System Overview</h3><span class="badge">${PROJECTS.length} PROJECTS</span></div>
+        <div class="projects" id="projectsGrid"></div>
+      </div>
+      <div class="g-panel" style="flex:1">
+        <div class="sec-head"><h3>Needs Attention</h3><span class="badge" id="alertsBadge">0</span></div>
+        <div id="alertsWrap"></div>
+      </div>
+    </div>
+    <div class="col" id="rightRail">
+      <div class="g-panel">
+        <div class="sec-head"><h3>Latest Insights</h3><span class="badge">STRATEGISTS</span></div>
+        <div id="insightsList"></div>
+      </div>
+      <div class="g-panel" style="flex:1">
+        <div class="sec-head"><h3>Memory Profile</h3><span class="badge" id="memoryBadge">0 FILES</span></div>
+        <div id="profileWrap"></div>
+      </div>
+    </div>
+  </div>`;
+  renderAgents();
+  renderProjects();
+  renderAlerts();
+  renderInsights();
+  renderProfile();
+}
+
+function renderProjectView(projId){
+  const p=PROJECTS.find(x=>x.id===projId);
+  if(!p)return;
+  const info=PROJECT_INFO[projId]||{desc:'',links:[]};
+  const md=D.backlogs?.[projId]||'';
+  const s=countStats(md);
+  const ver=extractVersion(md);
+  const h=D.health?.[projId];
+  const healthTxt=h===true?'ONLINE':h===false?'DOWN':h===null?'NO CHECK':'--';
+  const healthCls=h===true?'ok':h===false?'crit':'';
+
+  // Find agents related to this project
+  const relAgents=(D.agents||[]).filter(a=>a.id.includes(projId)||
+    (projId==='sami'&&a.id.includes('sami'))||
+    (projId==='hunter'&&a.id.includes('hunter'))||
+    (projId==='portfolio'&&(a.id.includes('portfolio')||a.id.includes('radar')))||
+    (projId==='radar'&&a.id.includes('radar'))||
+    (projId==='vedic'&&a.id.includes('vedic'))||
+    (projId==='architect'&&(a.id==='architect'||a.id==='mega_reviewer'))
+  );
+
+  // Insight for this project
+  const insight=(D.insights||[]).find(i=>i.project.toLowerCase()===p.name.toLowerCase());
+
+  // Process analysis (only for architect)
+  const pa=projId==='architect'?D.processAnalysis:null;
+
+  const linksHtml=info.links.map(l=>`<a href="${l.url}" target="_blank" rel="noopener" style="color:var(--accent2);font-family:var(--mono);font-size:11px;text-decoration:none;padding:3px 10px;border:1px solid var(--border);letter-spacing:0.5px">${esc(l.name)}</a>`).join(' ');
+
+  $('content').innerHTML=`<div class="grid">
+    <div class="col">
+      <div class="g-panel">
+        <div class="sec-head"><h3>Project</h3></div>
+        <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px">${esc(ver)}</div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:10px">${esc(info.desc)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${linksHtml}</div>
+      </div>
+      <div class="g-panel">
+        <div class="sec-head"><h3>Stats</h3></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px">
+          <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:var(--text)">${s.open}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Open</div></div>
+          <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:var(--accent)">${s.done}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Done</div></div>
+          <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:${s.p0?'var(--danger)':'var(--dim)'}">${s.p0}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">P0</div></div>
+          <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--${healthCls||'dim'})">${healthTxt}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Health</div></div>
+        </div>
+      </div>
+      ${info.stack?.length?`<div class="g-panel">
+        <div class="sec-head"><h3>Stack</h3></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">${info.stack.map(s=>`<span style="font-family:var(--mono);font-size:10px;padding:3px 8px;border:1px solid var(--border);color:var(--text)">${esc(s)}</span>`).join('')}</div>
+      </div>`:''}
+      ${info.services?.length?`<div class="g-panel">
+        <div class="sec-head"><h3>Services</h3></div>
+        ${info.services.map(s=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px"><span style="color:var(--text)">${esc(s.name)}</span><span style="font-family:var(--mono);color:${s.cost==='free'?'var(--accent)':'var(--warn)'}">${esc(s.cost)}</span></div>`).join('')}
+      </div>`:''}
+      <div class="g-panel" style="flex:1">
+        <div class="sec-head"><h3>Agents</h3></div>
+        ${relAgents.length?relAgents.map(a=>{
+          const st=a.status||'unknown';
+          const lastTxt=st==='never'?'never':st==='unknown'?'--':ago(a.last_run);
+          const click=a.last_report?` onclick="viewFile('${esc(a.last_report)}')"`:' style="cursor:default"';
+          return`<div class="agent-card"${click}><span class="agent-dot ${st}"></span><div class="agent-info"><div class="agent-name">${esc(a.name)}</div><div class="agent-schedule">${esc(a.schedule)}</div><div class="agent-meta"><span class="agent-ago ${st}">${esc(lastTxt)}</span><span class="agent-platform">${esc(a.platform)}</span></div></div></div>`;
+        }).join(''):'<div style="color:var(--dim);font-size:12px">No agents</div>'}
+      </div>
+    </div>
+    <div class="col" style="grid-column:span 2">
+      ${insight?`<div class="g-panel"><div class="sec-head"><h3>Strategist Insight</h3><span class="badge">${insight.ago?ago(insight.ago):''}</span></div><div style="font-size:13px;color:var(--text);line-height:1.6">${esc(insight.text)}</div></div>`:''}
+      <div class="g-panel" style="flex:1;overflow-y:auto">
+        <div class="sec-head"><h3>Backlog</h3><span class="badge">${s.open} OPEN / ${s.done} DONE</span></div>
+        <div id="projectBacklog"></div>
+      </div>
+      ${pa?`<div class="g-panel" style="overflow-y:auto;max-height:30vh"><div class="sec-head"><h3>Process Analysis</h3><span class="badge">${pa.reportDate?ago(pa.reportDate):''}</span></div><div id="processWrap"></div></div>`:''}
+    </div>
+  </div>`;
+
+  // Render inline backlog
+  const blEl=$('projectBacklog');
+  if(blEl){
+    fetch('/'+p.file+'?'+Date.now()).then(r=>r.text()).then(blMd=>{
+      blEl.innerHTML=renderBacklogModal(blMd,p.name);
+    }).catch(()=>{blEl.innerHTML='<div style="color:var(--dim)">Failed to load backlog</div>'});
+  }
+
+  if(pa){
+    const el=$('processWrap');
+    if(el){
+      let html='';
+      if(pa.weekSummary?.length){html+='<div class="process-label">Week Summary</div>'+pa.weekSummary.map(s=>`<div class="process-item">${esc(s)}</div>`).join('')}
+      if(pa.observations?.length){html+='<div class="process-label">Observations</div>'+pa.observations.map(s=>`<div class="process-item">${esc(s)}</div>`).join('')}
+      if(pa.actionItems?.length){html+='<div class="process-label">Action Items</div>'+pa.actionItems.map(s=>`<div class="action-item">${esc(s)}</div>`).join('')}
+      el.innerHTML=html||'<div style="color:var(--dim)">No analysis</div>';
+    }
+  }
+}
+
+function renderGlobalStatus(){
+  // Global status from alerts
+  const agents=D.agents||[];
+  let critCount=0,warnCount=0;
+  agents.forEach(a=>{if(a.status==='error'||a.status==='never')critCount++;if(a.status==='warning')warnCount++});
+  PROJECTS.forEach(p=>{const md=D.backlogs?.[p.id]||'';const s=countStats(md);if(s.p0>0)critCount++});
+
+  const pill=$('globalStatus');
+  if(critCount>0){pill.className='status-chip critical';pill.innerHTML='<span class="blink"></span> '+critCount+' CRITICAL'}
+  else if(warnCount>0){pill.className='status-chip warning';pill.innerHTML='<span class="blink"></span> '+warnCount+' WARNING'}
+  else{pill.className='status-chip ok';pill.innerHTML='<span class="blink"></span> ALL CLEAR'}
+
+  $('agentCount').innerHTML='AGENTS <span class="v">'+(agents.filter(a=>a.status==='ok').length)+'/'+agents.length+'</span>';
+}
+
+// === SSE ===
+function connectSSE(){
+  const es=new EventSource('/events');
+  es.onmessage=(e)=>{
+    try{
+      const msg=JSON.parse(e.data);
+      if(msg.type==='update'&&msg.data){
+        D=msg.data;
+        renderView();
+        const sl=document.getElementById('scanline');
+        if(sl&&!lowPerfMode){sl.classList.remove('sweep');void sl.offsetWidth;sl.classList.add('sweep')}
+        const topbar=document.querySelector('.topbar');
+        if(topbar){topbar.style.borderColor='var(--accent)';setTimeout(()=>topbar.style.borderColor='',1500)}
+      }
+    }catch{}
+  };
+  es.onerror=()=>{es.close();setTimeout(connectSSE,5000)};
+}
+
+// === Init ===
+let booted=false;
+function init(){
+  renderNav();
+  renderView();
+  if(!booted){runBoot();booted=true}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  fetch('/api/data')
+    .then(r=>r.json())
+    .then(data=>{D=data;init();connectSSE()})
+    .catch(()=>{});
+});
+</script>
+</body>
+</html>

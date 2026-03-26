@@ -1,25 +1,42 @@
 # Architect — Backlog
 
 Задачи создаются автоматически после каждого weekly review + ad-hoc из сессий.
-Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-051**.
+Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-065**.
 
 ---
 
-## Sprint 8 (open)
+## Sprint 9 (open, 26.03.2026)
 
-### Epic: DASH — Dashboard Redesign
-- [ ] **ARCH-043** Dashboard redesign — technical/military стиль (Crucix reference), убрать шум, крупные метрики, command center feel
-- [ ] **ARCH-044** Dashboard: показывать полезную сводку, не сырые данные — P0 задачи, critical findings, agent status, версии, health одним взглядом
+### Epic: GIT — Закоммитить и запушить всё
+- [ ] **ARCH-051** Architect: git add + commit + push — dashboard v2 (server.mjs, dashboard/, package.json, .gitignore, serve-dashboard.sh)
+- [ ] **ARCH-052** Hunter: git push (1 ahead) + закоммитить перенос файлов (article-vc.md → docs/research/, Tg Avatar → assets/)
+- [ ] **ARCH-053** Sami: git push (1 ahead) + закоммитить перенос файлов (DB_SPLIT_PLAN, STRATEGIST_BRIEF → docs/research/)
+- [ ] **ARCH-054** Vedic: закоммитить BACKLOG.md + CLAUDE.md + PDF deletion + docs/research/ + push
+
+### Epic: HYGIENE — Структура проектов
+- [ ] **ARCH-055** Sami: переименовать COMMUNITY_TASKS.md → BACKLOG.md — обновить все ссылки (CLAUDE.md, serve-dashboard.sh, server.mjs, dashboard)
+- [ ] **ARCH-056** Sami: reports/strategist symlink → прямые пути — убрать зависимость от ~/Library
+- [ ] **ARCH-057** Architect .gitignore — расширить (node_modules, coverage, *.log)
+- [ ] **ARCH-058** Hunter .gitignore — добавить coverage/
+- [ ] **ARCH-059** Vedic .gitignore — явно добавить .next/
+
+### Epic: DASH — Dashboard (продолжение Sprint 8)
+- [x] **ARCH-043** Dashboard redesign — Crucix-style, Express+SSE, 3 колонки, boot-анимация ✅
+- [x] **ARCH-044** Dashboard: полезная сводка — Projects, Alerts, Agents, Insights, Memory Profile ✅
 - [ ] **ARCH-045** Dashboard: mobile responsive (сейчас ломается на телефоне)
 
-### Epic: RELIABILITY — Стратегисты не работают
-- [ ] **ARCH-046** Диагностика Claude CLI timeout — стратегисты не работали 23-25.03, все Claude calls зависают. Проверить лимиты Max, env, PATH
-- [ ] **ARCH-047** Закоммитить незакоммиченное — Hunter (4 файла + отчёты), SAMI (notify-admin), Architect (serve-dashboard + auto-save)
+### Epic: RELIABILITY
+- [ ] **ARCH-046** Диагностика Claude CLI timeout — стратегисты не работали 23-25.03
+- [ ] **ARCH-060** Radar: Sami .env отсутствует — создать или переключить Telegram на Hunter bot token
 
-### Epic: QUALITY — Из аудита 25.03
-- [ ] **ARCH-048** Vedic 404 — DATABASE_URL в Vercel env vars, починить деплой (делать в Vedic проекте)
+### Epic: QUALITY
+- [ ] **ARCH-048** Vedic 404 — DATABASE_URL в Vercel env vars
 - [ ] **ARCH-049** VedicAstroAPI trial → $18/мес до 28.03 (3 дня, делает Диёр)
 - [ ] **ARCH-050** Hunter: GOOGLE_AI_API_KEY в GitHub Secrets (5 мин)
+- [ ] **ARCH-061** README.md — создать для Hunter, Sami, Portfolio, Architect
+- [ ] **ARCH-062** Architect: агенты в корне → перенести в agents/ (watchdog, morning-briefing, memory-prune)
+- [ ] **ARCH-063** Portfolio: очистить orphan dirs (El Animation/, readymag-exports/, screenshots/) — архив или удаление
+- [ ] **ARCH-064** 11 орфанных проектов в Projects/ — решить судьбу (Amma, ENXT, FD, HSE, Imran, JobDashboard, Osme, Qlean, Skysmart, Teletype, VK)
 
 ---
 
