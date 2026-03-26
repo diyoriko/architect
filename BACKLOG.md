@@ -14,7 +14,7 @@
 - [x] **ARCH-054** Vedic: закоммитить BACKLOG + CLAUDE + PDF + docs/research/ + push
 
 ### Epic: HYGIENE — Структура проектов
-- [ ] **ARCH-055** Sami: переименовать COMMUNITY_TASKS.md → BACKLOG.md — обновить все ссылки (CLAUDE.md, serve-dashboard.sh, server.mjs, dashboard)
+- [x] **ARCH-055** Sami: переименовать COMMUNITY_TASKS.md → BACKLOG.md — 16 файлов обновлено
 - [ ] **ARCH-056** Sami: reports/strategist symlink → прямые пути — убрать зависимость от ~/Library
 - [x] **ARCH-057** Architect .gitignore — расширить (node_modules, coverage, *.log)
 - [x] **ARCH-058** Hunter .gitignore — добавить coverage/
@@ -26,15 +26,15 @@
 - [ ] **ARCH-045** Dashboard: mobile responsive (сейчас ломается на телефоне)
 
 ### Epic: RELIABILITY
-- [ ] **ARCH-046** Диагностика Claude CLI timeout — стратегисты не работали 23-25.03
-- [ ] **ARCH-060** Radar: Sami .env отсутствует — создать или переключить Telegram на Hunter bot token
+- [x] **ARCH-046** Claude CLI timeout — false alarm, стратегисты weekly (вс), 24-25 = пн-вт. CLI работает
+- [x] **ARCH-060** Radar: Telegram переключён на notify-bot-token
 
 ### Epic: QUALITY
 - [ ] **ARCH-048** Vedic 404 — DATABASE_URL в Vercel env vars
 - [ ] **ARCH-049** VedicAstroAPI trial → $18/мес до 28.03 (3 дня, делает Диёр)
 - [ ] **ARCH-050** Hunter: GOOGLE_AI_API_KEY в GitHub Secrets (5 мин)
 - [ ] **ARCH-061** README.md — создать для Hunter, Sami, Portfolio, Architect
-- [ ] **ARCH-062** Architect: агенты в корне → перенести в agents/ (watchdog, morning-briefing, memory-prune)
+- [x] **ARCH-062** Architect: агенты → agents/ (watchdog, morning-briefing, memory-prune)
 - [ ] **ARCH-063** Portfolio: очистить orphan dirs (El Animation/, readymag-exports/, screenshots/) — архив или удаление
 - [ ] **ARCH-064** 11 орфанных проектов в Projects/ — решить судьбу (Amma, ENXT, FD, HSE, Imran, JobDashboard, Osme, Qlean, Skysmart, Teletype, VK)
 
