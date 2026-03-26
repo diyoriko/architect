@@ -845,6 +845,7 @@ const PROJECT_INFO={
     stack:['Node.js','SQLite','Telegram Bot API','Gemini 2.5 Pro','Groq Llama 3.3'],
     services:[{name:'Railway',cost:'~$5/mo'},{name:'CodeRabbit',cost:'free'},{name:'GH Actions CI',cost:'free'}],
     skills:['/deploy','/backlog','/status','/catchup'],
+    commands:['/research','/compact','/learn'],
   },
   sami:{
     desc:'Fitness community бот + канал. Видео, челленджи, аналитика.',
@@ -852,6 +853,7 @@ const PROJECT_INFO={
     stack:['Node.js','SQLite','Telegram Bot API','YouTube API','yt-dlp'],
     services:[{name:'Railway',cost:'~$5/mo'},{name:'CodeRabbit',cost:'free'},{name:'GH Actions CI',cost:'free'}],
     skills:['/deploy','/backlog','/status','/catchup'],
+    commands:['/research','/compact','/learn'],
   },
   vedic:{
     desc:'Vedik Astroloji Platformu. Natal charts, Shopier payments.',
@@ -859,6 +861,7 @@ const PROJECT_INFO={
     stack:['Next.js 16','VedAstro API','Prokerala API','VedicAstroAPI','Claude AI'],
     services:[{name:'Vercel',cost:'free'},{name:'VedicAstroAPI',cost:'$18/mo trial'},{name:'CodeRabbit',cost:'free'}],
     skills:['/deploy','/backlog','/status'],
+    commands:['/research','/compact','/learn'],
   },
   portfolio:{
     desc:'Портфолио diyor.design. 7 кейсов, GoatCounter.',
@@ -866,6 +869,7 @@ const PROJECT_INFO={
     stack:['HTML/CSS/JS','GitHub Pages','GoatCounter'],
     services:[{name:'GitHub Pages',cost:'free'},{name:'GoatCounter',cost:'free'}],
     skills:['/deploy','/audit-seo','/copy-review'],
+    commands:['/research','/compact','/learn'],
   },
   radar:{
     desc:'Design x AI news scout. Daily radar.',
@@ -873,6 +877,7 @@ const PROJECT_INFO={
     stack:['Claude CLI','launchd'],
     services:[{name:'Claude Max',cost:'$200/mo (shared)'}],
     skills:[],
+    commands:['/research','/learn'],
   },
   architect:{
     desc:'Command center + code review + process review.',
@@ -880,6 +885,7 @@ const PROJECT_INFO={
     stack:['Node.js','Express 5','SSE','launchd'],
     services:[{name:'Claude Max',cost:'$200/mo (shared)'},{name:'Anthropic API',cost:'$5 bal'}],
     skills:['/simplify','/commit'],
+    commands:['/research','/compact','/learn'],
   },
 };
 
@@ -977,6 +983,13 @@ function renderProjectView(projId){
         <div class="sec-head"><h3>Stack</h3></div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">${info.stack.map(s=>`<span style="font-family:var(--mono);font-size:10px;padding:3px 8px;border:1px solid var(--border);color:var(--text)">${esc(s)}</span>`).join('')}</div>
       </div>`:''}
+      ${info.skills?.length||info.commands?.length?`<div class="g-panel">
+        <div class="sec-head"><h3>Commands</h3></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${(info.skills||[]).map(s=>`<span style="font-family:var(--mono);font-size:10px;padding:3px 8px;border:1px solid rgba(100,240,200,0.2);color:var(--accent)">${esc(s)}</span>`).join('')}
+          ${(info.commands||[]).map(s=>`<span style="font-family:var(--mono);font-size:10px;padding:3px 8px;border:1px solid rgba(68,204,255,0.2);color:var(--accent2)">${esc(s)}</span>`).join('')}
+        </div>
+      </div>`:``}
       ${info.services?.length?`<div class="g-panel">
         <div class="sec-head"><h3>Services</h3></div>
         ${info.services.map(s=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px"><span style="color:var(--text)">${esc(s.name)}</span><span style="font-family:var(--mono);color:${s.cost==='free'?'var(--accent)':'var(--warn)'}">${esc(s.cost)}</span></div>`).join('')}

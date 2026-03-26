@@ -1,7 +1,7 @@
 # Architect — Backlog
 
 Задачи создаются автоматически после каждого weekly review + ad-hoc из сессий.
-Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-065**.
+Формат: `ARCH-NNN` — последовательная нумерация. Следующий номер: **ARCH-067**.
 
 ---
 
@@ -33,10 +33,14 @@
 - [ ] **ARCH-048** Vedic 404 — DATABASE_URL в Vercel env vars
 - [ ] **ARCH-049** VedicAstroAPI trial → $18/мес до 28.03 (3 дня, делает Диёр)
 - [ ] **ARCH-050** Hunter: GOOGLE_AI_API_KEY в GitHub Secrets (5 мин)
-- [ ] **ARCH-061** README.md — создать для Hunter, Sami, Portfolio, Architect
+- [x] **ARCH-061** README.md — Hunter, Sami, Portfolio, Architect
 - [x] **ARCH-062** Architect: агенты → agents/ (watchdog, morning-briefing, memory-prune)
-- [ ] **ARCH-063** Portfolio: очистить orphan dirs (El Animation/, readymag-exports/, screenshots/) — архив или удаление
-- [ ] **ARCH-064** 11 орфанных проектов в Projects/ — решить судьбу (Amma, ENXT, FD, HSE, Imran, JobDashboard, Osme, Qlean, Skysmart, Teletype, VK)
+- [x] **ARCH-063** Portfolio: orphan dirs → _archive/ (117MB, удалить через месяц если не нужны)
+- [x] **ARCH-064** 11 проектов — дизайн-архивы, не мусор. HSE (8GB) + Osme (6GB) — кандидаты на внешний диск
+
+### Epic: RELIABILITY — Railway crash emails
+- [ ] **ARCH-065** Railway crash-при-деплое — SAMI "Deploy Crashed" emails приходят часто. Диагностика: graceful shutdown, health check timing, build errors. Настроить Railway health checks правильно
+- [ ] **ARCH-066** Мониторинг Railway — добавить health check polling в дашборд с историей (up/down/restart events)
 
 ---
 
