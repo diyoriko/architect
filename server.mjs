@@ -16,7 +16,7 @@ const PORT = parseInt(process.env.PORT) || 3333;
 
 const STATIC_MAP = {
   'hunter-BACKLOG.md': join(PROJECTS, 'Hunter/BACKLOG.md'),
-  'sami-BACKLOG.md': join(PROJECTS, 'Sami/COMMUNITY_TASKS.md'),
+  'sami-BACKLOG.md': join(PROJECTS, 'Sami/BACKLOG.md'),
   'vedic-BACKLOG.md': join(PROJECTS, 'Vedic Turkey/BACKLOG.md'),
   'portfolio-BACKLOG.md': join(PROJECTS, 'Portfolio/BACKLOG.md'),
   'radar-BACKLOG.md': join(PROJECTS, 'Portfolio/BACKLOG.md'),
@@ -487,7 +487,7 @@ app.post('/api/moderate', (req, res) => {
 
   const fileMap = {
     hunter: join(PROJECTS, 'Hunter/BACKLOG.md'),
-    sami: join(PROJECTS, 'Sami/COMMUNITY_TASKS.md'),
+    sami: join(PROJECTS, 'Sami/BACKLOG.md'),
     vedic: join(PROJECTS, 'Vedic Turkey/BACKLOG.md'),
     portfolio: join(PROJECTS, 'Portfolio/BACKLOG.md'),
     architect: join(__dirname, 'BACKLOG.md'),

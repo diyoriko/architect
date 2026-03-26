@@ -66,9 +66,9 @@ echo "$(date -Iseconds) Starting architect review..."
   gh run list --repo diyoriko/sami --limit 5 2>/dev/null || echo "(gh cli unavailable)"
   echo ""
   echo "=== SAMI: backlog summary ==="
-  grep -c '^\- \[ \]' "$SAMI_DIR/COMMUNITY_TASKS.md" 2>/dev/null | xargs -I{} echo "Open tasks: {}" || echo "(unavailable)"
-  grep -c '^\- \[x\]' "$SAMI_DIR/COMMUNITY_TASKS.md" 2>/dev/null | xargs -I{} echo "Closed tasks: {}" || echo "(unavailable)"
-  grep "### CodeRabbit" "$SAMI_DIR/COMMUNITY_TASKS.md" -A 20 2>/dev/null | head -20 || echo "(no CodeRabbit section)"
+  grep -c '^\- \[ \]' "$SAMI_DIR/BACKLOG.md" 2>/dev/null | xargs -I{} echo "Open tasks: {}" || echo "(unavailable)"
+  grep -c '^\- \[x\]' "$SAMI_DIR/BACKLOG.md" 2>/dev/null | xargs -I{} echo "Closed tasks: {}" || echo "(unavailable)"
+  grep "### CodeRabbit" "$SAMI_DIR/BACKLOG.md" -A 20 2>/dev/null | head -20 || echo "(no CodeRabbit section)"
   echo ""
   echo "=== SAMI: test coverage ==="
   cd "$SAMI_DIR/agents/community" && npx vitest run --coverage 2>&1 | grep -A 30 "Coverage report" | head -25 || echo "(coverage unavailable)"
@@ -345,7 +345,7 @@ fi
 STATUS_FILE="$SCRIPT_DIR/status.json"
 SAMI_TESTS=$(cd "$SAMI_DIR/agents/community" && npx vitest run 2>&1 | grep "Tests" | grep -oE '[0-9]+ passed' | head -1 || echo "? passed")
 HUNTER_TESTS=$(cd "$HUNTER_DIR" && npx vitest run 2>&1 | grep "Tests" | grep -oE '[0-9]+ passed' | head -1 || echo "? passed")
-SAMI_OPEN=$(grep -c '^\- \[ \]' "$SAMI_DIR/COMMUNITY_TASKS.md" 2>/dev/null || echo "0")
+SAMI_OPEN=$(grep -c '^\- \[ \]' "$SAMI_DIR/BACKLOG.md" 2>/dev/null || echo "0")
 HUNTER_OPEN=$(grep -c '^\- \[ \]' "$HUNTER_DIR/BACKLOG.md" 2>/dev/null || echo "0")
 ARCH_OPEN=$(grep -c '^\- \[ \]' "$SCRIPT_DIR/BACKLOG.md" 2>/dev/null || echo "0")
 

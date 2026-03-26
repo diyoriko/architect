@@ -60,7 +60,7 @@ P0_DETAILS=""
 for proj in Hunter Sami "Vedic Turkey" Portfolio; do
   case "$proj" in
     Hunter) bl="$PROJECTS_DIR/Hunter/BACKLOG.md" ;;
-    Sami) bl="$PROJECTS_DIR/Sami/COMMUNITY_TASKS.md" ;;
+    Sami) bl="$PROJECTS_DIR/Sami/BACKLOG.md" ;;
     "Vedic Turkey") bl="$PROJECTS_DIR/Vedic Turkey/BACKLOG.md" ;;
     Portfolio) bl="$PROJECTS_DIR/Portfolio/BACKLOG.md" ;;
   esac

@@ -175,7 +175,7 @@ dump_src() {
   for proj_name in Hunter SAMI Vedic Portfolio; do
     case "$proj_name" in
       Hunter) bl="$HUNTER_DIR/BACKLOG.md" ;;
-      SAMI) bl="$SAMI_DIR/COMMUNITY_TASKS.md" ;;
+      SAMI) bl="$SAMI_DIR/BACKLOG.md" ;;
       Vedic) bl="$VEDIC_DIR/BACKLOG.md" ;;
       Portfolio) bl="$PORTFOLIO_DIR/BACKLOG.md" ;;
     esac
@@ -476,7 +476,7 @@ $(echo "$block" | sed 's/$/\\/' | sed '$ s/\\$//')
   fi
 }
 
-sync_items "SAMI" "SAMI|sami" "$SAMI_DIR/COMMUNITY_TASKS.md"
+sync_items "SAMI" "SAMI|sami" "$SAMI_DIR/BACKLOG.md"
 sync_items "Hunter" "Hunter|hunter|Ловец" "$HUNTER_DIR/BACKLOG.md"
 sync_items "Vedic" "Vedic|vedic|Vedik|vedik" "$VEDIC_DIR/BACKLOG.md"
 sync_items "Portfolio" "Portfolio|portfolio|diyor" "$PORTFOLIO_DIR/BACKLOG.md"
@@ -506,7 +506,7 @@ close_completed() {
     # Determine which backlog to check
     local check_file=""
     case "$proj" in
-      SAMI) check_file="$SAMI_DIR/COMMUNITY_TASKS.md" ;;
+      SAMI) check_file="$SAMI_DIR/BACKLOG.md" ;;
       Hunter) check_file="$HUNTER_DIR/BACKLOG.md" ;;
       Vedic) check_file="$VEDIC_DIR/BACKLOG.md" ;;
       Portfolio) check_file="$PORTFOLIO_DIR/BACKLOG.md" ;;

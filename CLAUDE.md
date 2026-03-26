@@ -13,7 +13,7 @@
 ```python
 STATIC_MAP = {
     'hunter-BACKLOG.md':    '~/Documents/Projects/Hunter/BACKLOG.md',
-    'sami-BACKLOG.md':      '~/Documents/Projects/Sami/COMMUNITY_TASKS.md',
+    'sami-BACKLOG.md':      '~/Documents/Projects/Sami/BACKLOG.md',
     'vedic-BACKLOG.md':     '~/Documents/Projects/Vedic Turkey/BACKLOG.md',
     'portfolio-BACKLOG.md': '~/Documents/Projects/Portfolio/BACKLOG.md',
     'architect-BACKLOG.md': 'BACKLOG.md',

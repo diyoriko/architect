@@ -8,17 +8,17 @@
 ## Sprint 9 (open, 26.03.2026)
 
 ### Epic: GIT — Закоммитить и запушить всё
-- [ ] **ARCH-051** Architect: git add + commit + push — dashboard v2 (server.mjs, dashboard/, package.json, .gitignore, serve-dashboard.sh)
-- [ ] **ARCH-052** Hunter: git push (1 ahead) + закоммитить перенос файлов (article-vc.md → docs/research/, Tg Avatar → assets/)
-- [ ] **ARCH-053** Sami: git push (1 ahead) + закоммитить перенос файлов (DB_SPLIT_PLAN, STRATEGIST_BRIEF → docs/research/)
-- [ ] **ARCH-054** Vedic: закоммитить BACKLOG.md + CLAUDE.md + PDF deletion + docs/research/ + push
+- [x] **ARCH-051** Architect: git add + commit + push — dashboard v2
+- [x] **ARCH-052** Hunter: git push + перенос файлов (article-vc.md, Tg Avatar)
+- [x] **ARCH-053** Sami: git push + перенос файлов (DB_SPLIT_PLAN, STRATEGIST_BRIEF)
+- [x] **ARCH-054** Vedic: закоммитить BACKLOG + CLAUDE + PDF + docs/research/ + push
 
 ### Epic: HYGIENE — Структура проектов
 - [ ] **ARCH-055** Sami: переименовать COMMUNITY_TASKS.md → BACKLOG.md — обновить все ссылки (CLAUDE.md, serve-dashboard.sh, server.mjs, dashboard)
 - [ ] **ARCH-056** Sami: reports/strategist symlink → прямые пути — убрать зависимость от ~/Library
-- [ ] **ARCH-057** Architect .gitignore — расширить (node_modules, coverage, *.log)
-- [ ] **ARCH-058** Hunter .gitignore — добавить coverage/
-- [ ] **ARCH-059** Vedic .gitignore — явно добавить .next/
+- [x] **ARCH-057** Architect .gitignore — расширить (node_modules, coverage, *.log)
+- [x] **ARCH-058** Hunter .gitignore — добавить coverage/
+- [x] **ARCH-059** Vedic .gitignore — уже есть .next/, OK
 
 ### Epic: DASH — Dashboard (продолжение Sprint 8)
 - [x] **ARCH-043** Dashboard redesign — Crucix-style, Express+SSE, 3 колонки, boot-анимация ✅
