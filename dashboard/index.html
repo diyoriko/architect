@@ -179,6 +179,33 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .arch-diagram{font-family:var(--mono);font-size:10px;color:var(--dim);white-space:pre;line-height:1.9;overflow-x:auto}
 .arch-diagram b{color:var(--text);font-weight:700}
 
+/* Search */
+.search-wrap{display:flex;gap:8px;align-items:center;padding:0 18px;margin-top:6px}
+.search-input{flex:1;font-family:var(--mono);font-size:12px;padding:6px 12px;background:rgba(8,14,24,0.95);border:1px solid var(--border);color:var(--text);outline:none;letter-spacing:0.5px}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--dim)}
+.search-results{position:absolute;top:100%;left:0;right:0;background:rgba(8,14,24,0.98);border:1px solid var(--border);max-height:400px;overflow-y:auto;z-index:60;display:none}
+.search-results.open{display:block}
+.search-result{padding:8px 14px;font-size:12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:8px;align-items:baseline}
+.search-result:hover{background:rgba(255,255,255,0.03)}
+.search-result-proj{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;min-width:60px}
+.search-result-text{color:var(--text);flex:1}
+.search-result-id{color:var(--accent2);font-family:var(--mono);font-size:10px;flex-shrink:0}
+
+/* Moderation */
+.mod-actions{display:inline-flex;gap:4px;margin-left:8px;flex-shrink:0}
+.mod-btn{font-size:10px;padding:2px 8px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--dim);font-family:var(--mono)}
+.mod-btn:hover{color:var(--text);border-color:var(--text)}
+.mod-btn.remove:hover{color:var(--danger);border-color:var(--danger)}
+.mod-btn.keep:hover{color:var(--accent);border-color:var(--accent)}
+.mod-removing{opacity:0.3;pointer-events:none;transition:opacity 0.3s}
+
+/* Sticky headers */
+.sec-head{position:sticky;top:0;background:rgba(8,14,24,0.98);z-index:10;padding-bottom:8px}
+
+/* Agent tooltip */
+.agent-desc{font-size:10px;color:var(--dim);margin-top:2px;font-style:italic}
+
 /* Modal */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal-bg.open{display:flex}
@@ -262,6 +289,12 @@ body.low-perf .agent-dot.error,body.low-perf .agent-dot.never,body.low-perf .sta
       <span class="meta-pill" id="clock">--:--:--</span>
       <span class="meta-pill perf-pill" id="perfToggle" onclick="togglePerf()">VISUALS FULL</span>
     </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap" style="position:relative">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search tasks... (Ctrl+K)" oninput="onSearch(this.value)" onfocus="onSearch(this.value)">
+    <div class="search-results" id="searchResults"></div>
   </div>
 
   <!-- Content area: switches between views -->
@@ -378,6 +411,7 @@ function renderAgents(){
       <div class="agent-info">
         <div class="agent-name">${esc(a.name)}</div>
         <div class="agent-schedule">${esc(a.schedule)}</div>
+        ${a.description?`<div class="agent-desc">${esc(a.description)}</div>`:''}
         <div class="agent-meta">
           <span class="agent-ago ${st}">${esc(lastTxt)}</span>
           <span class="agent-platform">${esc(a.platform)}</span>
@@ -462,6 +496,9 @@ function renderAlerts(){
     pill.className='status-chip ok';
     pill.innerHTML='<span class="blink"></span> ALL CLEAR';
   }
+
+  // Sort: red first, then amber
+  items.sort((a,b)=>(a.level==='red'?0:1)-(b.level==='red'?0:1));
 
   if(!items.length){
     wrap.innerHTML='<div class="alert-none">All systems operational</div>';
@@ -602,11 +639,11 @@ function viewBacklog(projId, projName){
   $('modalBody').innerHTML='<div style="color:var(--dim)">Loading...</div>';
   $('modalBg').classList.add('open');
   fetch('/'+p.file+'?'+Date.now()).then(r=>r.text()).then(md=>{
-    $('modalBody').innerHTML=renderBacklogModal(md,projName);
+    $('modalBody').innerHTML=renderBacklogModal(md,projName,projId);
   }).catch(()=>{$('modalBody').textContent='Failed to load'});
 }
 
-function renderBacklogModal(md, projName){
+function renderBacklogModal(md, projName, projId){
   const lines=md.split('\n');
   const sprints=[];
   let current=null;
@@ -701,15 +738,15 @@ function renderBacklogModal(md, projName){
   let html='';
 
   // 1. Active sprint
-  active.forEach(s=>{ html+=renderSprintBlock(s,true) });
+  active.forEach(s=>{ html+=renderSprintBlock(s,true,projId) });
 
   // 2. Other open sprints
-  otherSprints.forEach(s=>{ html+=renderSprintBlock(s,false) });
+  otherSprints.forEach(s=>{ html+=renderSprintBlock(s,false,projId) });
 
   // 3. Unsorted / Review
   if(topItems.length){
     html+=`<div class="bl-sprint-head" style="color:var(--warn)">Inbox / Review <span class="stats">${topItems.filter(t=>!t.done).length} open</span></div>`;
-    html+=renderTaskList(topItems);
+    html+=renderTaskList(topItems,projId);
   }
 
   // 4. Future / Perspective
@@ -717,7 +754,7 @@ function renderBacklogModal(md, projName){
     const uid='sf'+Math.random().toString(36).slice(2,7);
     const open=s.tasks.filter(t=>!t.done).length;
     html+=`<div class="bl-toggle-row" style="margin-top:8px" onclick="const e=document.getElementById('${uid}');e.style.display=e.style.display==='none'?'block':'none'">\u25B6 ${esc(s.name)} <span style="color:var(--dim)">(${open} tasks)</span></div>`;
-    html+=`<div id="${uid}" style="display:none">${renderTaskList(s.tasks)}</div>`;
+    html+=`<div id="${uid}" style="display:none">${renderTaskList(s.tasks,projId)}</div>`;
   });
 
   // 5. Archived (collapsed)
@@ -728,7 +765,7 @@ function renderBacklogModal(md, projName){
     html+=`<div id="${uid}" style="display:none">`;
     archived.forEach(s=>{
       html+=`<div class="bl-sprint-head" style="color:var(--dim)">${esc(s.name)} <span class="stats">${s.tasks.length} tasks</span></div>`;
-      html+=renderTaskList(s.tasks.slice(0,5));
+      html+=renderTaskList(s.tasks.slice(0,5),projId);
       if(s.tasks.length>5) html+=`<div style="padding:4px 8px;font-size:10px;color:var(--dim)">+${s.tasks.length-5} more</div>`;
     });
     html+='</div>';
@@ -737,31 +774,32 @@ function renderBacklogModal(md, projName){
   return html;
 }
 
-function renderSprintBlock(s, isActive){
+function renderSprintBlock(s, isActive, projId){
   const open=s.tasks.filter(t=>!t.done);
   const done=s.tasks.filter(t=>t.done);
   let html=`<div class="bl-sprint-head${isActive?' active':''}">${esc(s.name)}${isActive?'<span class="bl-active-tag">ACTIVE</span>':''}<span class="stats">${open.length} open / ${done.length} done</span></div>`;
-  html+=renderTaskList(open);
+  html+=renderTaskList(open,projId);
   if(done.length){
     const uid='sd'+Math.random().toString(36).slice(2,7);
     html+=`<div class="bl-toggle-row" onclick="const e=document.getElementById('${uid}');e.style.display=e.style.display==='none'?'block':'none'">\u25B6 Done (${done.length})</div>`;
-    html+=`<div id="${uid}" style="display:none">${renderTaskList(done)}</div>`;
+    html+=`<div id="${uid}" style="display:none">${renderTaskList(done,projId)}</div>`;
   }
   return html;
 }
 
-function renderTaskList(tasks){
+function renderTaskList(tasks, projId){
   return tasks.map(t=>{
     const dot=t.done?`<span class="bl-task-dot" style="color:var(--accent)">\u2713</span>`
                     :`<span class="bl-task-dot" style="color:var(--dim)">\u25CB</span>`;
     const idTag=t.id?`<span class="bl-task-id">${esc(t.id)}</span>`:'';
     const srcTag=t.source?`<span class="bl-source ${t.source}">${t.source}</span>`:'';
+    const modBtns=t.source&&!t.done&&projId?`<span class="mod-actions"><button class="mod-btn keep" onclick="event.stopPropagation();moderate('${projId}','${esc(t.title).replace(/'/g,"\\'")}','keep')" title="Keep task, remove source tag">\u2713</button><button class="mod-btn remove" onclick="event.stopPropagation();moderate('${projId}','${esc(t.title).replace(/'/g,"\\'")}','remove')" title="Remove task">\u2715</button></span>`:'';
     const detail=t.detail?`<div class="bl-task-detail">${esc(t.detail)}</div>`:'';
     const hasDetail=t.detail||t.section;
     const sectionNote=t.section&&!t.detail?`<div class="bl-task-detail">${esc(t.section)}</div>`:'';
     const allDetail=t.detail&&t.section?`<div class="bl-task-detail"><span style="color:var(--accent2)">${esc(t.section)}</span><br>${esc(t.detail)}</div>`:detail||sectionNote;
     const cls=t.done?'bl-task done':'bl-task';
-    return`<div class="${cls}">${dot}${idTag}<span class="bl-task-text">${esc(t.title)}${srcTag}</span>${allDetail}</div>`;
+    return`<div class="${cls}">${dot}${idTag}<span class="bl-task-text">${esc(t.title)}${srcTag}${modBtns}</span>${allDetail}</div>`;
   }).join('');
 }
 
@@ -838,6 +876,8 @@ function renderNav(){
 }
 
 function navigate(view){
+  const url=view==='cc'?'/':'/'+view;
+  window.history.pushState({view},'',url);
   currentView=view;
   renderNav();
   renderView();
@@ -1020,22 +1060,25 @@ function renderProjectView(projId){
     </div>
   </div>`;
 
-  // Render health history dots
+  // Render health history dots with time axis
   const dotsEl=$('healthDots');
   if(dotsEl&&D.healthHistory?.length){
-    dotsEl.innerHTML=D.healthHistory.map(h=>{
+    const firstTime=D.healthHistory[0]?.timestamp?.slice(11,16)||'';
+    const lastTime=D.healthHistory[D.healthHistory.length-1]?.timestamp?.slice(11,16)||'';
+    const dots=D.healthHistory.map(h=>{
       const ok=h.results?.[projId];
       const c=ok===true?'var(--accent)':ok===false?'var(--danger)':'var(--dim)';
       const t=h.timestamp?.slice(11,16)||'';
       return`<span title="${t}" style="width:4px;height:12px;background:${c};opacity:0.8"></span>`;
     }).join('');
+    dotsEl.innerHTML=`<span style="font-size:9px;color:var(--dim);margin-right:4px">${firstTime}</span>${dots}<span style="font-size:9px;color:var(--dim);margin-left:4px">${lastTime}</span>`;
   }
 
   // Render inline backlog
   const blEl=$('projectBacklog');
   if(blEl){
     fetch('/'+p.file+'?'+Date.now()).then(r=>r.text()).then(blMd=>{
-      blEl.innerHTML=renderBacklogModal(blMd,p.name);
+      blEl.innerHTML=renderBacklogModal(blMd,p.name,projId);
     }).catch(()=>{blEl.innerHTML='<div style="color:var(--dim)">Failed to load backlog</div>'});
   }
 
@@ -1085,9 +1128,64 @@ function connectSSE(){
   es.onerror=()=>{es.close();setTimeout(connectSSE,5000)};
 }
 
+// === Global Search ===
+function onSearch(query){
+  const el=$('searchResults');
+  if(!query||query.length<2){el.classList.remove('open');return}
+  const q=query.toLowerCase();
+  const matches=[];
+  PROJECTS.forEach(p=>{
+    const md=D.backlogs?.[p.id]||'';
+    md.split('\n').forEach(l=>{
+      if(!/^- \[/.test(l))return;
+      if(l.toLowerCase().includes(q)){
+        const text=l.replace(/^- \[[ x~\u2014]\]\s*/,'').replace(/\*\*/g,'').trim();
+        const idMatch=text.match(/^((?:SM|HUNT|ARCH|VT|PORT)-\d+)\s*/i);
+        matches.push({proj:p.name,projId:p.id,color:p.color,id:idMatch?idMatch[1]:'',text:idMatch?text.substring(idMatch[0].length):text});
+      }
+    });
+  });
+  if(!matches.length){el.innerHTML='<div class="search-result"><span style="color:var(--dim)">No results</span></div>';el.classList.add('open');return}
+  el.innerHTML=matches.slice(0,15).map(m=>`<div class="search-result" onclick="navigate('${m.projId}');$('searchInput').value='';$('searchResults').classList.remove('open')"><span class="search-result-proj" style="color:${m.color}">${esc(m.proj)}</span>${m.id?`<span class="search-result-id">${esc(m.id)}</span>`:''}<span class="search-result-text">${esc(m.text.slice(0,80))}</span></div>`).join('');
+  el.classList.add('open');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))$('searchResults')?.classList.remove('open')});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();$('searchInput')?.focus()}});
+
+// === Task Moderation ===
+async function moderate(projId, taskText, action){
+  const btn=event?.target;
+  if(btn)btn.disabled=true;
+  try{
+    const res=await fetch('/api/moderate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,project:projId,task:taskText})});
+    if(res.ok){
+      const row=btn?.closest('.bl-task');
+      if(action==='remove'&&row){row.classList.add('mod-removing');setTimeout(()=>row.remove(),300)}
+      if(action==='keep'&&row){row.querySelectorAll('.bl-source,.mod-actions').forEach(el=>el.remove())}
+    }
+  }catch{}
+}
+
+// === URL Routing ===
+function navigateWithUrl(view){
+  const url=view==='cc'?'/':'/'+view;
+  window.history.pushState({view},'',(url));
+  currentView=view;
+  renderNav();
+  renderView();
+}
+window.addEventListener('popstate',e=>{
+  currentView=e.state?.view||'cc';
+  renderNav();
+  renderView();
+});
+
 // === Init ===
 let booted=false;
 function init(){
+  // Detect initial view from URL
+  const path=window.location.pathname.replace(/^\//,'').replace(/\/$/,'');
+  if(path&&PROJECTS.some(p=>p.id===path))currentView=path;
   renderNav();
   renderView();
   if(!booted){runBoot();booted=true}
