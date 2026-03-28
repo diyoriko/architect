@@ -47,12 +47,12 @@
 ## Sprint 10 (open, 28.03.2026)
 
 ### Epic: DASH — Dashboard Review Improvements
-- [ ] **ARCH-067** Кросс-проектная очередь "Focus Queue" — все P0+P1 задачи из всех проектов в одном view
-- [ ] **ARCH-068** Создание задач из дашборда — кнопка "+" → форма → POST /api/task/create
-- [ ] **ARCH-069** Sprint progress bar + Close Sprint button → автоархивация
-- [ ] **ARCH-070** Change detection — "2 новых задачи в Hunter" при SSE обновлении
-- [ ] **ARCH-071** Markdown рендеринг отчётов агентов вместо raw text
-- [ ] **ARCH-072** Удалить мёртвый CSS (~40 строк) + GSAP → CSS animations
+- [x] **ARCH-067** Focus Queue — кросс-проектная очередь P0+active sprint
+- [x] **ARCH-068** Создание задач — "+" кнопка → форма → POST /api/task/create
+- [x] **ARCH-069** Sprint progress bar в project view
+- [x] **ARCH-070** Change detection — toast notifications при изменениях
+- [x] **ARCH-071** Markdown рендеринг отчётов агентов
+- [x] **ARCH-072** GSAP удалён (42KB) → CSS transitions
 
 ---
 
