@@ -19,7 +19,7 @@ const STATIC_MAP = {
   'sami-BACKLOG.md': join(PROJECTS, 'Sami/BACKLOG.md'),
   'vedic-BACKLOG.md': join(PROJECTS, 'Vedic Turkey/BACKLOG.md'),
   'portfolio-BACKLOG.md': join(PROJECTS, 'Portfolio/BACKLOG.md'),
-  'radar-BACKLOG.md': join(PROJECTS, 'Portfolio/BACKLOG.md'),
+  // Radar has no separate backlog yet — excluded from BACKLOG_IDS
   'architect-BACKLOG.md': join(__dirname, 'BACKLOG.md'),
   'mega-review-BACKLOG.md': join(__dirname, 'mega-review-BACKLOG.md'),
 };
@@ -483,6 +483,40 @@ app.get('/:name', (req, res, next) => {
   }
 
   next();
+});
+
+// POST: complete task ([ ] → [x])
+app.post('/api/task/complete', (req, res) => {
+  const { project, task } = req.body || {};
+  if (!task?.trim() || !project) return res.status(400).json({ error: 'missing task or project' });
+
+  const fileMap = {
+    hunter: join(PROJECTS, 'Hunter/BACKLOG.md'),
+    sami: join(PROJECTS, 'Sami/BACKLOG.md'),
+    vedic: join(PROJECTS, 'Vedic Turkey/BACKLOG.md'),
+    portfolio: join(PROJECTS, 'Portfolio/BACKLOG.md'),
+    architect: join(__dirname, 'BACKLOG.md'),
+  };
+
+  const fpath = fileMap[project];
+  if (!fpath || !existsSync(fpath)) return res.status(404).json({ error: 'project not found' });
+
+  const content = readFileSync(fpath, 'utf-8');
+  const lines = content.split('\n');
+  let found = false;
+  const newLines = lines.map(l => {
+    if (!found && l.includes(task.trim()) && /^- \[ \]/.test(l)) {
+      found = true;
+      return l.replace('- [ ]', '- [x]');
+    }
+    return l;
+  });
+
+  if (found) {
+    writeFileSync(fpath, newLines.join('\n'));
+    return res.json({ ok: true, completed: true });
+  }
+  res.json({ ok: true, completed: false, reason: 'not found' });
 });
 
 // POST: moderate tasks

@@ -293,7 +293,7 @@ body.low-perf .agent-dot.error,body.low-perf .agent-dot.never,body.low-perf .sta
 
   <!-- Search -->
   <div class="search-wrap" style="position:relative">
-    <input class="search-input" id="searchInput" type="text" placeholder="Search tasks... (Ctrl+K)" oninput="onSearch(this.value)" onfocus="onSearch(this.value)">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search tasks... (Ctrl+K)" oninput="onSearchDebounced(this.value)" onfocus="onSearch(this.value)">
     <div class="search-results" id="searchResults"></div>
   </div>
 
@@ -789,8 +789,9 @@ function renderSprintBlock(s, isActive, projId){
 
 function renderTaskList(tasks, projId){
   return tasks.map(t=>{
+    const taskKey=esc((t.id||t.title).replace(/'/g,"\\'").slice(0,60));
     const dot=t.done?`<span class="bl-task-dot" style="color:var(--accent)">\u2713</span>`
-                    :`<span class="bl-task-dot" style="color:var(--dim)">\u25CB</span>`;
+                    :`<span class="bl-task-dot" style="color:var(--dim);cursor:pointer" onclick="event.stopPropagation();completeTask('${projId||''}','${taskKey}')" title="Mark done">\u25CB</span>`;
     const idTag=t.id?`<span class="bl-task-id">${esc(t.id)}</span>`:'';
     const srcTag=t.source?`<span class="bl-source ${t.source}">${t.source}</span>`:'';
     const modBtns=t.source&&!t.done&&projId?`<span class="mod-actions"><button class="mod-btn keep" onclick="event.stopPropagation();moderate('${projId}','${esc(t.title).replace(/'/g,"\\'")}','keep')" title="Keep task, remove source tag">\u2713</button><button class="mod-btn remove" onclick="event.stopPropagation();moderate('${projId}','${esc(t.title).replace(/'/g,"\\'")}','remove')" title="Remove task">\u2715</button></span>`:'';
@@ -801,6 +802,28 @@ function renderTaskList(tasks, projId){
     const cls=t.done?'bl-task done':'bl-task';
     return`<div class="${cls}">${dot}${idTag}<span class="bl-task-text">${esc(t.title)}${srcTag}${modBtns}</span>${allDetail}</div>`;
   }).join('');
+}
+
+// === Render: Process Analysis (Command Center) ===
+function renderProcessCC(){
+  const el=$('processWrapCC');
+  if(!el)return;
+  const pa=D.processAnalysis;
+  if(!pa||(!pa.observations.length&&!pa.actionItems.length&&!pa.weekSummary.length)){
+    el.innerHTML='<div style="color:var(--dim)">Waiting for next Architect report</div>';
+    return;
+  }
+  $('processBadgeCC').textContent=pa.reportDate?ago(pa.reportDate):'--';
+  let html='';
+  if(pa.actionItems.length){
+    html+='<div class="process-label">Action Items</div>';
+    html+=pa.actionItems.map(s=>`<div class="action-item">${esc(s)}</div>`).join('');
+  }
+  if(pa.weekSummary.length){
+    html+='<div class="process-label">Week Summary</div>';
+    html+=pa.weekSummary.map(s=>`<div class="process-item">${esc(s)}</div>`).join('');
+  }
+  el.innerHTML=html;
 }
 
 // === File Viewer Modal ===
@@ -929,7 +952,7 @@ const PROJECT_INFO={
     desc:'Command center + code review + process review.',
     links:[{name:'Dashboard',url:'http://localhost:3333'}],
     stack:['Node.js','Express 5','SSE','launchd'],
-    services:[{name:'Claude Max',cost:'$200/mo',renew:'1st of month'},{name:'Anthropic API',cost:'$5 bal',renew:'prepaid'}],
+    services:[{name:'Claude Max',cost:'$200/mo',renew:'1st of month'}],
     skills:['/simplify','/commit'],
     commands:['/research','/compact','/learn'],
   },
@@ -967,8 +990,8 @@ function renderCommandCenter(){
         <div id="insightsList"></div>
       </div>
       <div class="g-panel" style="flex:1">
-        <div class="sec-head"><h3>Memory Profile</h3><span class="badge" id="memoryBadge">0 FILES</span></div>
-        <div id="profileWrap"></div>
+        <div class="sec-head"><h3>Process Analysis</h3><span class="badge" id="processBadgeCC">ARCHITECT</span></div>
+        <div id="processWrapCC"></div>
       </div>
     </div>
   </div>`;
@@ -976,7 +999,7 @@ function renderCommandCenter(){
   renderProjects();
   renderAlerts();
   renderInsights();
-  renderProfile();
+  renderProcessCC();
 }
 
 function renderProjectView(projId){
@@ -1116,8 +1139,10 @@ function connectSSE(){
     try{
       const msg=JSON.parse(e.data);
       if(msg.type==='update'&&msg.data){
+        const prevHash=JSON.stringify({b:Object.keys(D?.backlogs||{}).map(k=>(D.backlogs[k]||'').length),a:(D?.agents||[]).map(a=>a.status+a.last_run),h:D?.health});
         D=msg.data;
-        renderView();
+        const currHash=JSON.stringify({b:Object.keys(D?.backlogs||{}).map(k=>(D.backlogs[k]||'').length),a:(D?.agents||[]).map(a=>a.status+a.last_run),h:D?.health});
+        if(prevHash!==currHash) renderView();
         const sl=document.getElementById('scanline');
         if(sl&&!lowPerfMode){sl.classList.remove('sweep');void sl.offsetWidth;sl.classList.add('sweep')}
         const topbar=document.querySelector('.topbar');
@@ -1128,7 +1153,9 @@ function connectSSE(){
   es.onerror=()=>{es.close();setTimeout(connectSSE,5000)};
 }
 
-// === Global Search ===
+// === Global Search (debounced) ===
+let searchTimer=null;
+function onSearchDebounced(query){clearTimeout(searchTimer);searchTimer=setTimeout(()=>onSearch(query),200)}
 function onSearch(query){
   const el=$('searchResults');
   if(!query||query.length<2){el.classList.remove('open');return}
@@ -1152,6 +1179,18 @@ function onSearch(query){
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))$('searchResults')?.classList.remove('open')});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();$('searchInput')?.focus()}});
 
+// === Task Completion ===
+async function completeTask(projId, taskIdOrTitle){
+  try{
+    const res=await fetch('/api/task/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project:projId,task:taskIdOrTitle})});
+    if(res.ok){
+      const dot=event?.target;
+      if(dot){dot.textContent='\u2713';dot.style.color='var(--accent)';dot.style.cursor='default';
+        const row=dot.closest('.bl-task');if(row){row.classList.add('done')}}
+    }
+  }catch{}
+}
+
 // === Task Moderation ===
 async function moderate(projId, taskText, action){
   const btn=event?.target;
@@ -1167,13 +1206,6 @@ async function moderate(projId, taskText, action){
 }
 
 // === URL Routing ===
-function navigateWithUrl(view){
-  const url=view==='cc'?'/':'/'+view;
-  window.history.pushState({view},'',(url));
-  currentView=view;
-  renderNav();
-  renderView();
-}
 window.addEventListener('popstate',e=>{
   currentView=e.state?.view||'cc';
   renderNav();
