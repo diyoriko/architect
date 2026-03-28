@@ -219,6 +219,7 @@ function broadcast(data) {
 // === Sweep Cycle ===
 
 let currentData = null;
+let previousData = null;
 let lastSweepTime = null;
 let sweepInProgress = false;
 const startTime = Date.now();
@@ -370,6 +371,20 @@ async function runSweep() {
       },
     };
 
+    // Detect changes
+    const changes = [];
+    if (previousData?.backlogs) {
+      for (const [id, md] of Object.entries(currentData.backlogs)) {
+        const prevOpen = (previousData.backlogs[id] || '').match(/^- \[ \]/gm)?.length || 0;
+        const currOpen = md.match(/^- \[ \]/gm)?.length || 0;
+        const diff = currOpen - prevOpen;
+        if (diff > 0) changes.push({ project: id, type: 'new_tasks', count: diff });
+        if (diff < 0) changes.push({ project: id, type: 'completed', count: -diff });
+      }
+    }
+    currentData.changes = changes;
+    previousData = { backlogs: { ...currentData.backlogs } };
+
     lastSweepTime = currentData.meta.timestamp;
     broadcast({ type: 'update', data: currentData });
 
@@ -406,6 +421,7 @@ app.get('/vedic', serveDashboard);
 app.get('/portfolio', serveDashboard);
 app.get('/radar', serveDashboard);
 app.get('/architect', serveDashboard);
+app.get('/focus', serveDashboard);
 
 // API: current data
 app.get('/api/data', (req, res) => {
@@ -483,6 +499,46 @@ app.get('/:name', (req, res, next) => {
   }
 
   next();
+});
+
+// POST: create task
+app.post('/api/task/create', (req, res) => {
+  const { project, title, priority } = req.body || {};
+  if (!title?.trim() || !project) return res.status(400).json({ error: 'missing title or project' });
+
+  const fileMap = {
+    hunter: join(PROJECTS, 'Hunter/BACKLOG.md'),
+    sami: join(PROJECTS, 'Sami/BACKLOG.md'),
+    vedic: join(PROJECTS, 'Vedic Turkey/BACKLOG.md'),
+    portfolio: join(PROJECTS, 'Portfolio/BACKLOG.md'),
+    architect: join(__dirname, 'BACKLOG.md'),
+  };
+
+  const fpath = fileMap[project];
+  if (!fpath || !existsSync(fpath)) return res.status(404).json({ error: 'project not found' });
+
+  const content = readFileSync(fpath, 'utf-8');
+  const lines = content.split('\n');
+
+  // Find first open sprint section or first ## section
+  let insertIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^## /.test(lines[i]) && !/^## Completed|^## Metadata/i.test(lines[i])) {
+      // Find the end of the header area (skip ### and blank lines)
+      for (let j = i + 1; j < lines.length; j++) {
+        if (/^- \[/.test(lines[j]) || /^$/.test(lines[j])) { insertIdx = j; break; }
+      }
+      if (insertIdx === -1) insertIdx = i + 1;
+      break;
+    }
+  }
+
+  if (insertIdx === -1) insertIdx = lines.length;
+
+  const taskLine = `- [ ] ${title.trim()}`;
+  lines.splice(insertIdx, 0, taskLine);
+  writeFileSync(fpath, lines.join('\n'));
+  res.json({ ok: true, added: true, line: insertIdx });
 });
 
 // POST: complete task ([ ] → [x])

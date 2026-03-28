@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ARCHITECT — Command Center</title>
 <!-- SF fonts are system fonts on macOS, no external loading needed -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<!-- No external JS dependencies -->
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -200,6 +200,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .mod-btn.keep:hover{color:var(--accent);border-color:var(--accent)}
 .mod-removing{opacity:0.3;pointer-events:none;transition:opacity 0.3s}
 
+/* Toast notifications */
+.toast-container{position:fixed;top:60px;right:20px;z-index:200;display:flex;flex-direction:column;gap:6px}
+.toast{font-family:var(--mono);font-size:11px;padding:8px 14px;background:rgba(8,14,24,0.97);border:1px solid var(--accent);color:var(--text);opacity:0;transform:translateX(20px);transition:all 0.3s;max-width:300px}
+.toast.show{opacity:1;transform:none}
+
 /* Sticky headers */
 .sec-head{position:sticky;top:0;background:rgba(8,14,24,0.98);z-index:10;padding-bottom:8px}
 
@@ -285,6 +290,7 @@ body.low-perf .agent-dot.error,body.low-perf .agent-dot.never,body.low-perf .sta
     </div>
     <div class="top-nav" id="navTabs"></div>
     <div class="top-right">
+      <span class="meta-pill" style="cursor:pointer;color:var(--accent);font-weight:700" onclick="openCreateTask()" title="New task">+</span>
       <span class="meta-pill" id="agentCount"></span>
       <span class="meta-pill" id="clock">--:--:--</span>
       <span class="meta-pill perf-pill" id="perfToggle" onclick="togglePerf()">VISUALS FULL</span>
@@ -303,6 +309,30 @@ body.low-perf .agent-dot.error,body.low-perf .agent-dot.never,body.low-perf .sta
   <div class="footer">
     <span id="ftUpd"></span>
     <span>AUTO-REFRESH 60S &middot; SSE</span>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toasts"></div>
+
+<!-- Create Task Modal -->
+<div class="modal-bg" id="createTaskBg" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-h">
+      <span class="modal-title">New Task</span>
+      <button class="modal-close" onclick="$('createTaskBg').classList.remove('open')">&times;</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <select id="ctProject" style="font-family:var(--mono);font-size:12px;padding:8px;background:rgba(8,14,24,0.95);border:1px solid var(--border);color:var(--text)">
+        <option value="hunter">Hunter</option>
+        <option value="sami">SAMI</option>
+        <option value="vedic">Vedic</option>
+        <option value="portfolio">Portfolio</option>
+        <option value="architect">Architect</option>
+      </select>
+      <input id="ctTitle" type="text" placeholder="Task title..." style="font-family:var(--mono);font-size:12px;padding:8px;background:rgba(8,14,24,0.95);border:1px solid var(--border);color:var(--text)">
+      <button onclick="createTask()" style="font-family:var(--mono);font-size:12px;padding:8px 16px;background:var(--accent);color:#000;border:none;cursor:pointer;font-weight:600;letter-spacing:1px">CREATE</button>
+    </div>
   </div>
 </div>
 
@@ -830,10 +860,42 @@ function renderProcessCC(){
 function viewFile(path){
   const short=shortPath(path);
   $('modalTitle').textContent=short;
-  $('modalBody').className='modal-body raw';
-  $('modalBody').textContent='Loading...';
+  $('modalBody').className='modal-body';
+  $('modalBody').innerHTML='<div style="color:var(--dim)">Loading...</div>';
   $('modalBg').classList.add('open');
-  fetch('/view/'+short+'?'+Date.now()).then(r=>r.text()).then(t=>{$('modalBody').textContent=t}).catch(()=>{$('modalBody').textContent='Failed to load file'});
+  fetch('/view/'+short+'?'+Date.now()).then(r=>r.text()).then(md=>{
+    $('modalBody').innerHTML=renderMarkdown(md);
+  }).catch(()=>{$('modalBody').textContent='Failed to load file'});
+}
+
+function renderMarkdown(md){
+  return md.split('\n').map(l=>{
+    // Headers
+    if(/^### /.test(l))return`<div style="font-size:13px;font-weight:700;color:var(--text);margin:14px 0 6px;letter-spacing:0.5px">${esc(l.slice(4))}</div>`;
+    if(/^## /.test(l))return`<div style="font-size:14px;font-weight:700;color:var(--accent2);margin:18px 0 8px;letter-spacing:0.5px;border-bottom:1px solid var(--border);padding-bottom:4px">${esc(l.slice(3))}</div>`;
+    if(/^# /.test(l))return`<div style="font-size:16px;font-weight:800;color:var(--text);margin:0 0 12px;letter-spacing:0.5px">${esc(l.slice(2))}</div>`;
+    // Horizontal rule
+    if(/^---\s*$/.test(l))return'<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">';
+    // List items
+    if(/^- \[x\]/.test(l))return`<div style="color:var(--dim);text-decoration:line-through;padding:2px 0">\u2713 ${esc(l.slice(6))}</div>`;
+    if(/^- \[ \]/.test(l))return`<div style="padding:2px 0">\u25CB ${esc(l.slice(6))}</div>`;
+    if(/^- /.test(l))return`<div style="padding:2px 0">\u2022 ${esc(l.slice(2))}</div>`;
+    if(/^\d+\. /.test(l)){const m=l.match(/^(\d+)\. (.*)/);return`<div style="padding:2px 0">${m[1]}. ${esc(m[2])}</div>`}
+    // Bold
+    let line=esc(l);
+    line=line.replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--text)">$1</strong>');
+    line=line.replace(/`(.+?)`/g,'<code style="color:var(--accent);background:rgba(100,240,200,0.08);padding:1px 4px">$1</code>');
+    // Table rows
+    if(/^\|/.test(l)){
+      const cells=l.split('|').filter(c=>c.trim()).map(c=>c.trim());
+      if(cells.every(c=>/^[-:]+$/.test(c)))return'';
+      return`<div style="display:flex;gap:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04)">${cells.map(c=>`<span style="flex:1;font-size:11px">${esc(c)}</span>`).join('')}</div>`;
+    }
+    // Empty line
+    if(!l.trim())return'<div style="height:8px"></div>';
+    // Regular paragraph
+    return`<div style="padding:2px 0;color:var(--dim)">${line}</div>`;
+  }).join('');
 }
 function closeModal(){$('modalBg').classList.remove('open')}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
@@ -859,34 +921,42 @@ function runBoot(){
   const healthTotal=Object.values(D.health||{}).filter(v=>v!==null).length;
 
   const lines=[
-    {text:'INITIALIZING ARCHITECT v2.0',delay:0},
-    {text:'SCANNING PROJECT DIRECTORIES... <span class="count">'+blKeys+'/5</span> <span class="ok">OK</span>',delay:400},
-    {text:'LOADING AGENT CONFIGS ......... <span class="count">'+agentsTotal+'</span> FOUND',delay:700},
-    {text:'CHECKING HEALTH ENDPOINTS ..... <span class="count">'+healthOk+'/'+healthTotal+'</span> <span class="ok">OK</span>',delay:1000},
-    {text:'PARSING BACKLOGS .............. <span class="count">'+blKeys+'</span> LOADED',delay:1300},
-    {text:'AGENTS ONLINE ................. <span class="count">'+agentsOk+'/'+agentsTotal+'</span> <span class="ok">OK</span>',delay:1600},
+    'INITIALIZING ARCHITECT v2.0',
+    'SCANNING PROJECT DIRECTORIES... <span class="count">'+blKeys+'/5</span> <span class="ok">OK</span>',
+    'LOADING AGENT CONFIGS ......... <span class="count">'+agentsTotal+'</span> FOUND',
+    'CHECKING HEALTH ENDPOINTS ..... <span class="count">'+healthOk+'/'+healthTotal+'</span> <span class="ok">OK</span>',
+    'PARSING BACKLOGS .............. <span class="count">'+blKeys+'</span> LOADED',
+    'AGENTS ONLINE ................. <span class="count">'+agentsOk+'/'+agentsTotal+'</span> <span class="ok">OK</span>',
   ];
 
   const container=$('bootLines');
   $('bootFinal').textContent='DASHBOARD READY';
 
-  const tl=gsap.timeline();
-  tl.to('.logo-ring',{opacity:1,duration:0.6,ease:'power2.out'},0);
-  tl.to(container,{opacity:1,duration:0.3},0.3);
-  lines.forEach(line=>{
-    tl.call(()=>{
-      const div=document.createElement('div');div.innerHTML=line.text;div.style.opacity='0';
-      container.appendChild(div);gsap.to(div,{opacity:1,duration:0.2});
-    },[],line.delay/1000+0.5);
+  // Phase 1: show logo
+  document.querySelector('.logo-ring').style.transition='opacity 0.6s';
+  document.querySelector('.logo-ring').style.opacity='1';
+
+  // Phase 2: boot lines
+  setTimeout(()=>{container.style.transition='opacity 0.3s';container.style.opacity='1'},300);
+  lines.forEach((text,i)=>{
+    setTimeout(()=>{
+      const div=document.createElement('div');div.innerHTML=text;div.style.opacity='0';div.style.transition='opacity 0.2s';
+      container.appendChild(div);requestAnimationFrame(()=>div.style.opacity='1');
+    },500+i*250);
   });
-  tl.to('#bootFinal',{opacity:1,duration:0.4},2.8);
-  tl.to('#boot',{opacity:0,duration:0.5,ease:'power2.in'},3.4);
-  tl.set('#boot',{display:'none'},3.9);
-  tl.to('#bgRadial',{opacity:1,duration:1},3.5);
-  tl.to('#bgGrid',{opacity:1,duration:1.2},3.7);
-  tl.to('#main',{opacity:1,duration:0.6},3.6);
-  tl.call(()=>{const sl=document.getElementById('scanline');if(sl)sl.classList.add('sweep')},[], 3.8);
-  // No element-level stagger — causes opacity bugs on SSE re-render
+
+  // Phase 3: "DASHBOARD READY"
+  setTimeout(()=>{$('bootFinal').style.transition='opacity 0.4s';$('bootFinal').style.opacity='1'},2800);
+
+  // Phase 4: fade out boot, show main
+  setTimeout(()=>{
+    $('boot').style.transition='opacity 0.5s';$('boot').style.opacity='0';
+    $('bgRadial').style.transition='opacity 1s';$('bgRadial').style.opacity='1';
+    $('bgGrid').style.transition='opacity 1.2s';$('bgGrid').style.opacity='1';
+    $('main').style.transition='opacity 0.6s';$('main').style.opacity='1';
+  },3400);
+
+  setTimeout(()=>{$('boot').style.display='none';const sl=$('scanline');if(sl)sl.classList.add('sweep')},3900);
 }
 
 // === Navigation ===
@@ -894,7 +964,7 @@ let currentView='cc'; // 'cc' or project id
 
 function renderNav(){
   const el=$('navTabs');
-  const tabs=[{id:'cc',name:'Command Center'},...PROJECTS.map(p=>({id:p.id,name:p.name}))];
+  const tabs=[{id:'cc',name:'Command Center'},{id:'focus',name:'Focus'},...PROJECTS.map(p=>({id:p.id,name:p.name}))];
   el.innerHTML=tabs.map(t=>`<span class="nav-tab${t.id===currentView?' active':''}" onclick="navigate('${t.id}')">${esc(t.name)}</span>`).join('');
 }
 
@@ -961,9 +1031,65 @@ const PROJECT_INFO={
 // === Render Views ===
 function renderView(){
   if(currentView==='cc') renderCommandCenter();
+  else if(currentView==='focus') renderFocusQueue();
   else renderProjectView(currentView);
   renderGlobalStatus();
   $('ftUpd').textContent='UPDATED '+new Date().toLocaleTimeString('ru-RU',{hour12:false});
+}
+
+function renderFocusQueue(){
+  // Collect all open tasks across all projects, prioritize P0 first
+  const allTasks=[];
+  PROJECTS.forEach(p=>{
+    const md=D.backlogs?.[p.id]||'';
+    const lines=md.split('\n');
+    let inP0=false,inActive=false,sprintName='';
+    for(const l of lines){
+      if(/<details/.test(l)){inActive=false;continue}
+      if(/^## /.test(l)){
+        sprintName=l.replace(/^## /,'').replace(/\*\*/g,'').trim();
+        inActive=/в работе|active|current|open/i.test(l);
+        inP0=false;
+      }
+      if(/^### /.test(l))inP0=/P0|blocker|critical/i.test(l);
+      if(/^- \[ \]/.test(l)){
+        const text=l.replace(/^- \[ \]\s*/,'').replace(/\*\*/g,'').trim();
+        const idMatch=text.match(/^((?:SM|HUNT|ARCH|VT|PORT)-\d+)\s*/i);
+        allTasks.push({proj:p.name,projId:p.id,color:p.color,isP0:inP0,inActive,sprint:sprintName,id:idMatch?idMatch[1]:'',text:idMatch?text.slice(idMatch[0].length):text});
+      }
+    }
+  });
+
+  // Sort: P0 first, then active sprint, then rest
+  allTasks.sort((a,b)=>{
+    if(a.isP0!==b.isP0)return a.isP0?-1:1;
+    if(a.inActive!==b.inActive)return a.inActive?-1:1;
+    return 0;
+  });
+
+  const p0=allTasks.filter(t=>t.isP0);
+  const active=allTasks.filter(t=>!t.isP0&&t.inActive);
+  const rest=allTasks.filter(t=>!t.isP0&&!t.inActive);
+
+  $('content').innerHTML=`<div style="max-width:900px;margin:0 auto;height:100%;overflow-y:auto;padding:0 10px">
+    <div class="g-panel" style="margin-bottom:10px">
+      <div class="sec-head"><h3>Focus Queue</h3><span class="badge">${allTasks.length} TASKS ACROSS ${PROJECTS.length} PROJECTS</span></div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:12px">All open tasks, sorted by priority. P0 first, then active sprint, then backlog.</div>
+      ${p0.length?`<div class="bl-sprint-head active" style="color:var(--danger)">P0 / CRITICAL <span class="stats">${p0.length} tasks</span></div>`+p0.map(t=>focusTaskRow(t)).join(''):''}
+      ${active.length?`<div class="bl-sprint-head active">ACTIVE SPRINTS <span class="stats">${active.length} tasks</span></div>`+active.map(t=>focusTaskRow(t)).join(''):''}
+      ${rest.length?`<div class="bl-sprint-head" style="color:var(--dim)">BACKLOG <span class="stats">${rest.length} tasks</span></div>`+rest.slice(0,30).map(t=>focusTaskRow(t)).join('')+(rest.length>30?`<div style="padding:8px;font-size:11px;color:var(--dim)">+${rest.length-30} more...</div>`:''):''}
+    </div>
+  </div>`;
+}
+
+function focusTaskRow(t){
+  return`<div class="bl-task" style="display:flex;align-items:baseline;gap:8px">
+    <span class="bl-task-dot" style="color:var(--dim);cursor:pointer" onclick="event.stopPropagation();completeTask('${t.projId}','${esc((t.id||t.text).replace(/'/g,"\\'").slice(0,60))}')">\u25CB</span>
+    <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:${t.color};min-width:55px;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer" onclick="navigate('${t.projId}')">${esc(t.proj)}</span>
+    ${t.id?`<span class="bl-task-id">${esc(t.id)}</span>`:''}
+    <span class="bl-task-text" style="flex:1">${esc(t.text)}</span>
+    ${t.isP0?'<span style="font-size:9px;color:var(--danger);border:1px solid rgba(255,95,99,0.3);padding:1px 5px">P0</span>':''}
+  </div>`;
 }
 
 function renderCommandCenter(){
@@ -1044,6 +1170,10 @@ function renderProjectView(projId){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px">
           <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:var(--text)">${s.open}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Open</div></div>
           <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:var(--accent)">${s.done}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Done</div></div>
+        </div>
+        <div style="margin-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:4px"><span>Sprint Progress</span><span>${s.open+s.done>0?Math.round(s.done/(s.open+s.done)*100):0}%</span></div>
+          <div style="height:4px;background:var(--border);overflow:hidden"><div style="height:100%;background:var(--accent);width:${s.open+s.done>0?Math.round(s.done/(s.open+s.done)*100):0}%;transition:width 0.5s"></div></div>
           <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:${s.p0?'var(--danger)':'var(--dim)'}">${s.p0}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">P0</div></div>
           <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--${healthCls||'dim'})">${healthTxt}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Health</div><div id="healthDots" style="margin-top:6px;display:flex;justify-content:center;gap:2px;flex-wrap:wrap"></div></div>
         </div>
@@ -1143,6 +1273,14 @@ function connectSSE(){
         D=msg.data;
         const currHash=JSON.stringify({b:Object.keys(D?.backlogs||{}).map(k=>(D.backlogs[k]||'').length),a:(D?.agents||[]).map(a=>a.status+a.last_run),h:D?.health});
         if(prevHash!==currHash) renderView();
+        // Show change notifications
+        if(D.changes?.length){
+          D.changes.forEach(c=>{
+            const p=PROJECTS.find(x=>x.id===c.project);
+            const msg=c.type==='new_tasks'?`+${c.count} new task${c.count>1?'s':''}`:`${c.count} task${c.count>1?'s':''} completed`;
+            showToast(`${p?.name||c.project}: ${msg}`);
+          });
+        }
         const sl=document.getElementById('scanline');
         if(sl&&!lowPerfMode){sl.classList.remove('sweep');void sl.offsetWidth;sl.classList.add('sweep')}
         const topbar=document.querySelector('.topbar');
@@ -1178,6 +1316,33 @@ function onSearch(query){
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))$('searchResults')?.classList.remove('open')});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();$('searchInput')?.focus()}});
+
+// === Toast Notifications ===
+function showToast(msg){
+  const container=$('toasts');
+  const el=document.createElement('div');el.className='toast';el.textContent=msg;
+  container.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),300)},4000);
+}
+
+// === Task Creation ===
+function openCreateTask(){
+  const projSel=$('ctProject');
+  if(currentView!=='cc'&&PROJECTS.some(p=>p.id===currentView))projSel.value=currentView;
+  $('ctTitle').value='';
+  $('createTaskBg').classList.add('open');
+  setTimeout(()=>$('ctTitle').focus(),100);
+}
+async function createTask(){
+  const proj=$('ctProject').value;
+  const title=$('ctTitle').value.trim();
+  if(!title)return;
+  try{
+    const res=await fetch('/api/task/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project:proj,title})});
+    if(res.ok){$('createTaskBg').classList.remove('open');renderView()}
+  }catch{}
+}
 
 // === Task Completion ===
 async function completeTask(projId, taskIdOrTitle){

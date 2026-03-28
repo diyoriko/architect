@@ -39,10 +39,52 @@
 - [x] **ARCH-064** 11 проектов — дизайн-архивы, не мусор. HSE (8GB) + Osme (6GB) — кандидаты на внешний диск
 
 ### Epic: RELIABILITY — Railway crash emails
-- [ ] **ARCH-065** Railway crash-при-деплое — SAMI "Deploy Crashed" emails приходят часто. Диагностика: graceful shutdown, health check timing, build errors. Настроить Railway health checks правильно
-- [ ] **ARCH-066** Мониторинг Railway — добавить health check polling в дашборд с историей (up/down/restart events)
+- [x] **ARCH-065** Railway graceful shutdown — 8s force-exit timer в SAMI + Hunter. bot.stop() больше не блокирует дольше 10s
+- [x] **ARCH-066** Health history в дашборде — 60 точек (1 час), dot timeline в project view
 
 ---
+
+## Sprint 10 (open, 28.03.2026)
+
+### Epic: DASH — Dashboard Review Improvements
+- [ ] **ARCH-067** Кросс-проектная очередь "Focus Queue" — все P0+P1 задачи из всех проектов в одном view
+- [ ] **ARCH-068** Создание задач из дашборда — кнопка "+" → форма → POST /api/task/create
+- [ ] **ARCH-069** Sprint progress bar + Close Sprint button → автоархивация
+- [ ] **ARCH-070** Change detection — "2 новых задачи в Hunter" при SSE обновлении
+- [ ] **ARCH-071** Markdown рендеринг отчётов агентов вместо raw text
+- [ ] **ARCH-072** Удалить мёртвый CSS (~40 строк) + GSAP → CSS animations
+
+---
+
+## Completed — Sprint 9 (28.03.2026)
+
+<details><summary>23 задачи — развернуть</summary>
+
+- [x] **ARCH-043** Dashboard redesign — Crucix-style, Express+SSE
+- [x] **ARCH-044** Dashboard: полезная сводка
+- [x] **ARCH-045** Dashboard: mobile — won't do, desktop only
+- [x] **ARCH-046** Claude CLI timeout — false alarm
+- [x] **ARCH-048** → перенесено в Vedic бэклог
+- [x] **ARCH-049** → перенесено в Vedic бэклог
+- [x] **ARCH-050** → уже в Hunter бэклоге
+- [x] **ARCH-051** Architect: git push dashboard v2
+- [x] **ARCH-052** Hunter: git push + перенос файлов
+- [x] **ARCH-053** Sami: git push + перенос файлов
+- [x] **ARCH-054** Vedic: закоммитить + push
+- [x] **ARCH-055** Sami: COMMUNITY_TASKS.md → BACKLOG.md
+- [x] **ARCH-056** Sami: symlink → local dir
+- [x] **ARCH-057** Architect .gitignore
+- [x] **ARCH-058** Hunter .gitignore
+- [x] **ARCH-059** Vedic .gitignore — OK
+- [x] **ARCH-060** Radar Telegram — notify-bot-token
+- [x] **ARCH-061** README.md × 4
+- [x] **ARCH-062** Architect: agents → agents/
+- [x] **ARCH-063** Portfolio: orphan dirs → _archive/
+- [x] **ARCH-064** 11 проектов — дизайн-архивы
+- [x] **ARCH-065** Railway graceful shutdown fix
+- [x] **ARCH-066** Health history в дашборде
+
+</details>
 
 ## Completed — Sprint 7 (23.03.2026, commit 118619c)
 
