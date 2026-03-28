@@ -982,7 +982,7 @@ function renderProjectView(projId){
           <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:var(--text)">${s.open}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Open</div></div>
           <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:var(--accent)">${s.done}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Done</div></div>
           <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:800;color:${s.p0?'var(--danger)':'var(--dim)'}">${s.p0}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">P0</div></div>
-          <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--${healthCls||'dim'})">${healthTxt}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Health</div></div>
+          <div style="padding:10px;text-align:center"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--${healthCls||'dim'})">${healthTxt}</div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px">Health</div><div id="healthDots" style="margin-top:6px;display:flex;justify-content:center;gap:2px;flex-wrap:wrap"></div></div>
         </div>
       </div>
       ${info.stack?.length?`<div class="g-panel">
@@ -1019,6 +1019,17 @@ function renderProjectView(projId){
       ${pa?`<div class="g-panel" style="overflow-y:auto;max-height:30vh"><div class="sec-head"><h3>Process Analysis</h3><span class="badge">${pa.reportDate?ago(pa.reportDate):''}</span></div><div id="processWrap"></div></div>`:''}
     </div>
   </div>`;
+
+  // Render health history dots
+  const dotsEl=$('healthDots');
+  if(dotsEl&&D.healthHistory?.length){
+    dotsEl.innerHTML=D.healthHistory.map(h=>{
+      const ok=h.results?.[projId];
+      const c=ok===true?'var(--accent)':ok===false?'var(--danger)':'var(--dim)';
+      const t=h.timestamp?.slice(11,16)||'';
+      return`<span title="${t}" style="width:4px;height:12px;background:${c};opacity:0.8"></span>`;
+    }).join('');
+  }
 
   // Render inline backlog
   const blEl=$('projectBacklog');

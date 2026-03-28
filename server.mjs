@@ -222,6 +222,8 @@ let currentData = null;
 let lastSweepTime = null;
 let sweepInProgress = false;
 const startTime = Date.now();
+const healthHistory = []; // [{timestamp, results:{hunter:true, sami:false, ...}}]
+const MAX_HEALTH_HISTORY = 60; // 1 hour at 60s intervals
 
 const PROJECT_DEFS = [
   { id: 'hunter', name: 'Hunter', color: '#00e676', health: 'https://hunter-production-0b65.up.railway.app/' },
@@ -300,6 +302,10 @@ async function runSweep() {
       healthResults[p.id] = await checkHealth(p.health);
     }));
 
+    // Record health history
+    healthHistory.push({ timestamp: new Date().toISOString(), results: { ...healthResults } });
+    if (healthHistory.length > MAX_HEALTH_HISTORY) healthHistory.shift();
+
     const agentsOk = agents.filter(a => a.status === 'ok').length;
 
     // 6. Process Analysis from latest Architect report
@@ -355,6 +361,7 @@ async function runSweep() {
       projects: PROJECT_DEFS,
       processAnalysis,
       userProfile,
+      healthHistory,
       meta: {
         timestamp: new Date().toISOString(),
         sweepMs: Date.now() - sweepStart,
